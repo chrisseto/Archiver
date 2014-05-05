@@ -1,0 +1,63 @@
+{
+    "Node": {
+        "Metadata": {
+            "Title": "Example Project",
+            "Description": "",
+            "Contributors": [
+                "John Smith"
+            ]
+        },
+        "Addons": [
+            {
+                "GitHub": {
+
+                }
+            },
+            {
+                "S3": {
+
+                }
+
+            },
+            {
+                "OSFFiles": {
+
+                }
+            }
+        ],
+        "Children": [
+            {
+                "Node": {
+                    "Metadata": {
+                        "Title": "Example Project",
+                        "Description": "",
+                        "Contributors": [
+                            "John Smith"
+                        ]
+                    },
+                    "Children": [
+
+                    ],
+                    "Addons": [
+                        {
+                            "GitHub": {
+
+                            }
+                        },
+                        {
+                            "S3": {
+
+                            }
+
+                        },
+                        {
+                            "OSFFiles": {
+
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
