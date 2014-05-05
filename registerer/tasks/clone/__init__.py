@@ -3,6 +3,8 @@ import sys
 import json
 import logging
 
+from git import Git
+
 from .exceptions import *
 
 
@@ -44,12 +46,13 @@ def _clone_github(data):
     clone_url = 'https://{token}@github.com/{user}/{repo}.git'
     try:
         token = data['access_token']
-        repo = data['repo']
+        repo_name = 'github/{}'.format(data['repo'])
         user = data['user']
         url = clone_url(token=token, user=user, repo=repo)
         os.mkdir(repo_name)
-        #init dir
-        #pull url
+        g = Git(repo_name)
+        g.init()
+        g.execute(['git', 'pull', url])
         logger.info('Finished cloning github addon for {}')
     except KeyError as e:
         raise AddonCloningError(e.reason)
