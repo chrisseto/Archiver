@@ -1,9 +1,16 @@
 import os
 import sys
 import json
+import logging
+
+from .exceptions import *
+
+
+logger = logging.getLogger(__name__)
 
 
 def begin_clone(node):
+    logger.info('Being cloning of "{}"'.format(node['metadata']['title']))
     os.mkdir(node['metadata']['title'])
     os.chdir(node['metadata']['title'])
 
@@ -39,24 +46,12 @@ def _clone_github(data):
     clone_url = 'https://{token}@github.com/{user}/{repo}.git'
     try:
         token = data['access_token']
-        repo_name = data['repo']
-
+        repo = data['repo']
+        user = data['user']
+        url = clone_url(token=token, user=user, repo=repo)
         os.mkdir(repo_name)
-
+        #init dir
+        #pull url
+        logger.info('Finished cloning github addon for {}')
     except KeyError as e:
         raise AddonCloningError(e.reason)
-
-
-class CloningError(Exception):
-    def __init__(self, reason):
-        self.reason = reason
-        self.status_code = 400
-
-    def to_dict(self):
-        return {
-            'message': self.reason
-        }
-
-
-class AddonCloningError(CloningError):
-    pass
