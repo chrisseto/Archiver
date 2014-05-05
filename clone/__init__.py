@@ -10,17 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 def begin_clone(node):
-    logger.info('Being cloning of "{}"'.format(node['metadata']['title']))
-    os.mkdir(node['metadata']['title'])
-    os.chdir(node['metadata']['title'])
-
-    node['metadata']['registered_on'] = 'Datetimenow'
+    logger.info('Being cloning of "{}"'.format(node.title))
+    os.mkdir(node.title)
+    os.chdir(node.title)
 
     with open('metadata.json', 'w+') as metadata:
         metadata.write(json.dumps(node['metadata']))
 
-    clone_addons(node['addons'])
-    begin_clone('children')
+    clone_addons(node.addons)
+    begin_clone(node.children)
 
 
 def clone_addons(addons):

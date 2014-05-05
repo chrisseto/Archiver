@@ -1,21 +1,28 @@
+import logging
 import httplib as http
 
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, jsonify
 
-from validator import validate_project, ValidationError
+from foreman import push_task
+from datatypes import Node
+from validation import ValidationError
 
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
 
 @app.route('/', methods=['POST', 'PUT'])
 def begin_register():
-    if request.json and validate_project(request.json):
-        return 'Good job'
+    if request.json:
+        node = Node.from_json(request.json)
+        if node:
+            push_task(node)
+            return node.id, http.CREATED
     raise ValidationError('no data')
 
 
-@app.errorhandler(ValidationError)
-def handle_validation_error(error):
+@app.errorhandler(Exception)
+def handle_exception(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response

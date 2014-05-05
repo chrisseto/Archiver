@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .. import validator
 
 
@@ -20,11 +22,13 @@ class Node(object):
         for child in children:
             self.children.append(Node.from_json(child))
         self.addons = addons
+        self.registered_on = datetime.now()
 
     def metadata(self):
         return {
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'contributors': self.contributors
+            'contributors': self.contributors,
+            'registered_on': self.registered_on
         }
