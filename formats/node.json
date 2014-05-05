@@ -1,0 +1,64 @@
+{
+    "node": {
+        "metadata": {
+            "id":"",
+            "title": "",
+            "description": "",
+            "contributors": [
+                ""
+            ]
+        },
+        "addons": [
+            {
+                "github": {
+
+                }
+            },
+            {
+                "s3": {
+
+                }
+
+            },
+            {
+                "osffiles": {
+
+                }
+            }
+        ],
+        "children": [
+            {
+                "node": {
+                    "metadata": {
+                        "title": "",
+                        "description": "",
+                        "contributors": [
+                            ""
+                        ]
+                    },
+                    "children": [
+
+                    ],
+                    "addons": [
+                        {
+                            "github": {
+
+                            }
+                        },
+                        {
+                            "s3": {
+
+                            }
+
+                        },
+                        {
+                            "osffiles": {
+
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
