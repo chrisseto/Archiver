@@ -3,10 +3,13 @@ import sys
 import json
 import logging
 
+import celery
+
 from git import Git
 
 from .exceptions import *
 
+queue = celery.current_app
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +31,7 @@ def clone_addons(addons):
         clone_addon(addon, blob)
 
 
+@queue.task(serializer='json')
 def clone_addon(addon, data):
     cloner = _get_cloner(addon)
     if cloner:
@@ -54,5 +58,5 @@ def _clone_github(data):
         g.init()
         g.execute(['git', 'pull', url])
         logger.info('Finished cloning github addon for {}')
-    except KeyError as e:
-        raise AddonCloningError(e.reason)
+    except Exception:
+        raise AddonCloningError('')

@@ -1,2 +1,5 @@
 flask
 celery
+invoke
+gitpython
+boto

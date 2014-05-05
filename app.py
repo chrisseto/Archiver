@@ -3,9 +3,9 @@ import httplib as http
 
 from flask import Flask, request, jsonify
 
-from foreman import push_task
-from datatypes import Node
-from validation import ValidationError
+from registerer import foreman
+from registerer.datatypes import Node
+from registerer.validation import ValidationError
 
 app = Flask(__name__)
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ def begin_register():
     if request.json:
         node = Node.from_json(request.json)
         if node:
-            push_task(node)
+            foreman.push_task(node)
             return node.id, http.CREATED
     raise ValidationError('no data')
 
