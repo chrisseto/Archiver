@@ -1,0 +1,39 @@
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "precise/docker"
+  config.vm.box_url = "http://nitron-vagrant.s3-website-us-east-1.amazonaws.com/vagrant_ubuntu_12.04.3_amd64_virtualbox.box"
+
+  config.vm.provision "docker" do |d|
+
+  d.pull_images "mikaelhg/docker-rabbitmq"
+    d.run "mikaelhg/docker-rabbitmq",
+      args: "-h rabbithost --name rabbitmq -i -t -p 5672:5672 -p 15672:15672"
+
+    d.build_image "/vagrant/celeryworker",
+      args: '-t "celeryworker"'
+
+    5.times do |n|
+      d.run 'worker%d' % (n+1),
+        args: '-i -t --link rabbitmq:service -h worker%d' % (n+1),
+        image: 'celeryworker',
+        daemonize: true
+    end
+
+  end
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 1024
+  end
+
+  #RabbitMQ
+  config.vm.network :forwarded_port, guest: 15672, host: 15672,  auto_correct: true
+  config.vm.network :forwarded_port, guest: 4369,  host: 4369,   auto_correct: true
+  config.vm.network :forwarded_port, guest: 5672,  host: 5672,   auto_correct: true
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  config.vm.network :private_network, ip: "192.168.33.10"
+end
