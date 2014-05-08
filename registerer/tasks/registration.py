@@ -14,8 +14,8 @@ queue = celery.current_app
 logger = logging.getLogger(__name__)
 
 
-def begin_clone(node):
-    logger.info('Being cloning of "{}"'.format(node.title))
+def create_registration(node):
+    logger.info('Being registering of "{}"'.format(node.title))
     os.mkdir(node.title)
     os.chdir(node.title)
 
@@ -26,7 +26,7 @@ def begin_clone(node):
     begin_clone(node.children)
 
 
-def clone_addons(addons):
+def register_addons(addons):
     for addon, blob in addons.items():
         clone_addon(addon, blob)
 

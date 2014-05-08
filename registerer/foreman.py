@@ -2,11 +2,12 @@
 foreman.py
 a module for passing tasks to celery workers
 """
-from celery import Celery
+import httplib as http
+from flask import jsonify
 
-from settings import QUEUE_NAME, RABBITMQ_ADDRESS
+from datetime import datetime
 
-celery = Celery(QUEUE_NAME, ampq=RABBITMQ_ADDRESS, backend='amqp')
+from tasks.management import register
 
 
 #  TODO
@@ -15,12 +16,29 @@ celery = Celery(QUEUE_NAME, ampq=RABBITMQ_ADDRESS, backend='amqp')
 #   call partition task
 #       partition just splits into more jobs
 def push_task(node):
-    pass
+    ret = {
+        'id': node.id,
+        'date': datetime.now()
+    }
+
+    try:
+        task = register.delay(node)
+
+        ret.update({
+            'status': 'SUCCESS',
+            'tid': task.id
+        })
+
+        ret = jsonify({'response': ret})
+        ret.status_code = http.CREATED
+
+    except Exception:
+        ret.update({'status': 'ERROR'})
+        ret = jsonify({'response': ret})
+        ret.status_code = http.INTERNAL_SERVER_ERROR
+
+    return ret
 
 
-def partition_task(node):
-    pass
 
 
-def queue_task(task, **kwargs):
-    pass
