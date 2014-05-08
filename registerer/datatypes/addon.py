@@ -7,7 +7,7 @@ class Addon(object):
 
     @classmethod
     def from_json(cls, json):
-        if validator.validate_project(json):
+        if validator.validate_addon(json):
             data = json['node']['addons']
             return cls(data['github'], data['S3'],
                 data['osffiles'], raw=data)
