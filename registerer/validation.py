@@ -11,7 +11,7 @@ def _validate_project(node):
     try:
         if _validate_metadata(node['metadata']):
             for child in node['children']:
-                if not _validate_project(child):
+                if not _validate_project(child['node']):
                     raise ValidationError('bad child')
             for addon in node['addons']:
                 if not _validate_addon(addon):

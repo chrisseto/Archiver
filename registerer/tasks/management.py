@@ -5,7 +5,7 @@ from registerer.tasks.registration import create_registration, register_addon
 
 @celery.task
 def register(node):
-    create_registration.apply_async((node,), link=partition_task.s())
+    create_registration.apply_async([node], link=partition_task.s())
 
 
 @celery.task

@@ -1,4 +1,5 @@
 import os
+import errno
 
 
 class Addon(object):
@@ -7,13 +8,17 @@ class Addon(object):
         self.addon, self.raw_json = json.items()[0]
         self.parent = parent
 
-    @property
-    def path(self):
-        #note addons will have to each append their id to the end of the path
-        # ie bucket name, repo name etc
-        return os.path.join(self.parent.path, 'addons', 'self.addon')
+    def path(self, extra):
+        return os.path.join(self.parent.path, 'addons', self.addon, extra) + os.sep
 
-    def __get__(self, key):
+    def make_dir(self, extra):
+        try:
+            os.makedirs(self.path(extra))
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+    def __getitem__(self, key):
         return self.raw_json[key]
 
     # @classmethod
