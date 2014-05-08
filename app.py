@@ -16,8 +16,7 @@ def begin_register():
     if request.json:
         node = Node.from_json(request.json)
         if node:
-            foreman.push_task(node)
-            return node.id, http.CREATED
+            return foreman.push_task(node)
     raise ValidationError('no data')
 
 
