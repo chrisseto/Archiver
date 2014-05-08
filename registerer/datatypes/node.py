@@ -1,28 +1,42 @@
+import os
 from datetime import datetime
 
-from .. import validator
+from .addon import Addon
+from .. import validation
 
 
 class Node(object):
 
     @classmethod
     def from_json(cls, json):
-        if validator.validate_project(json):
+        if validation.validate_project(json):
             data = json['node']
-            return cls(data['metadata']['title'], data['metadata']['title'],
-                data['metadata']['description'], data['contributors'], data['addons'], raw=data)
+            return cls(data['metadata']['id'], data['metadata']['title'],
+                data['metadata']['description'], data['metadata']['contributors'], data['children'], data['addons'], raw=data)
 
-    def __init__(self, id, title, description, contributors, children, addons, raw=None):
+    def __init__(self, id, title, description, contributors, children, addons, raw=None, parent=None):
         self.raw_json = raw
+        self.parent = parent
         self.id = id
         self.title = title
         self.description = description
         self.contributors = contributors
+
         self.children = []
         for child in children:
             self.children.append(Node.from_json(child))
-        self.addons = addons
+
+        self.addons = []
+        for addon in addons:
+            self.addons.append(Addon(addon, self))
+
         self.registered_on = datetime.now()
+
+    @property
+    def path(self):
+        if self.parent:
+            return os.path.join(self.parent.path, 'children', self.id) + os.sep
+        return os.path.join(self.id) + os.sep
 
     def metadata(self):
         return {
@@ -30,5 +44,5 @@ class Node(object):
             'title': self.title,
             'description': self.description,
             'contributors': self.contributors,
-            'registered_on': self.registered_on
+            'registered_on': str(self.registered_on)
         }

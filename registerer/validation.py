@@ -1,6 +1,10 @@
 def validate_project(data):
-    if data['node']:
-        return _validate_project(data['node'])
+    try:
+        if data['node']:
+            return _validate_project(data['node'])
+    except KeyError:
+        pass
+    raise ValidationError('missing node segment')
 
 
 def _validate_project(node):
@@ -15,7 +19,7 @@ def _validate_project(node):
             return True
     except KeyError as e:
         raise ValidationError('malformed data')
-    raise ValidationError('')
+    raise ValidationError('improperly formatted data')
 
 
 def _validate_metadata(data):

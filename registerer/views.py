@@ -10,8 +10,9 @@ rest = Blueprint('register', __name__)
 
 @rest.route('/', methods=['POST', 'PUT'])
 def begin_register():
-    if request.json:
-        node = Node.from_json(request.json)
+    json = request.get_json(force=True)
+    if json:
+        node = Node.from_json(json)
         # Node should always be defined otherwise a
         # validation error will be raised by from_json
         if node:

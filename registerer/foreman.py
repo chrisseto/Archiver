@@ -5,8 +5,6 @@ a module for passing tasks to celery workers
 import httplib as http
 from flask import jsonify
 
-from datetime import datetime
-
 from tasks.management import register
 
 
@@ -18,15 +16,14 @@ from tasks.management import register
 def push_task(node):
     ret = {
         'id': node.id,
-        'date': datetime.now()
+        'date': node.registered_on
     }
 
     try:
-        task = register.delay(node)
+        register.delay(node)
 
         ret.update({
             'status': 'SUCCESS',
-            'tid': task.id
         })
 
         ret = jsonify({'response': ret})

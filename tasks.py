@@ -13,7 +13,7 @@ def build_worker():
 
 @task
 def worker():
-    run('celery -A registerer.celery worker -I registerer.tasks')
+    run('celery -A registerer.celery worker -I registerer.tasks --loglevel=INFO')
 
 
 @task
@@ -24,3 +24,8 @@ def docker_worker():
 @task
 def notebook():
     run('ipython notebook Tasking.ipynb')
+
+
+@task
+def flower():
+    run('celery -A registerer.celery flower')
