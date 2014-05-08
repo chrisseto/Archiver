@@ -19,3 +19,8 @@ def worker():
 @task
 def docker_worker():
     run('celery -A registerer.celery worker -I registerer.tasks -b $SERVICE_PORT_5672_TCP_ADDR')
+
+
+@task
+def notebook():
+    run('ipython notebook Tasking.ipynb')
