@@ -42,19 +42,19 @@ def _clone_github(addon):
     #Note: Use git init and git pull
     # git clone will copy the key to .git/config
     clone_url = 'https://{token}@github.com/{user}/{repo}.git'
-    # try:
-    token = addon['access_token']
-    user = addon['user']
-    repo = addon['repo']
+    try:
+        token = addon['access_token']
+        user = addon['user']
+        repo = addon['repo']
 
-    addon.make_dir(repo)
-    url = clone_url.format(token=token, user=user, repo=repo)
-    g = Git(addon.path(repo))
-    g.init()
-    g.execute(['git', 'pull', url])
-    logger.info('Finished cloning github addon for {}')
+        addon.make_dir(repo)
+        url = clone_url.format(token=token, user=user, repo=repo)
+        g = Git(addon.path(repo))
+        g.init()
+        g.execute(['git', 'pull', url])
+        logger.info('Finished cloning github addon for {}')
 
-    push_directory(addon.path(repo))
+        push_directory(addon.path(repo))
 
-    # except Exception:
-    #     raise AddonCloningError('')
+    except Exception:
+        raise AddonCloningError('')
