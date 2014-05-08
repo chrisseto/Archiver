@@ -38,7 +38,3 @@ def push_task(node):
         ret.status_code = http.INTERNAL_SERVER_ERROR
 
     return ret
-
-
-
-

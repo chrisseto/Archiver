@@ -3,36 +3,30 @@ import sys
 import json
 import logging
 
-import celery
-
 from git import Git
 
-from .exceptions import *
-
-queue = celery.current_app
+from registerer import celery
+from registerer.backend.storage import push_directory
+from registerer.tasks.exceptions import *
 
 logger = logging.getLogger(__name__)
 
 
+@celery.task
 def create_registration(node):
     logger.info('Being registering of "{}"'.format(node.title))
     os.mkdir(node.title)
-    os.chdir(node.title)
 
-    with open('metadata.json', 'w+') as metadata:
+    with open('{}/metadata.json'.format(node.title), 'w+') as metadata:
         metadata.write(json.dumps(node['metadata']))
 
-    clone_addons(node.addons)
-    begin_clone(node.children)
+    push_directory(node.title)
+
+    return node
 
 
-def register_addons(addons):
-    for addon, blob in addons.items():
-        clone_addon(addon, blob)
-
-
-@queue.task(serializer='json')
-def clone_addon(addon, data):
+@celery.task(serializer='json')
+def register_addon(addon, data):
     cloner = _get_cloner(addon)
     if cloner:
         cloner(data)
