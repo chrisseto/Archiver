@@ -7,7 +7,7 @@ Nothing works!
 * Server sends [properly formatted json](formats/node.json)
 * Json is parsed by flask app
 * Job is passed to foreman
-* 206 (created) and the node id are sent back to the server
+* 201 (created) and the node id are sent back to the server
 * foreman begins the archival process
     - adds into the database?
 * Project is chunked up even more
