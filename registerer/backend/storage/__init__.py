@@ -8,11 +8,11 @@ Implements four (4) methods:
     get_directory
     get_file
 """
+from . import s3
+
+push_directory = s3.sync_directory
+push_file = s3.sync_file
 
 
-def push_directory(dir):
-    pass
-
-
-def push_file(dir):
+def clean_directory(dir):
     pass

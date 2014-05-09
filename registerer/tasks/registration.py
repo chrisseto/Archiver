@@ -6,6 +6,7 @@ from git import Git
 
 from registerer import celery
 from registerer.backend.storage import push_directory
+from registerer.tasks.callbacks import *
 from registerer.tasks.exceptions import *
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ def register_addon(addon):
     cloner = _get_cloner(addon.addon)
     if cloner:
         cloner(addon)
+    check_completion.delay(addon.parent.id)
     #Log error here
 
 

@@ -1,5 +1,12 @@
 QUEUE_NAME = 'celeryq'
 RABBITMQ_ADDRESS = 'amqp://guest:guest@192.168.33.10//'
 
+#### FILE STORAGE OPTIONS ####
+USE_S3 = True
+ACCESS_KEY = 'CHANGEME'
+SECRET_KEY = 'CHANGEME'
+BUCKET_NAME = 'CHANGEME'
+
 #### CELERY OPTIONS ####
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
