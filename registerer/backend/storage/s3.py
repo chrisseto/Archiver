@@ -8,7 +8,7 @@ needs to export methods with a signature of:
 import os
 import logging
 
-from boto.s3.connection import S3Connection, Key
+from boto.s3.connection import S3Connection
 
 from registerer.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
 
