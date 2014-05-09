@@ -43,6 +43,10 @@ class Node(object):
         return os.path.join(self.id) + os.sep
 
     @property
+    def is_child(self):
+        return self.parent is not None
+
+    @property
     def full_path(self):
         return os.path.join(self.TEMP_DIR, self.path)
 

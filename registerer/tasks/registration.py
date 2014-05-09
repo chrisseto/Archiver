@@ -31,7 +31,6 @@ def register_addon(addon):
     cloner = _get_cloner(addon.addon)
     if cloner:
         cloner(addon)
-    check_completion.delay(addon.parent.id)
     #Log error here
 
 
