@@ -18,10 +18,10 @@ def create_registration(node):
 
     node.make_dir()
 
-    with open('{}metadata.json'.format(node.path), 'w+') as metadata:
+    with open('{}metadata.json'.format(node.full_path), 'w+') as metadata:
         metadata.write(json.dumps(node.metadata()))
 
-    push_directory(node.path)
+    push_directory(node.full_path, node.path)
 
     return node
 
@@ -44,19 +44,16 @@ def _clone_github(addon):
     #Note: Use git init and git pull
     # git clone will copy the key to .git/config
     clone_url = 'https://{token}@github.com/{user}/{repo}.git'
-    try:
-        token = addon['access_token']
-        user = addon['user']
-        repo = addon['repo']
 
-        addon.make_dir(repo)
-        url = clone_url.format(token=token, user=user, repo=repo)
-        g = Git(addon.path(repo))
-        g.init()
-        g.execute(['git', 'pull', url])
-        logger.info('Finished cloning github addon for {}')
+    token = addon['access_token']
+    user = addon['user']
+    repo = addon['repo']
 
-        push_directory(addon.path(repo))
+    addon.make_dir(repo)
+    url = clone_url.format(token=token, user=user, repo=repo)
+    g = Git(addon.full_path(repo))
+    g.init()
+    g.execute(['git', 'pull', url])
+    logger.info('Finished cloning github addon for {}')
 
-    except Exception:
-        raise AddonCloningError('')
+    push_directory(addon.full_path(repo), addon.path(repo))

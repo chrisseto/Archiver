@@ -11,9 +11,12 @@ class Addon(object):
     def path(self, extra):
         return os.path.join(self.parent.path, 'addons', self.addon, extra) + os.sep
 
+    def full_path(self, extra):
+        return os.path.join(self.parent.TEMP_DIR, self.path(extra))
+
     def make_dir(self, extra):
         try:
-            os.makedirs(self.path(extra))
+            os.makedirs(self.full_path(extra))
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise

@@ -15,9 +15,9 @@ from . import s3
 push_file = s3.sync_file
 
 
-def push_directory(directory):
-    if s3.sync_directory(directory):
-        clean_directory(directory)
+def push_directory(src, to_dir):
+    if s3.sync_directory(src, to_dir):
+        clean_directory(src)
         return True
     return False
 
