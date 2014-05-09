@@ -21,7 +21,7 @@ def create_registration(node):
     with open('{}metadata.json'.format(node.path), 'w+') as metadata:
         metadata.write(json.dumps(node.metadata()))
 
-    push_directory(node.title)
+    push_directory(node.path)
 
     return node
 
