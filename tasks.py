@@ -29,3 +29,8 @@ def notebook():
 @task
 def flower():
     run('celery -A registerer.celery flower')
+
+
+@task
+def prepdocker():
+    run('cp registerer/settings/local.py vagrant/celeryworker/local.py')
