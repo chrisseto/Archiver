@@ -5,14 +5,11 @@ a module for passing tasks to celery workers
 import httplib as http
 from flask import jsonify
 
-from tasks.management import register
+from tasks import register
 
 
 #  TODO
 #  Preprocessing would go here
-#  Workflow planning
-#   call partition task
-#       partition just splits into more jobs
 def push_task(node):
     ret = {
         'id': node.id,

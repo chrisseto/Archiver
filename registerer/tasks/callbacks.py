@@ -1,16 +1,15 @@
+import logging
+
 from registerer import celery
 
-
-@celery.task
-def registration_failed(id):
-    pass
+logger = logging.getLogger(__name__)
 
 
 @celery.task
-def registration_finish(id):
-    pass
+def registration_failed(node):
+    logger.info('Registation failed for {}'.format(node.id))
 
 
 @celery.task
-def check_completion(id):
-    pass
+def registration_finish(node):
+    logger.info('Registation finished for {}'.format(node.id))

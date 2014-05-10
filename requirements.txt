@@ -5,7 +5,6 @@ Werkzeug==0.9.4
 amqp==1.4.5
 anyjson==0.3.3
 billiard==3.3.0.17
-boto==2.27.0
 celery==3.1.11
 invoke==0.7.0
 itsdangerous==0.24
@@ -13,5 +12,5 @@ kombu==3.0.16
 pytz==2014.2
 wsgiref==0.1.2
 GitPython==0.1.7
-librabbitmq==1.5.1
 requests==2.2.1
+boto==2.28.0

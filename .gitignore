@@ -1,2 +1,7 @@
 *.pyc
 vagrant/.vagrant
+.ipynb_checkpoints
+*.sublime-project
+*.sublime-workspace
+*.sublime-workspace
+local.py

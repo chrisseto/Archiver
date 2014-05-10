@@ -1,6 +1,8 @@
 #Registerer
 
-Nothing works!
+~~Nothing works!~~
+
+Somethings work!
 
 ###Proposed work flow
 
@@ -30,10 +32,10 @@ registration will have directory structure as such:
 (subject to change)
 
 ```
-{project name}/
+{project id}/
     metadata.json
     children/
-        {child name}/
+        {child id}/
             {project}
     addons/
         github/
@@ -43,3 +45,11 @@ registration will have directory structure as such:
             {bucket name}/
                 {bucker contents}
 ```
+
+
+###Progress
+
+* Task Queueing
+* Task Chaining
+* Folder structure creation
+* cloning of github addon

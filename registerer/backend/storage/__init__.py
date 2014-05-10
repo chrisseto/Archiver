@@ -8,11 +8,19 @@ Implements four (4) methods:
     get_directory
     get_file
 """
+from shutil import rmtree
+from . import s3
 
 
-def push_directory(dir):
-    pass
+push_file = s3.sync_file
 
 
-def push_file(dir):
-    pass
+def push_directory(src, to_dir):
+    if s3.sync_directory(src, to_dir):
+        clean_directory(src)
+        return True
+    return False
+
+
+def clean_directory(directory):
+    rmtree(directory)

@@ -1,5 +1,6 @@
 import os
 import errno
+import tempfile
 from datetime import datetime
 
 from .addon import Addon
@@ -7,6 +8,8 @@ from .. import validation
 
 
 class Node(object):
+
+    TEMP_DIR = tempfile.mkdtemp()
 
     @classmethod
     def from_json(cls, json, parent=None):
@@ -39,9 +42,17 @@ class Node(object):
             return os.path.join(self.parent.path, 'children', self.id) + os.sep
         return os.path.join(self.id) + os.sep
 
+    @property
+    def is_child(self):
+        return self.parent is not None
+
+    @property
+    def full_path(self):
+        return os.path.join(self.TEMP_DIR, self.path)
+
     def make_dir(self):
         try:
-            os.makedirs(self.path)
+            os.makedirs(self.full_path)
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
