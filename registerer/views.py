@@ -20,6 +20,16 @@ def begin_register():
     raise ValidationError('no data')
 
 
+@rest.route('/callback', methods=['POST', 'PUT'])
+def callback():
+    json = request.get_json(force=True)
+    if json:
+        print json
+        return ''
+    print "No data in callback"
+    raise ValidationError('no data')
+
+
 @rest.errorhandler(Exception)
 def handle_exception(error):
     response = jsonify(error.to_dict())

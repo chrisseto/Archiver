@@ -17,7 +17,7 @@ def register(node):
     if node.is_child:
         c = group(header)
     else:
-        c = chord(header, callbacks.registration_finish.si(node))
+        c = chord(header, callbacks.registration_finish.s(node))
 
-    c.link_error(callbacks.registration_failed.s(node))
+    # c.link_error(callbacks.registration_failed.s(node))
     c.delay()

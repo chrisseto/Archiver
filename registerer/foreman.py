@@ -20,7 +20,7 @@ def push_task(node):
         register.delay(node)
 
         ret.update({
-            'status': 'SUCCESS',
+            'status': 'STARTED',
         })
 
         ret = jsonify({'response': ret})

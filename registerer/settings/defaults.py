@@ -11,24 +11,25 @@ BUCKET_NAME = 'CHANGEME'
 #### CELERY OPTIONS ####
 #We may not want this
 #CELERY_RESULT_BACKEND = "mongodb"
-CELERY_MONGODB_BACKEND_SETTINGS = {
-    # Shouldn't need these - defaults are correct.
-    "host": "localhost",
-    "port": 27017,
-    "database": "celery",
-    "taskmeta_collection": "messages",
-}
+# CELERY_MONGODB_BACKEND_SETTINGS = {
+#     # Shouldn't need these - defaults are correct.
+#     "host": "localhost",
+#     "port": 27017,
+#     "database": "celery",
+#     "taskmeta_collection": "messages",
+# }
 # We actually want pickle
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
+CELERY_CHORD_PROPAGATES = False
 
 #### mongodb OPTIONS ####
-BROKER_BACKEND = 'mongodb'
-BROKER_HOST = "localhost"
-BROKER_PORT = 27017
-BROKER_USER = ""
-BROKER_PASSWORD = ""
-BROKER_VHOST = ""
+# BROKER_BACKEND = 'mongodb'
+# BROKER_HOST = "localhost"
+# BROKER_PORT = 27017
+# BROKER_USER = ""
+# BROKER_PASSWORD = ""
+# BROKER_VHOST = ""
 
 DB_HOST = "localhost"
 DB_PORT = 27017
