@@ -19,5 +19,5 @@ def register(node):
     else:
         c = chord(header, callbacks.registration_finish.si(node))
 
-    c.link_error(callbacks.registration_failed.si(node))
+    c.link_error(callbacks.registration_failed.s(node))
     c.delay()
