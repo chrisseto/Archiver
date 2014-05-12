@@ -1,0 +1,2 @@
+class RemoteStorageError(Exception):
+    pass

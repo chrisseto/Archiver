@@ -1,4 +1,4 @@
-class CloningError(Exception):
+class RegistrationError(Exception):
     def __init__(self, reason):
         self.reason = reason
         self.status_code = 400
@@ -9,5 +9,5 @@ class CloningError(Exception):
         }
 
 
-class AddonCloningError(CloningError):
+class AddonRegistrationError(RegistrationError):
     pass

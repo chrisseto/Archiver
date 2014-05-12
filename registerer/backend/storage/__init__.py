@@ -9,17 +9,20 @@ Implements four (4) methods:
     get_file
 """
 from shutil import rmtree
-from . import s3
+
+from . import s3, exceptions
 
 
 push_file = s3.sync_file
 
 
 def push_directory(src, to_dir):
-    if s3.sync_directory(src, to_dir):
-        clean_directory(src)
-        return True
-    return False
+    try:
+        if s3.sync_directory(src, to_dir):
+            clean_directory(src)
+            return True
+    except Exception:
+        raise exceptions.RemoteStorageError()
 
 
 def clean_directory(directory):
