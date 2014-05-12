@@ -6,18 +6,25 @@ This includes but is not limitted to:
     Tracking the status of current nodes being registered
 
 """
-from pymongo import MongoClient
+import logging
 from bson import ObjectId
+from pymongo import MongoClient
 
-from ...settings import defaults
+from registerer import settings
 
-mongo_uri = 'mongodb://localhost:{port}'.format(port=defaults.DB_PORT)
-client = MongoClient(mongo_uri)
+logger = logging.getLogger(__name__)
 
-db = client[defaults.DB_NAME]
+try:
+    mongo_uri = 'mongodb://{host}:{port}'.format(port=settings.DB_PORT, host=settings.DB_HOST)
+    client = MongoClient(mongo_uri)
 
-if defaults.DB_USER and defaults.DB_PASSWORD:
-    db.authenticate(defaults.DB_USER, defaults.DB_PASSWORD)
+    db = client[settings.DB_NAME]
+
+    if settings.DB_USER and settings.DB_PASSWORD:
+        db.authenticate(settings.DB_USER, settings.DB_PASSWORD)
+except Exception as e:
+    logger.error('Could not connect to database.')
+    logger.warning('Proceeding without connection')
 
 
 def set_up_storage(schemas, storage_class, prefix='', addons=None, *args, **kwargs):
