@@ -1,7 +1,10 @@
-from flask import request, jsonify, Blueprint
+import os
+
+from flask import request, jsonify, Blueprint, redirect
 
 from registerer import foreman
 from registerer.datatypes import Node
+from registerer.backend.storage import get_file
 from registerer.validation import ValidationError
 
 
@@ -30,7 +33,25 @@ def callback():
     raise ValidationError('no data')
 
 
-@rest.errorhandler(Exception)
+# Note the path may include id anyways....
+@rest.route('/<id>/<path:name>')
+def get_file_route(id, name):
+    return redirect(get_file(os.path.join(id, name)))
+
+
+@rest.route('/<id>/<path:directory>/list')
+def get_dir_route(id, name):
+    recurse = bool(request.parameters.get('recurse'))
+
+    raise NotImplementedError()
+
+
+@rest.route('/<id>/metadata')
+def get_metadata_route(id):
+    return redirect(get_file(os.path.join(id, 'metadata.json')))
+
+
+@rest.errorhandler(ValidationError)
 def handle_exception(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code

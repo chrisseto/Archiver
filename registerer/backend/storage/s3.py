@@ -20,6 +20,8 @@ bucket = connection.get_bucket(BUCKET_NAME, validate=False)
 MULTIPART_TRESHOLD = 1024 ** 2 * 500  # 500 MB
 PART_SIZE_TRESHOLD = 1024 ** 2 * 250  # 500 MB
 
+DOWNLOAD_LINK_LIFE = 5 * 60  # 5 Minutes
+
 
 def sync_directory(src, to_dir):
     diff = src.replace(to_dir, '')
@@ -47,3 +49,7 @@ def sync_file(src, to_file):
             pass
         k = bucket.new_key(to_file)
         k.set_contents_from_filename(src)
+
+
+def get_file_url(path):
+    return bucket.get_key(path, headers={'Content-Disposition': 'attachment'}).generate_url(DOWNLOAD_LINK_LIFE)

@@ -27,3 +27,7 @@ def push_directory(src, to_dir):
 
 def clean_directory(directory):
     rmtree(directory)
+
+
+def get_file(name):
+    return s3.get_file_url(name)
