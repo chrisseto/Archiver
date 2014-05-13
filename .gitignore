@@ -5,3 +5,4 @@ vagrant/.vagrant
 *.sublime-workspace
 *.sublime-workspace
 local.py
+local-celery.py
