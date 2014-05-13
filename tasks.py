@@ -33,4 +33,9 @@ def flower():
 
 @task
 def prepdocker():
-    run('cp registerer/settings/local.py vagrant/celeryworker/local.py')
+    run('cp registerer/settings/local-celery.py vagrant/celeryworker/local.py')
+
+
+@task
+def clean():
+    run('find . -name \*.pyc -delete')
