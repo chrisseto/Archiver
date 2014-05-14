@@ -22,7 +22,10 @@ BUCKET_NAME = 'CHANGEME'
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 CELERY_CHORD_PROPAGATES = False
-
+# Change these to false inorder to use celeryd
+# For debugging only
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = False
+CELERY_ALWAYS_EAGER = False
 #### mongodb OPTIONS ####
 # BROKER_BACKEND = 'mongodb'
 # BROKER_HOST = "localhost"
