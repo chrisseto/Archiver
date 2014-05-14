@@ -1,3 +1,6 @@
+from exceptions import ValidationError
+
+
 def validate_project(data):
     try:
         if data['node']:
@@ -38,14 +41,3 @@ def _validate_metadata(data):
 #TODO
 def _validate_addon(data):
     return True
-
-
-class ValidationError(Exception):
-    def __init__(self, reason):
-        self.reason = reason
-        self.status_code = 400
-
-    def to_dict(self):
-        return {
-            'message': self.reason
-        }

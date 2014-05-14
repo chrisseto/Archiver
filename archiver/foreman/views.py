@@ -6,7 +6,7 @@ from archiver.datatypes import Node
 from archiver.backend.storage import get_file
 
 from utils import push_task
-from validation import ValidationError
+from exceptions import HTTPError, ValidationError
 
 
 rest = Blueprint('archiver', __name__)
@@ -50,10 +50,3 @@ def get_dir_route(id, name):
 @rest.route('/<id>/metadata')
 def get_metadata_route(id):
     return redirect(get_file(os.path.join(id, 'metadata.json')))
-
-
-@rest.errorhandler(ValidationError)
-def handle_exception(error):
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response

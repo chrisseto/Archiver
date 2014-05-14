@@ -7,6 +7,8 @@ from flask import Flask
 from archiver import settings
 
 from views import rest
+from exceptions import HTTPError
+
 
 app = Flask(__name__)
 
@@ -24,3 +26,8 @@ def start():
 
     app.register_blueprint(rest)
     app.run(port=7000, debug=settings.DEBUG)
+
+
+@app.errorhandler(HTTPError)
+def handle_exception(error):
+    return error.to_response()
