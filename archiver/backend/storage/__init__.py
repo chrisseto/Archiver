@@ -14,6 +14,7 @@ from . import s3, exceptions
 
 
 push_file = s3.sync_file
+list_directory = s3.list_dir
 
 
 def push_directory(src, to_dir):

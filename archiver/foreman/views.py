@@ -3,10 +3,10 @@ import os
 from flask import request, jsonify, Blueprint, redirect
 
 from archiver.datatypes import Node
-from archiver.backend.storage import get_file
+from archiver.backend import get_file, list_directory
 
 from utils import push_task
-from exceptions import HTTPError, ValidationError
+from exceptions import ValidationError
 
 
 rest = Blueprint('archiver', __name__)
@@ -22,6 +22,11 @@ def begin_register():
         if node:
             return push_task(node)
     raise ValidationError('no data')
+
+
+@rest.route('/', methods=['GET'])
+def list_projects():
+    return jsonify({'projects': list_directory('')})
 
 
 @rest.route('/callback', methods=['POST', 'PUT'])
@@ -40,11 +45,18 @@ def get_file_route(id, name):
     return redirect(get_file(os.path.join(id, name)))
 
 
-@rest.route('/<id>/<path:directory>/list')
-def get_dir_route(id, name):
-    recurse = bool(request.parameters.get('recurse'))
+@rest.route('/<id>/<path:directory>/')
+@rest.route('/<id>/', defaults={'directory': ''})
+def get_dir_route(id, directory):
+    recurse = request.args.get('recurse') is not None or request.args.get('r') is not None
 
-    raise NotImplementedError()
+    path = os.path.join(id, directory)
+    ret = {
+        'id': id,
+        'recursive': recurse,
+        'directory': list_directory(path, recurse=recurse)
+    }
+    return jsonify(ret)
 
 
 @rest.route('/<id>/metadata')

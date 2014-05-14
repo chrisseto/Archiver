@@ -53,3 +53,13 @@ def sync_file(src, to_file):
 
 def get_file_url(path):
     return bucket.get_key(path, headers={'Content-Disposition': 'attachment'}).generate_url(DOWNLOAD_LINK_LIFE)
+
+
+def list_dir(directory, recurse=False):
+    return [
+        {
+            'path': key.name
+        }
+        for key in
+        bucket.list(prefix=directory, delimiter='' if recurse else '/')
+    ]
