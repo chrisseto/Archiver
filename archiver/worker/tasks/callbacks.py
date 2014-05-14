@@ -3,7 +3,7 @@ import logging
 import requests
 
 from archiver import celery
-from archiver.settings import SERVER_ADDRESS
+from archiver.settings import FOREMAN_ADDRESS
 
 
 logger = logging.getLogger(__name__)
@@ -24,5 +24,5 @@ def archival_finish(rvs, node):
         'message': 'successfully registered',
         'id': node.id
     }
-    requests.post('{}/callback'.format(SERVER_ADDRESS), data=json.dumps(payload), headers=headers)
+    requests.post('{}/callback'.format(FOREMAN_ADDRESS), data=json.dumps(payload), headers=headers)
     logger.info('Registation finished for {}'.format(node.id))

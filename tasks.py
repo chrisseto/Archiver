@@ -44,7 +44,7 @@ def flower():
 
 @task
 def prepdocker():
-    run('cp archiver/settings/local-celery.py vagrant/celeryworker/local.py')
+    run('cp archiver/settings/local-docker.py vagrant/celeryworker/local.py')
 
 
 @task
