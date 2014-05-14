@@ -1,5 +1,5 @@
 """
-Module: registerer.backend.database
+Module: archiver.backend.database
 This module with deal with the database backend.
 This includes but is not limitted to:
     Keeping track of archives
@@ -10,7 +10,7 @@ import logging
 from bson import ObjectId
 from pymongo import MongoClient
 
-from registerer import settings
+from archiver import settings
 
 logger = logging.getLogger(__name__)
 

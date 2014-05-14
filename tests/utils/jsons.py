@@ -13,7 +13,7 @@ bad_structure = {
         {
             'github': {
                 'access_token': 'some secret key',
-                'repo': 'registerer',
+                'repo': 'archiver',
                 'user': 'chrisseto'
             }
         }
@@ -64,7 +64,7 @@ good = {
             {
                 'github': {
                     'access_token': 'some secret key',
-                    'repo': 'registerer',
+                    'repo': 'archiver',
                     'user': 'chrisseto'
                 }
             }
@@ -89,7 +89,7 @@ good_with_children = {
             {
                 'github': {
                     'access_token': 'some secret key',
-                    'repo': 'registerer',
+                    'repo': 'archiver',
                     'user': 'chrisseto'
                 }
             }
@@ -109,7 +109,7 @@ good_with_children = {
                         {
                             'github': {
                                 'access_token': 'some secret key',
-                                'repo': 'registerer',
+                                'repo': 'archiver',
                                 'user': 'chrisseto'
                             }
                         }

@@ -2,6 +2,12 @@ from invoke import task, run
 
 
 @task
+def setup():
+    run('chmod +x Foreman')
+    run('chmod +x Worker')
+
+
+@task
 def vagrant():
     run('cd vagrant && vagrant up')
 
@@ -12,13 +18,18 @@ def build_worker():
 
 
 @task
+def foreman():
+    run('./Foreman')
+
+
+@task
 def worker():
-    run('celery -A registerer.celery worker -I registerer.tasks --loglevel=INFO')
+    run('./Worker')
 
 
 @task
 def docker_worker():
-    run('celery -A registerer.celery worker -I registerer.tasks -b $SERVICE_PORT_5672_TCP_ADDR')
+    run('celery -A archiver.celery worker -I archiver.worker.tasks -b $SERVICE_PORT_5672_TCP_ADDR')
 
 
 @task
@@ -28,12 +39,12 @@ def notebook():
 
 @task
 def flower():
-    run('celery -A registerer.celery flower')
+    run('celery -A archiver.celery flower')
 
 
 @task
 def prepdocker():
-    run('cp registerer/settings/local-celery.py vagrant/celeryworker/local.py')
+    run('cp archiver/settings/local-celery.py vagrant/celeryworker/local.py')
 
 
 @task

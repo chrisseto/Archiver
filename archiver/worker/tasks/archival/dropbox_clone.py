@@ -1,7 +1,7 @@
 from dropbox.client import DropboxClient
 
-from registerer import celery
-from registerer.backend import push_file
+from archiver import celery
+from archiver.backend import push_file
 
 from .utils import CUTOFF_SIZE, chunked_save
 

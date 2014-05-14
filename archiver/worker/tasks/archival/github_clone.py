@@ -2,7 +2,7 @@ import logging
 
 from git import Git
 
-from registerer.backend.storage import push_directory
+from archiver.backend.storage import push_directory
 
 logger = logging.getLogger(__name__)
 

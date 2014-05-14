@@ -2,8 +2,8 @@ import os
 
 from boto.s3.connection import S3Connection
 
-from registerer import celery
-from registerer.backend import push_file
+from archiver import celery
+from archiver.backend import push_file
 
 from .utils import CUTOFF_SIZE
 

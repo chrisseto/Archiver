@@ -1,14 +1,10 @@
-"""
-foreman.py
-a module for passing tasks to celery workers
-"""
 import httplib as http
+
 from flask import jsonify
 
-from tasks import register
+from archiver.worker.tasks import archive
 
 
-#  TODO
 #  Preprocessing would go here
 def push_task(node):
     ret = {
@@ -17,7 +13,7 @@ def push_task(node):
     }
 
     try:
-        register.delay(node)
+        archive.delay(node)
 
         ret.update({
             'status': 'STARTED',

@@ -2,10 +2,10 @@ import sys
 import json
 import logging
 
-from registerer import celery
-from registerer.backend.storage import push_directory
-from registerer.tasks.callbacks import *
-from registerer.tasks.exceptions import *
+from archiver import celery
+from archiver.backend.storage import push_directory
+from archiver.worker.tasks.callbacks import *
+from archiver.worker.tasks.exceptions import *
 
 from . import github_clone, s3_clone, dropbox_clone
 
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @celery.task
-def create_registration(node):
+def create_archive(node):
     logger.info('Being registering of "{}"'.format(node.title))
 
     node.make_dir()
@@ -27,7 +27,7 @@ def create_registration(node):
 
 
 @celery.task
-def register_addon(addon):
+def archive_addon(addon):
     self = sys.modules[__name__]
     try:
         cloner = self.__dict__.get('{}_clone'.format(addon.addon))

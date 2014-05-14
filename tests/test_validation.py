@@ -1,7 +1,7 @@
 import pytest
 
-from registerer.datatypes import Node
-from registerer.validation import validate_project, ValidationError
+from archiver.datatypes import Node
+from archiver.validation import validate_project, ValidationError
 
 from utils import jsons
 

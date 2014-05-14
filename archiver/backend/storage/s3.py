@@ -10,7 +10,7 @@ import logging
 
 from boto.s3.connection import S3Connection
 
-from registerer.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
+from archiver.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
 
 logger = logging.getLogger(__name__)
 

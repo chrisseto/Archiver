@@ -3,10 +3,10 @@ import json
 
 import pytest
 
-from registerer import celery
-from registerer.datatypes import Node
-from registerer.tasks import register
-from registerer.tasks.registration import create_registration, register_addon
+from archiver import celery
+from archiver.datatypes import Node
+from archiver.worker.tasks import archive
+from archiver.worker.tasks.archival import create_archive, archive_addon
 
 from utils import jsons
 
@@ -14,11 +14,11 @@ from utils import jsons
 @pytest.fixture(autouse=True)
 def ctrl_tempdir(monkeypatch, tmpdir):
     #Use py.test tmpdir
-    monkeypatch.setattr('registerer.datatypes.node.Node.TEMP_DIR', str(tmpdir))
+    monkeypatch.setattr('archiver.datatypes.node.Node.TEMP_DIR', str(tmpdir))
     #Dont push to S3
-    monkeypatch.setattr('registerer.backend.storage.push_directory', lambda x: None)
+    monkeypatch.setattr('archiver.backend.storage.push_directory', lambda x: None)
     #Dont clean up after
-    monkeypatch.setattr('registerer.backend.storage.clean_directory', lambda x: None)
+    monkeypatch.setattr('archiver.backend.storage.clean_directory', lambda x: None)
     return tmpdir
 
 
@@ -29,12 +29,12 @@ def node():
 
 @pytest.fixture(autouse=True)
 def celery_sync(monkeypatch):
-    monkeypatch.setattr('registerer.settings.CELERY_ALWAYS_EAGER', True)
-    monkeypatch.setattr('registerer.settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS', True)
+    monkeypatch.setattr('archiver.settings.CELERY_ALWAYS_EAGER', True)
+    monkeypatch.setattr('archiver.settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS', True)
 
 
 def test_create_registration(monkeypatch, ctrl_tempdir, node):
-    create_registration(node)
+    create_archive(node)
     assert str(ctrl_tempdir) == node.TEMP_DIR
     assert len(os.listdir(node.full_path)) == 1
     assert os.path.exists(os.path.join(node.full_path, 'metadata.json'))
@@ -42,15 +42,15 @@ def test_create_registration(monkeypatch, ctrl_tempdir, node):
         assert json.load(fobj) == node.metadata()
 
 
-def test_register_addon_not_implemented(node):
+def test_archive_addon_not_implemented(node):
     addon = node.addons[0]
     addon.addon = 'FakeService'
     with pytest.raises(NotImplementedError) as err:
-        register_addon(addon)
+        archive_addon(addon)
     assert err.type == NotImplementedError
 
 
-def test_register_addon(node, monkeypatch, ctrl_tempdir):
+def test_archive_addon(node, monkeypatch, ctrl_tempdir):
     addon = node.addons[0]
 
     def git_mock(*args, **_):
@@ -61,8 +61,8 @@ def test_register_addon(node, monkeypatch, ctrl_tempdir):
             assert addon['user'] in args[1][2]
             assert addon['repo'] in args[1][2]
 
-    monkeypatch.setattr('registerer.tasks.registration.github_clone.Git.execute', git_mock)
-    register_addon(addon)
+    monkeypatch.setattr('archiver.worker.tasks.archival.github_clone.Git.execute', git_mock)
+    archive_addon(addon)
 
 
 def test_callback(monkeypatch, node):
@@ -72,7 +72,7 @@ def test_callback(monkeypatch, node):
         assert args[1] == node
         assert isinstance(args[0], list)
 
-    monkeypatch.setattr('registerer.tasks.callbacks.registration_finish', callback)
+    monkeypatch.setattr('archiver.worker.tasks.callbacks.archival_finish', callback)
     node.addons = []
     node.children = []
-    register(node)
+    archive(node)
