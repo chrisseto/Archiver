@@ -56,13 +56,24 @@ def test_archive_addon(node, monkeypatch, ctrl_tempdir):
     def git_mock(*args, **_):
 
         assert args[1][0] == 'git'
+
         if args[1][1] == 'pull':
+            assert args[1][2] == '--all'
+        elif args[1][1] == 'fetch':
+            assert args[1][2] == '--all'
+        elif args[1][1] == 'clone':
             assert addon['access_token'] in args[1][2]
             assert addon['user'] in args[1][2]
             assert addon['repo'] in args[1][2]
+        elif args[1][1] == 'branch':
+            return ''
 
+    assert addon.addon == 'github'
     monkeypatch.setattr('archiver.worker.tasks.archival.github_clone.Git.execute', git_mock)
-    archive_addon(addon)
+    with pytest.raises(IOError) as err:
+        archive_addon(addon)
+    assert err.type == IOError
+    assert err.value.errno == 2
 
 
 def test_callback(monkeypatch, node):
