@@ -5,26 +5,30 @@ from boto.s3.connection import S3Connection
 from archiver import celery
 from archiver.backend import push_file
 
-from .utils import CUTOFF_SIZE
+from .utils import CUTOFF_SIZE, ensure_directory
 
 
-def clone_s3(addon):
-    connection = S3Connection(addon['access_key'], addon['secret_key'])
-    bucket = connection.get_bucket(addon['bucket'], validate=False)
+def clone(addon):
+    addon.make_dir(addon['bucket'])
+    savedir = (addon.full_path(addon['bucket']), addon.path(addon['bucket']))
+    return clone_s3(addon['bucket'], addon['access_key'], addon['secret_key'], *savedir)
+
+
+def clone_s3(bucket, access_key, secret_key, savedir, short_dir):
+    connection = S3Connection(access_key, secret_key)
+    bucket = connection.get_bucket(bucket, validate=False)
     for key in bucket.list():
-        if key.size > CUTOFF_SIZE:
-            get_key.delay(addon, key)
-        else:
-            get_key(addon, key)
+        if key.key[-1] != '/':
+            if key.size > CUTOFF_SIZE:
+                get_key.delay(savedir, short_dir, key)
+            else:
+                get_key(savedir, short_dir, key)
 
 
 @celery.task
-def get_key(addon, key):
-    bucket = addon['bucket']
-    dest = os.path.join(addon.full_path(bucket), key.key)
-    key.get_contents_to_filename(dest)
-    push_file(dest, addon.path(os.path.join(bucket, key.key)))
-
-
-#export as clone
-clone = clone_s3
+def get_key(savedir, short_dir, key):
+    key_file = os.path.join(savedir, key.key)
+    key_dir = os.path.dirname(key_file)
+    ensure_directory(key_dir)
+    key.get_contents_to_filename(key_file)
+    push_file(key_file, os.path.join(short_dir, key.key))

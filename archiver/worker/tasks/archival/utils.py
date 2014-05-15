@@ -1,3 +1,6 @@
+import os
+import errno
+
 CHUNK_SIZE = 1024  # 1 KB
 
 CUTOFF_SIZE = 1024 ** 2 * 500  # 500 MB
@@ -16,3 +19,11 @@ def chunked_save(fobj, to_loc):
         for chunk in chunked_file(fobj):
             to_file.write(chunk)
     return to_loc
+
+
+def ensure_directory(directory):
+    try:
+        os.makedirs(directory)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
