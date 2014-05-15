@@ -12,17 +12,12 @@ headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 @celery.task
 def archival_finish(rvs, node):
-    print rvs
-    status = 'success'
-    for ret in rvs:
-        if isinstance(ret, Exception):
-            status = 'failed'
-            break
+    errs = [error.message for error in rvs if isinstance(error, Exception)]
 
     payload = {
-        'status': status,
-        'message': 'successfully registered',
-        'id': node.id
+        'status': 'failed' if errs else 'success',
+        'id': node.id,
+        'reasons': errs
     }
     requests.post('{}/callback'.format(FOREMAN_ADDRESS), data=json.dumps(payload), headers=headers)
     logger.info('Registation finished for {}'.format(node.id))
