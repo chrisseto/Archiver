@@ -28,10 +28,10 @@ def sync_directory(src, to_dir):
     files_to_sync = []
 
     for current_dir, dirs, files in os.walk(src, topdown=True):
-        dirs[:] = [dir for dir in dirs if dir[0] != '.']
+        # dirs[:] = [dir for dir in dirs if dir[0] != '.']
         for file in files:
-            if file[0] != '.':
-                files_to_sync.append(os.path.join(current_dir, file))
+            # if file[0] != '.':
+            files_to_sync.append(os.path.join(current_dir, file))
 
     for file in files_to_sync:
         sync_file(file, file.replace(diff, ''))
