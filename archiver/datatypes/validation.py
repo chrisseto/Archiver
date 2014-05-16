@@ -1,4 +1,4 @@
-from exceptions import ValidationError
+from archiver.exceptions import ValidationError
 
 
 def validate_project(data):

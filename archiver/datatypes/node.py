@@ -3,8 +3,8 @@ import errno
 import tempfile
 from datetime import datetime
 
+import validation
 from .addon import Addon
-from .. import validation
 
 
 class Node(object):

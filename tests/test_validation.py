@@ -1,7 +1,7 @@
 import pytest
 
 from archiver.datatypes import Node
-from archiver.validation import validate_project, ValidationError
+from archiver.datatypes.validation import validate_project, ValidationError
 
 from utils import jsons
 
