@@ -31,6 +31,8 @@ def archive_addon(addon):
     self = sys.modules[__name__]
     try:
         cloner = self.__dict__.get('{}_clone'.format(addon.addon))
+        if not cloner:
+            raise NotImplementedError('No cloner for {}'.format(addon.addon))
     except (KeyError, AttributeError):
         raise NotImplementedError('No cloner for {}'.format(addon.addon))
     #Dont catch cloner exceptions

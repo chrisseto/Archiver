@@ -27,3 +27,11 @@ def ensure_directory(directory):
     except OSError as e:
         if e.errno != errno.EEXIST:
             raise
+
+
+def build_directories(dirinfo, resource):
+    full_path = os.path.join(dirinfo['tempdir'], dirinfo['prefix'], resource)
+    full_dir = os.path.dirname(full_path)
+    save_path = os.path.join(dirinfo['prefix'], resource)
+    ensure_directory(full_dir)
+    return full_path, save_path
