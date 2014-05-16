@@ -2,11 +2,11 @@ import os
 
 from flask import request, jsonify, Blueprint, redirect
 
+from archiver.backend import store
 from archiver.datatypes import Node
-from archiver.backend import get_file, list_directory
+from archiver.exceptions import ValidationError
 
 from utils import push_task
-from exceptions import ValidationError
 
 
 rest = Blueprint('archiver', __name__)
@@ -26,7 +26,7 @@ def begin_register():
 
 @rest.route('/', methods=['GET'])
 def list_projects():
-    return jsonify({'projects': list_directory('')})
+    return jsonify({'projects': store.list_directory('')})
 
 
 @rest.route('/callback', methods=['POST', 'PUT'])
@@ -42,7 +42,7 @@ def callback():
 # Note the path may include id anyways....
 @rest.route('/<id>/<path:name>')
 def get_file_route(id, name):
-    return redirect(get_file(os.path.join(id, name)))
+    return redirect(store.get_file(os.path.join(id, name)))
 
 
 @rest.route('/<id>/<path:directory>/')
@@ -54,11 +54,11 @@ def get_dir_route(id, directory):
     ret = {
         'id': id,
         'recursive': recurse,
-        'directory': list_directory(path, recurse=recurse)
+        'directory': store.list_directory(path, recurse=recurse)
     }
     return jsonify(ret)
 
 
 @rest.route('/<id>/metadata')
 def get_metadata_route(id):
-    return redirect(get_file(os.path.join(id, 'metadata.json')))
+    return redirect(store.get_file(os.path.join(id, 'metadata.json')))

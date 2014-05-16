@@ -2,10 +2,12 @@
 FOREMAN_ADDRESS = 'http://10.0.2.2:7000'
 
 DEBUG = True
+# Dont use celery just run everything syncronisly
 CELERY_SYNC = False
 
 #### FILE STORAGE OPTIONS ####
-USE_S3 = True
+BACKEND = 's3'
+### S3 Options ###
 ACCESS_KEY = 'CHANGEME'
 SECRET_KEY = 'CHANGEME'
 BUCKET_NAME = 'CHANGEME'
@@ -23,3 +25,6 @@ CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
 CELERY_TRACK_STARTED = True
 CELERY_IMPORTS = 'archiver.worker.tasks'
 CELERY_REDIRECT_STDOUTS_LEVEL = 'INFO'
+# Only process 5k jobs per hour
+# This is to deal with API rate limiting
+CELERY_DEFAULT_RATE_LIMIT = '5000/h'

@@ -1,7 +1,7 @@
 from boto.s3.connection import S3Connection
 
 from archiver import celery
-from archiver.backend import push_file
+from archiver.backend import store
 
 from .utils import CUTOFF_SIZE, build_directories
 
@@ -30,4 +30,4 @@ def clone_s3(bucket, access_key, secret_key, dirinfo):
 def get_key(key, dirinfo):
     path, save_loc = build_directories(dirinfo, key.key)
     key.get_contents_to_filename(path)
-    push_file(path, save_loc)
+    store.push_file(path, save_loc)

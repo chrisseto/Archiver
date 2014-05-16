@@ -3,7 +3,7 @@ import logging
 
 from git import Git
 
-from archiver.backend.storage import push_directory
+from archiver.backend import store
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def clone_github(addon):
 
     logger.info('Finished cloning github addon for {}')
 
-    push_directory(addon.full_path(repo), addon.path(repo))
+    store.push_directory(addon.full_path(repo), addon.path(repo))
 
 
 def pull_all_branches(git):

@@ -5,9 +5,9 @@ from celery import Celery
 from flask import Flask
 
 from archiver import settings
+from archiver.exceptions import HTTPError
 
 from views import rest
-from exceptions import HTTPError
 
 
 app = Flask(__name__)

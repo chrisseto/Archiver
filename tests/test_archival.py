@@ -5,6 +5,9 @@ import mock
 
 import pytest
 
+from archiver import settings
+settings.BACKEND = 'debug'
+
 from archiver.datatypes import Node
 from archiver.worker.tasks import archive
 from archiver.worker.tasks.archival import create_archive, archive_addon
@@ -16,10 +19,6 @@ from utils import jsons
 def ctrl_tempdir(monkeypatch, tmpdir):
     #Use py.test tmpdir
     monkeypatch.setattr('archiver.datatypes.node.Node.TEMP_DIR', str(tmpdir))
-    #Dont push to S3
-    monkeypatch.setattr('archiver.backend.storage.push_directory', lambda x: None)
-    #Dont clean up after
-    monkeypatch.setattr('archiver.backend.storage.clean_directory', lambda x: None)
     return tmpdir
 
 

@@ -3,7 +3,7 @@ import json
 import logging
 
 from archiver import celery
-from archiver.backend.storage import push_directory
+from archiver.backend import store
 from archiver.worker.tasks.callbacks import *
 from archiver.worker.tasks.exceptions import *
 
@@ -21,7 +21,7 @@ def create_archive(node):
     with open('{}metadata.json'.format(node.full_path), 'w+') as metadata:
         metadata.write(json.dumps(node.metadata()))
 
-    push_directory(node.full_path, node.path)
+    store.push_directory(node.full_path, node.path)
 
     return node
 

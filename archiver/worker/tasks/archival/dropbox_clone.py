@@ -3,7 +3,7 @@ import os
 from dropbox.client import DropboxClient
 
 from archiver import celery
-from archiver.backend import push_file
+from archiver.backend import store
 
 from .utils import CUTOFF_SIZE, chunked_save, build_directories
 
@@ -44,4 +44,4 @@ def fetch(path, client, dirinfo):
     path, save_loc = build_directories(dirinfo, path[1:])  # Remove beginning /
 
     chunked_save(fobj, path)
-    push_file(path, save_loc)
+    store.push_file(path, save_loc)
