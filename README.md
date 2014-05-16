@@ -1,22 +1,17 @@
 #Archiver
+![Travis](https://travis-ci.org/chrisseto/Archiver.svg?branch=develop)
 
-~~Nothing works!~~
+A lot of things work!
 
-Somethings work!
-
-###Proposed work flow
+###Work flow
 
 * Server sends [properly formatted json](formats/node.json)
 * Json is parsed by flask app
 * Job is passed to foreman
 * 201 (created) and the node id are sent back to the server
 * foreman begins the archival process
-    - adds into the database?
 * Project is chunked up even more
-* whenever a piece is finished query the database to see if the archive is finished
-    - if it is ping a callback url
-    - else get next job
-
+* On completion a callback is fired and the celeryworker pings the foreman
 
 ###Vocabulary
 
@@ -24,6 +19,10 @@ Somethings work!
     - Any given osf project that is not a registration
 * Registration
     - A "frozen" osf project
+* Foreman
+    - The controlling flask app
+* Worker
+    - The celery worker
 
 
 ###Registration structure
