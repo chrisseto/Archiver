@@ -1,6 +1,8 @@
 #Archiver
 ![Travis](https://travis-ci.org/chrisseto/Archiver.svg?branch=develop)
 
+[![Coverage Status](https://coveralls.io/repos/chrisseto/Archiver/badge.png?branch=develop)](https://coveralls.io/r/chrisseto/Archiver?branch=develop)
+
 A lot of things work!
 
 ###Work flow
