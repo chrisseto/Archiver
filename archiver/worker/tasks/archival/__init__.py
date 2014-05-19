@@ -7,7 +7,7 @@ from archiver.backend import store
 from archiver.worker.tasks.callbacks import *
 from archiver.worker.tasks.exceptions import *
 
-from . import github_clone, s3_clone, dropbox_clone
+from . import github_clone, s3_clone, dropbox_clone, figshare_clone
 
 logger = logging.getLogger(__name__)
 
