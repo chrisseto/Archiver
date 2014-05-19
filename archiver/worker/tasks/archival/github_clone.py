@@ -62,6 +62,8 @@ def sanatize_config(addon):
     with open(os.path.join(addon.path(addon['repo']), '.git', 'config'), 'r+') as config:
         git_config = config.read()
         config.write(git_config.replace('{}@'.format(addon['access_token']), ''))
+        #Just in case anything else is laying around
+        config.write(git_config.replace('{}'.format(addon['access_token']), ''))
         config.truncate()
 
 
