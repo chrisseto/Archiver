@@ -1,3 +1,6 @@
+import copy
+
+
 empty = {}
 
 bad_structure = {
@@ -120,6 +123,12 @@ good_with_children = {
         ]
     }
 }
+
+good_multi_children = copy.deepcopy(good)
+good_multi_children['node']['children'] = [copy.deepcopy(good), copy.deepcopy(good)]
+
+good_nested_children = copy.deepcopy(good_multi_children)
+good_nested_children['node']['children'][0]['node']['children'] = [copy.deepcopy(good)]
 
 good_multi_addon = {
     'node':

@@ -20,7 +20,7 @@ def _validate_project(node):
                 if not _validate_addon(addon):
                     raise ValidationError('bad addon')
             return True
-    except KeyError as e:
+    except (KeyError, TypeError):
         raise ValidationError('malformed data')
     raise ValidationError('improperly formatted data')
 
