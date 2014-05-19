@@ -3,7 +3,7 @@ vagrant/.vagrant
 .ipynb_checkpoints
 *.sublime-project
 *.sublime-workspace
-*.sublime-workspace
 local.py
 local-celery.py
 local-docker.py
+.coverage
