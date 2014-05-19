@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class S3(BackEnd):
 
     MULTIPART_THRESHOLD = 1024 ** 2 * 500  # 500 MB
-    PART_SIZE_THRESHOLD = 1024 ** 2 * 250  # 500 MB
+    PART_SIZE_THRESHOLD = 1024 ** 2 * 250  # 250 MB
     DOWNLOAD_LINK_LIFE = 5 * 60  # 5 Minutes
 
     def __init__(self):

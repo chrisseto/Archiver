@@ -30,3 +30,6 @@ class BackEnd(object):
 
     def push_file(self, from_loc, to):
         raise NotImplementedError('No push_file method')
+
+    def get_metadata(self, id):
+        raise NotImplementedError('Not get_metadata')

@@ -1,5 +1,3 @@
-import os
-
 from dropbox.client import DropboxClient
 
 from archiver import celery

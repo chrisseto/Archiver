@@ -37,3 +37,5 @@ def archive_addon(addon):
         raise NotImplementedError('No cloner for {}'.format(addon.addon))
     #Dont catch cloner exceptions
     cloner.clone(addon)
+
+#TODO move cloners in to a cloners model inherit form BaseCloner

@@ -6,6 +6,9 @@ logger = logging.getLogger(__name__)
 
 
 class Debug(BackEnd):
+    '''Debug BackEnd
+    This class does exactly nothing.
+    '''
 
     def clean_directory(directory):
         pass
