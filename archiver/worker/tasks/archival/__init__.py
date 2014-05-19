@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @celery.task
 def create_archive(node):
-    logger.info('Being registering of "{}"'.format(node.title))
+    logger.info('Begin archiving of "{}"'.format(node.title))
 
     node.make_dir()
 

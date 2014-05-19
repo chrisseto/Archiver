@@ -160,3 +160,6 @@ good_multi_addon = {
         'children': []
     }
 }
+
+good_children_addon = copy.deepcopy(good_multi_children)
+good_children_addon['node']['children'][0] = copy.deepcopy(good_multi_addon)

@@ -5,8 +5,6 @@ import mock
 
 import pytest
 
-from celery.app.task import EagerResult
-
 from archiver import settings
 settings.BACKEND = 'debug'
 
@@ -56,6 +54,11 @@ def node_many_addons():
     return Node.from_json(jsons.good_multi_addon)
 
 
+@pytest.fixture
+def node_children_addons():
+    return Node.from_json(jsons.good_children_addon)
+
+
 @pytest.fixture(autouse=True)
 def celery_sync(monkeypatch):
     monkeypatch.setattr('archiver.settings.CELERY_ALWAYS_EAGER', True)
@@ -81,7 +84,7 @@ def test_archive_addon_not_implemented(node):
 
 def test_archive_addon_called(monkeypatch, node, ctrl_tempdir, patch_callback):
     mock_addon_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon', mock_addon_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock_addon_archive)
 
     assert len(node.addons) == 1
     addon = node.addons[0]
@@ -90,13 +93,13 @@ def test_archive_addon_called(monkeypatch, node, ctrl_tempdir, patch_callback):
     archive(node)
 
     assert patch_callback.called
-    mock_addon_archive.si.assert_called_once()
-    mock_addon_archive.si.assert_called_once_with(addon)
+    mock_addon_archive.assert_called_once()
+    mock_addon_archive.assert_called_once_with(addon)
 
 
 def test_archive_addons_called(monkeypatch, node_many_addons, ctrl_tempdir, patch_callback):
     mock_addon_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon', mock_addon_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock_addon_archive)
 
     assert len(node_many_addons.addons) > 1
 
@@ -105,14 +108,14 @@ def test_archive_addons_called(monkeypatch, node_many_addons, ctrl_tempdir, patc
     assert patch_callback.called
 
     calls = [mock.call(addon) for addon in node_many_addons.addons]
-    mock_addon_archive.si.assert_has_calls(calls, any_order=True)
+    mock_addon_archive.assert_has_calls(calls, any_order=True)
 
 
 def test_archive_child(monkeypatch, node_with_child, ctrl_tempdir, patch_callback):
     mock_child_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archive', mock_child_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archival.create_archive.run', mock_child_archive)
     #Dont clone addons
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon', mock.MagicMock())
+    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock.MagicMock())
 
     assert len(node_with_child.children) == 1
     child = node_with_child.children[0]
@@ -120,8 +123,8 @@ def test_archive_child(monkeypatch, node_with_child, ctrl_tempdir, patch_callbac
     archive(node_with_child)
 
     assert patch_callback.called
-    mock_child_archive.si.assert_called_once()
-    mock_child_archive.si.assert_called_once_with(child)
+    assert mock_child_archive.call_count == 2
+    mock_child_archive.assert_has_calls([mock.call(child), mock.call(node_with_child)], any_order=True)
 
 
 def test_archive_many_children(monkeypatch, node_with_children, ctrl_tempdir, patch_callback):
@@ -155,30 +158,36 @@ def test_archive_nest_children(monkeypatch, node_nested_children, ctrl_tempdir, 
 
     calls = collect_children_calls(node_nested_children)
     assert len(calls) > 2
-    # assert mock_child_archive.si.mock_calls == calls
 
     mock_child_archive.assert_has_calls(calls, any_order=True)
     assert len(calls) == len(mock_child_archive.mock_calls)
 
 
-# def test_archive_children_addons(monkeypatch, node_children_addons, ctrl_tempdir, patch_callback):
-#     mock_child_archive = mock.MagicMock()
-#     mock_addon_archive = mock.MagicMock()
-#     monkeypatch.setattr('archiver.worker.tasks.archival.create_archive', mock_child_archive)
-#     monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon', mock_addon_archive)
+def test_archive_children_addons(monkeypatch, node_children_addons, ctrl_tempdir, patch_callback):
+    mock_child_archive = mock.MagicMock()
+    mock_addon_archive = mock.MagicMock()
+    monkeypatch.setattr('archiver.worker.tasks.archival.create_archive.run', mock_child_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock_addon_archive)
 
-#     assert len(node_nested_children.children) > 1
+    assert len(node_children_addons.children) > 1
 
-#     archive(node_nested_children)
+    archive(node_children_addons)
 
-#     assert patch_callback.called
+    assert patch_callback.called
+    addon_calls = collect_addon_calls(node_children_addons)
+    node_calls = collect_children_calls(node_children_addons)
 
-#     mock_child_archive.si.assert_has_calls(collect_children_calls(node_children_addons), any_order=True)
+    assert len(node_calls) == len(mock_child_archive.mock_calls)
+    mock_child_archive.assert_has_calls(node_calls, any_order=True)
+
+    assert len(addon_calls) == len(mock_addon_archive.mock_calls)
+    mock_addon_archive.assert_has_calls(addon_calls, any_order=True)
 
 
 def collect_addon_calls(node):
     addon_calls = [mock.call(addon) for addon in node.addons]
-    addon_calls.extend([collect_addon_calls(child) for child in node.children])
+    for child in node.children:
+        addon_calls.extend(collect_addon_calls(child))
     return addon_calls
 
 
@@ -188,31 +197,3 @@ def collect_children_calls(node):
         # kid_calls.append(mock.call(child))
         kid_calls.extend(collect_children_calls(child))
     return kid_calls
-
-
-# @mock.patch('archiver.worker.tasks.archival.archive_addon')
-# def test_archive_github(mock_archive, node, monkeypatch, ctrl_tempdir):
-#     addon = node.addons[0]
-
-#     # def git_mock(*args, **_):
-
-#     #     assert args[1][0] == 'git'
-
-#     #     if args[1][1] == 'pull':
-#     #         assert args[1][2] == '--all'
-#     #     elif args[1][1] == 'fetch':
-#     #         assert args[1][2] == '--all'
-#     #     elif args[1][1] == 'clone':
-#     #         assert addon['access_token'] in args[1][2]
-#     #         assert addon['user'] in args[1][2]
-#     #         assert addon['repo'] in args[1][2]
-#     #     elif args[1][1] == 'branch':
-#     #         return ''
-
-#     git_mock = mock.Mock(return_value='')
-#     assert addon.addon == 'github'
-#     monkeypatch.setattr('archiver.worker.tasks.archival.github_clone.Git.execute', git_mock)
-#     with pytest.raises(IOError) as err:
-#         archive_addon(addon)
-#     assert err.type == IOError
-#     assert err.value.errno == 2
