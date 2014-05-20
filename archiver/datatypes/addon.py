@@ -21,6 +21,9 @@ class Addon(object):
             if e.errno != errno.EEXIST:
                 raise
 
+    def get(self, key, default=None):
+        return self.raw_json.get(key, default)
+
     def __getitem__(self, key):
         return self.raw_json[key]
 

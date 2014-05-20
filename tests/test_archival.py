@@ -9,8 +9,7 @@ from archiver import settings
 settings.BACKEND = 'debug'
 
 from archiver.datatypes import Node
-from archiver.worker.tasks import archive
-from archiver.worker.tasks.archival import create_archive, archive_addon
+from archiver.worker.tasks import archive, create_archive, archive_addon
 
 from utils import jsons
 
@@ -84,7 +83,7 @@ def test_archive_addon_not_implemented(node):
 
 def test_archive_addon_called(monkeypatch, node, ctrl_tempdir, patch_callback):
     mock_addon_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock_addon_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archive_addon.run', mock_addon_archive)
 
     assert len(node.addons) == 1
     addon = node.addons[0]
@@ -99,7 +98,7 @@ def test_archive_addon_called(monkeypatch, node, ctrl_tempdir, patch_callback):
 
 def test_archive_addons_called(monkeypatch, node_many_addons, ctrl_tempdir, patch_callback):
     mock_addon_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock_addon_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archive_addon.run', mock_addon_archive)
 
     assert len(node_many_addons.addons) > 1
 
@@ -113,9 +112,9 @@ def test_archive_addons_called(monkeypatch, node_many_addons, ctrl_tempdir, patc
 
 def test_archive_child(monkeypatch, node_with_child, ctrl_tempdir, patch_callback):
     mock_child_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.create_archive.run', mock_child_archive)
+    monkeypatch.setattr('archiver.worker.tasks.create_archive.run', mock_child_archive)
     #Dont clone addons
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock.MagicMock())
+    monkeypatch.setattr('archiver.worker.tasks.archive_addon.run', mock.MagicMock())
 
     assert len(node_with_child.children) == 1
     child = node_with_child.children[0]
@@ -129,9 +128,9 @@ def test_archive_child(monkeypatch, node_with_child, ctrl_tempdir, patch_callbac
 
 def test_archive_many_children(monkeypatch, node_with_children, ctrl_tempdir, patch_callback):
     mock_child_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.create_archive.run', mock_child_archive)
+    monkeypatch.setattr('archiver.worker.tasks.create_archive.run', mock_child_archive)
     #Dont clone addons
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', lambda *_, **__: None)
+    monkeypatch.setattr('archiver.worker.tasks.archive_addon.run', lambda *_, **__: None)
 
     assert len(node_with_children.children) > 1
 
@@ -146,9 +145,9 @@ def test_archive_many_children(monkeypatch, node_with_children, ctrl_tempdir, pa
 
 def test_archive_nest_children(monkeypatch, node_nested_children, ctrl_tempdir, patch_callback):
     mock_child_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.create_archive.run', mock_child_archive)
+    monkeypatch.setattr('archiver.worker.tasks.create_archive.run', mock_child_archive)
     #Dont clone addons
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', lambda *_, **__: None)
+    monkeypatch.setattr('archiver.worker.tasks.archive_addon.run', lambda *_, **__: None)
 
     assert len(node_nested_children.children) > 1
 
@@ -166,8 +165,8 @@ def test_archive_nest_children(monkeypatch, node_nested_children, ctrl_tempdir, 
 def test_archive_children_addons(monkeypatch, node_children_addons, ctrl_tempdir, patch_callback):
     mock_child_archive = mock.MagicMock()
     mock_addon_archive = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.create_archive.run', mock_child_archive)
-    monkeypatch.setattr('archiver.worker.tasks.archival.archive_addon.run', mock_addon_archive)
+    monkeypatch.setattr('archiver.worker.tasks.create_archive.run', mock_child_archive)
+    monkeypatch.setattr('archiver.worker.tasks.archive_addon.run', mock_addon_archive)
 
     assert len(node_children_addons.children) > 1
 

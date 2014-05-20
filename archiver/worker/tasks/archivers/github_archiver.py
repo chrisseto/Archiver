@@ -20,7 +20,7 @@ class GithubArchiver(ServiceArchiver):
                                          user=self.user,
                                          repo=self.repo
                                          )
-        super(GithubArchiver, self).__init__(self)
+        super(GithubArchiver, self).__init__(addon)
 
     def clone(self):
         path, save_loc = self.build_directories('')

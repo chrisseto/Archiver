@@ -5,7 +5,7 @@ from celery import chord, group
 
 from archiver import celery
 from archiver.backend import store
-from archiver.worker.tasks import archival, callbacks
+from archiver.worker.tasks import callbacks
 from archiver.worker.tasks.archivers import get_archiver
 
 logger = logging.getLogger(__name__)
@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 @celery.task
 def archive(node):
-    header = [archival.create_archive.si(node)]
+    header = [create_archive.si(node)]
 
     for addon in node.addons:
-        header.append(archival.archive_addon.si(addon))
+        header.append(archive_addon.si(addon))
 
     for child in node.children:
         header.append(archive.si(child))

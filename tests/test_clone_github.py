@@ -10,8 +10,8 @@ from archiver import settings
 settings.BACKEND = 'debug'
 
 from archiver.datatypes import Node
-from archiver.worker.tasks import archive
-from archiver.worker.tasks.archival import archive_addon, github_clone
+from archiver.worker.tasks import archive, archive_addon
+from archiver.worker.tasks.archivers.github_archiver import GithubArchiver
 
 from utils import jsons
 
@@ -53,24 +53,28 @@ def dont_register(monkeypatch):
 
 def test_github_called(monkeypatch, github_node, patch_callback):
     mock_git = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archival.github_clone.clone', mock_git)
+    mock_git.return_value = None
+    monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GithubArchiver.__init__', mock_git)
+    monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GithubArchiver.clone', mock.Mock())
     archive(github_node)
     assert patch_callback.called
     mock_git.assert_called_once_with(github_node.addons[0])
 
 
 def test_folder_structure(monkeypatch, github_addon, ctrl_tempdir):
-    monkeypatch.setattr(github_clone, 'pull_all_branches', lambda x: None)
-    monkeypatch.setattr(github_clone, 'sanatize_config', lambda x: None)
-    monkeypatch.setattr(github_clone.Git, 'execute', lambda *_, **__: None)
-    github_clone.clone(github_addon)
+    monkeypatch.setattr(GithubArchiver, 'pull_all_branches', lambda *_: None)
+    monkeypatch.setattr(GithubArchiver, 'sanitize_config', lambda *_: None)
+    monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.Git.execute', lambda *_, **__: None)
+    GithubArchiver(github_addon).clone()
     assert os.path.exists(github_addon.full_path(github_addon['repo']))
 
 
-def test_sanatize(github_addon):
+def test_sanitize(github_addon):
     git_config = '{key}@github.com\n{key}othergitconfigstuff'.format(key=github_addon['access_token'])
     mock_file = mock.MagicMock(spec=file, wraps=StringIO(git_config))
-    with mock.patch('archiver.worker.tasks.archival.github_clone.open', create=True) as mock_open:
+    assert github_addon['access_token'] in mock_file.read()
+    mock_file.seek(0)
+    with mock.patch('__builtin__.open', create=True) as mock_open:
         mock_open.return_value = mock_file
-        github_clone.sanatize_config(github_addon)
+        GithubArchiver(github_addon).sanitize_config('')
     assert not github_addon['access_token'] not in mock_file.read()
