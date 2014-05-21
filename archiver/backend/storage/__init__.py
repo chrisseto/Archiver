@@ -11,6 +11,7 @@ Implements four (4) methods:
 import os
 
 from base import StorageBackEnd
+from exceptions import RemoteStorageError
 
 __all__ = []
 

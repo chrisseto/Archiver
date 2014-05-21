@@ -3,6 +3,11 @@ import pytest
 from archiver.backend import storage
 
 
+@pytest.fixture(autouse=True)
+def patch_s3(monkeypatch):
+    monkeypatch.setattr('archiver.backend.storage.s3.S3Connection.get_bucket', lambda *_, **__: None)
+
+
 def test_has_s3():
     backend = storage.get_storagebackend('s3')
     assert backend.__class__.__name__ == 'S3'
