@@ -2,6 +2,8 @@ import os
 
 from git import Git
 
+from celery.contrib.methods import task_method
+
 from archiver.backend import store
 
 from base import ServiceArchiver

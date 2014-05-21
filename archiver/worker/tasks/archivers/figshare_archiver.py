@@ -4,6 +4,8 @@ import requests
 
 from requests_oauthlib import OAuth1Session
 
+from celery.contrib.methods import task_method
+
 from archiver import celery
 from archiver.backend import store
 from archiver.settings import FIGSHARE_OAUTH_TOKENS
@@ -63,7 +65,7 @@ class FigshareArchiver(ServiceArchiver):
         ret = self.client.get(url)
         return ret.json()
 
-    @celery.task
+    @celery.task(filter=task_method)
     def download_file(self, filedict, aid):
         try:
             url = filedict['download_url']

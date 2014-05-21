@@ -1,5 +1,7 @@
 from dropbox.client import DropboxClient
 
+from celery.contrib.methods import task_method
+
 from archiver import celery
 from archiver.backend import store
 
@@ -18,7 +20,7 @@ class DropboxArchiver(ServiceArchiver):
     def clone(self):
         pass
 
-    @celery.task
+    @celery.task(filter=task_method)
     def recurse(self, contents):
         for item in contents:
             if item['is_dir']:
@@ -31,7 +33,7 @@ class DropboxArchiver(ServiceArchiver):
             else:
                 self.fetch(item['path'])
 
-    @celery.task
+    @celery.task(filter=task_method)
     def fetch(self, path):
         fobj = self.client.get_file(path)
 

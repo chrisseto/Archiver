@@ -1,5 +1,7 @@
 from boto.s3.connection import S3Connection
 
+from celery.contrib.methods import task_method
+
 from archiver import celery
 from archiver.backend import store
 
@@ -11,7 +13,7 @@ class S3Archiver(ServiceArchiver):
     RESOURCE = 'bucket'
 
     def __init__(self, addon):
-        self.connection = S3Connection(addon['access_key'], addon['secretkey'])
+        self.connection = S3Connection(addon['access_key'], addon['secret_key'])
         self.bucket = self.connection.get_bucket(addon['bucket'], validate=False)  # TODO Should validate?
         super(S3Archiver, self).__init__(addon)
 
@@ -24,7 +26,7 @@ class S3Archiver(ServiceArchiver):
                 else:
                     self.get_key(key)
 
-    @celery.task
+    @celery.task(filter=task_method)
     def get_key(self, key):
         path, save_loc = self.build_directories(key.key)
         key.get_contents_to_filename(path)
