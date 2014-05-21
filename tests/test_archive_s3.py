@@ -51,8 +51,8 @@ def test_iters_bucket_list(monkeypatch, s3_addon):
     archiver.clone()
     kalls = [mock.call(kall) for kall in mock_bucket.list()]
 
-    mock_get_key.delay.assert_has_calls(kalls[:2], any_order=True)
-    mock_get_key.assert_called_once_with(mock_bucket.list()[2])
+    mock_get_key.assert_has_calls(kalls[:2], any_order=True)
+    mock_get_key.delay.assert_called_once_with(mock_bucket.list()[2])
 
 
 def test_pushes_files(s3_addon, patch_push):
@@ -74,6 +74,8 @@ def test_resource_pulled(s3_addon):
 def key_factory(val):
     mock_key = mock.MagicMock()
     if 'T' in val:
-        mock_key.size = 1000000
+        mock_key.size = 5242880000
+    else:
+        mock_key.size = 10
     mock_key.key = val
     return mock_key
