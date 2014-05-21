@@ -40,7 +40,7 @@ class StorageBackEndCollective(StorageBackEnd):
 
     def __init__(self, services):
         self.backends = [
-            get_storagebackend()
+            get_storagebackend(backend)
             for backend
             in services
         ]
