@@ -1,5 +1,5 @@
 #Archiver
-![Travis](https://travis-ci.org/chrisseto/Archiver.svg?branch=develop)
+[![Travis](https://travis-ci.org/chrisseto/Archiver.svg?branch=develop)](https://travis-ci.org/chrisseto/Archiver)
 
 [![Coverage Status](https://coveralls.io/repos/chrisseto/Archiver/badge.png?branch=develop)](https://coveralls.io/r/chrisseto/Archiver?branch=develop)
 
