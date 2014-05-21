@@ -8,7 +8,7 @@ needs to export methods with a signature of:
 import os
 import logging
 
-from base import BackEnd
+from base import StorageBackEnd
 
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 
@@ -19,11 +19,12 @@ from exceptions import RemoteStorageError
 logger = logging.getLogger(__name__)
 
 
-class S3(BackEnd):
+class S3(StorageBackEnd):
 
     MULTIPART_THRESHOLD = 1024 ** 2 * 500  # 500 MB
     PART_SIZE_THRESHOLD = 1024 ** 2 * 250  # 250 MB
     DOWNLOAD_LINK_LIFE = 5 * 60  # 5 Minutes
+    USES = 's3'
 
     def __init__(self):
         super(S3, self).__init__()

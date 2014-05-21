@@ -5,7 +5,9 @@ from shutil import rmtree
 logger = logging.getLogger(__name__)
 
 
-class BackEnd(object):
+class StorageBackEnd(object):
+
+    USES = None
 
     def __init__(self):
         logger.debug('Loading backend {}'.format(self.__class__.__name__))

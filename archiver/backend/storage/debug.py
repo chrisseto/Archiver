@@ -1,14 +1,15 @@
 import logging
-from base import BackEnd
+from base import StorageBackEnd
 
 
 logger = logging.getLogger(__name__)
 
 
-class Debug(BackEnd):
+class Debug(StorageBackEnd):
     '''Debug BackEnd
     This class does exactly nothing.
     '''
+    USES = 'debug'
 
     def clean_directory(directory):
         pass
