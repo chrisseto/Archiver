@@ -78,3 +78,25 @@ def test_sanitize(github_addon):
         mock_open.return_value = mock_file
         GithubArchiver(github_addon).sanitize_config('')
     assert not github_addon['access_token'] not in mock_file.read()
+
+
+def test_pulls_all_branches(monkeypatch):
+    mock_git = mock.MagicMock()
+    mock_git.branch.side_effect = mock_branches
+    GithubArchiver.pull_all_branches(mock_git)
+    kalls = [
+        mock.call('--track', branch, branch)
+        for branch in
+        ['branchone', 'branch2']
+    ]
+    mock_git.branch.has_calls(kalls, any_order=True)
+    assert mock_git.fetch.called
+    assert mock_git.pull.called
+
+
+def mock_branches(*args):
+    if not args:
+        return 'lastbranch'
+    elif args[0] == '-a':
+        return 'branchone\nbranch2\nlastbranch'
+
