@@ -1,13 +1,21 @@
+import os
+
 from base import ServiceArchiver
 
-from s3_archiver import S3Archiver
-from github_archiver import GithubArchiver
-from dropbox_archiver import DropboxArchiver
-from figshare_archiver import FigshareArchiver
+
+__all__ = []
+
+for mod in os.listdir(os.path.dirname(__file__)):
+    root, ext = os.path.splitext(mod)
+    if ext == '.py' and root not in ['__init__', 'base']:
+        __all__.append(root)
 
 
-def get_archiver(serivce):
+from . import *
+
+
+def get_archiver(service):
     for archiver in ServiceArchiver.__subclasses__():
-        if archiver.ARCHIVES == serivce:
+        if archiver.ARCHIVES == service:
             return archiver
-    raise NotImplementedError()
+    raise NotImplementedError('No archiver for {}'.format(service))

@@ -7,7 +7,7 @@ from base import ServiceArchiver
 
 
 class DropboxArchiver(ServiceArchiver):
-    CLONES = 'dropbox'
+    ARCHIVES = 'dropbox'
     RESOURCE = 'folder'
 
     def __init__(self, addon):
