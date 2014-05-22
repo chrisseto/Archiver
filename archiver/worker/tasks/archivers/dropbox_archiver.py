@@ -31,10 +31,11 @@ class DropboxArchiver(ServiceArchiver):
                     self.recurse.delay(new_contents)
                 else:
                     self.recurse(new_contents)
-            if item['bytes'] > self.CUTOFF_SIZE:
-                self.fetch.delay(item['path'])
             else:
-                self.fetch(item['path'])
+                if item['bytes'] > self.CUTOFF_SIZE:
+                    self.fetch.delay(item['path'])
+                else:
+                    self.fetch(item['path'])
 
     @celery.task(filter=task_method)
     def fetch(self, path):
