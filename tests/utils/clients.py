@@ -8,6 +8,11 @@ class MockDropBox(object):
 
     def __init__(self, token):
         self.listing = self.create_mock_dir()
+        self.gets = []
+
+    def get_file(self, path):
+        assert path not in self.gets
+        self.gets.append(path)
 
     def metadata(self, path, listing=None):
         if path == self.folder_name:
@@ -57,7 +62,7 @@ class MockDropBox(object):
         }
         mock_dir['path'] = os.path.join(parent, mock_dir['path'])
         for _ in xrange(random.randint(3, 6)):
-            if random.randint(0, 10) > 9:
+            if random.randint(0, 10) > 8:
                 mock_dir['contents'].append(self.create_mock_dir(mock_dir['path']))
             else:
                 mock_dir['contents'].append(self.create_mock_item(mock_dir['path']))

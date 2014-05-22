@@ -51,3 +51,11 @@ def test_recurses(monkeypatch, dropbox_addon):
     assert mock_fetch.called
     kalls = archiver.client.collect_calls()
     mock_fetch.has_calls(kalls, any_order=True)
+
+
+def test_pushes(monkeypatch, dropbox_addon, patch_push):
+    MockDropBox.folder_name = dropbox_addon['folder']
+    archiver = DropboxArchiver(dropbox_addon)
+    archiver.clone()
+    assert len(patch_push.mock_calls) == len(archiver.client.gets)
+    assert len(patch_push.mock_calls) == len(archiver.client.collect_calls())
