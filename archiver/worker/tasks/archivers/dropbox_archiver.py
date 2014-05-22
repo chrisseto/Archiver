@@ -8,9 +8,10 @@ from archiver.backend import store
 from base import ServiceArchiver
 
 
+# TODO Should The entire path be stored?
 class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
-    RESOURCE = 'folder'
+    RESOURCE = ''  # Dropbox will include the entire path
 
     def __init__(self, addon):
         self.client = DropboxClient(addon['access_token'])
