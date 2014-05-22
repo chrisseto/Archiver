@@ -18,16 +18,18 @@ class DropboxArchiver(ServiceArchiver):
         super(DropboxArchiver, self).__init__(addon)
 
     def clone(self):
-        pass
+        start_folder = self.client.metadata(self.folder_name)
+        self.recurse(start_folder)
 
     @celery.task(filter=task_method)
     def recurse(self, contents):
-        for item in contents:
+        for item in contents['contents']:
             if item['is_dir']:
+                new_contents = self.client.metadata(item['path'])
                 if item['bytes'] > self.CUTOFF_SIZE:
-                    self.recurse.delay(contents)
+                    self.recurse.delay(new_contents)
                 else:
-                    self.recurse(contents)
+                    self.recurse(new_contents)
             if item['bytes'] > self.CUTOFF_SIZE:
                 self.fetch.delay(item['path'])
             else:
