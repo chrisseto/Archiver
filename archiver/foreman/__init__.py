@@ -9,9 +9,6 @@ from archiver.exceptions import HTTPError
 
 from views import rest
 
-
-app = Flask(__name__)
-
 logger = logging.getLogger(__name__)
 
 celery = Celery()
@@ -24,10 +21,17 @@ def start():
     ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     logger.addHandler(ch)
 
+    app = build_app()
+    app.run()
+
+
+def build_app():
+    app = Flask(__name__)
+    app.config.from_object('archiver.settings')
     app.register_blueprint(rest)
-    app.run(port=7000, debug=settings.DEBUG)
 
+    @app.errorhandler(HTTPError)
+    def handle_exception(error):
+        return error.to_response()
 
-@app.errorhandler(HTTPError)
-def handle_exception(error):
-    return error.to_response()
+    return app

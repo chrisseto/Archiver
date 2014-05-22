@@ -2,6 +2,7 @@
 FOREMAN_ADDRESS = 'http://10.0.2.2:7000'
 
 DEBUG = True
+PORT = 7000
 # Dont use celery just run everything syncronisly
 CELERY_SYNC = False
 
