@@ -1,20 +1,25 @@
+import mock
+
 import pytest
 
 from webtest import TestApp
 
-from archiver.foreman import utils, build_app
+from archiver.datatypes import Node
+from archiver.foreman import build_app
 
 from utils.jsons import good
 
 
-@pytest.fixture(autouse=True, scope='session')
-def app(request):
-    return TestApp(build_app())
+@pytest.fixture(autouse=True)
+def patch_push(monkeypatch):
+    mock_push = mock.MagicMock()
+    monkeypatch.setattr('archiver.foreman.utils.archive.delay', mock_push)
+    return mock_push
 
 
 @pytest.fixture(autouse=True)
-def patch_push(monkeypatch):
-    monkeypatch.setattr(utils, 'push_task', lambda *_, **__: None)
+def app(request):
+    return TestApp(build_app())
 
 
 def test_empty(app):
@@ -32,6 +37,7 @@ def test_empty_json(app):
     assert ret.status_code == 400
 
 
-def test_good_json(app):
+def test_good_json(app, patch_push):
     ret = app.post_json('/', good)
     assert ret.status_code == 201
+    assert patch_push.call_args[0][0].raw_json == good['node']
