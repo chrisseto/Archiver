@@ -7,5 +7,5 @@ WORKDIR /archiver
 RUN cp /local.py archiver/settings/local.py
 RUN pip install -r requirements.txt
 RUN invoke setup
-ENTRYPOINT invoke docker_worker
+ENTRYPOINT invoke worker
 USER daemon
