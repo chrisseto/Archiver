@@ -1,37 +1,37 @@
-import mock
-
 import pytest
 
-from archiver.foreman import utils, app
-from archiver.datatypes import Node
+from webtest import TestApp
 
-from utils import jsons
+from archiver.foreman import utils, build_app
 
-
-@pytest.fixture
-def patch_archive(monkeypatch):
-    mock_archive = mock.MagicMock()
-    monkeypatch.setattr(utils, 'archive', mock_archive)
-    return mock_archive
+from utils.jsons import good
 
 
-@pytest.fixture
-def node():
-    return Node.from_json(jsons.good)
+@pytest.fixture(autouse=True, scope='session')
+def app(request):
+    return TestApp(build_app())
 
 
-def test_task_created(patch_archive, node):
-    with app.test_request_context():
-        ret = utils.push_task(node)
-        assert 'STARTED' in ret.response[0]
-        assert ret.status_code == 201  # Created
-        patch_archive.delay.assert_called_once_with(node)
+@pytest.fixture(autouse=True)
+def patch_push(monkeypatch):
+    monkeypatch.setattr(utils, 'push_task', lambda *_, **__: None)
 
 
-def test_returns_error(patch_archive, node):
-    patch_archive.delay.side_effect = Exception()
-    with app.test_request_context():
-        ret = utils.push_task(node)
-        assert 'ERROR' in ret.response[0]
-        assert ret.status_code == 500  # Created
-        patch_archive.delay.assert_called_once_with(node)
+def test_empty(app):
+    ret = app.post('/', expect_errors=True)
+    assert ret.status_code == 400
+
+
+def test_empty_put(app):
+    ret = app.put('/', expect_errors=True)
+    assert ret.status_code == 400
+
+
+def test_empty_json(app):
+    ret = app.post_json('/', {}, expect_errors=True)
+    assert ret.status_code == 400
+
+
+def test_good_json(app):
+    ret = app.post_json('/', good)
+    assert ret.status_code == 201
