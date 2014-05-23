@@ -53,4 +53,10 @@ registration will have directory structure as such:
         s3/
             {bucket name}/
                 {bucker contents}
+        figshare/
+            {id}/
+                {figshare contents}
+        dropbox/
+            {folder}/
+                {folder contents}
 ```
