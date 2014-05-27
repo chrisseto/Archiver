@@ -34,11 +34,14 @@ class GithubArchiver(ServiceArchiver):
 
     def sanitize_config(self, path):
         git_path = os.path.join(path, '.git', 'config')
-        with open(git_path, 'r+') as config:
+        with open(git_path, 'w+') as config:
             git_config = config.read()
-            config.write(git_config.replace('{}@'.format(self.token), ''))
+            assert self.token in git_config
+            git_config = git_config.replace('{}@'.format(self.token), '')
+            git_config.replace(self.token, '')
+            config.seek(0)
+            config.write(git_config)
             # Just in case anything else is laying around
-            config.write(git_config.replace(self.token, ''))
             config.truncate()
 
     @classmethod

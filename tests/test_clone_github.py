@@ -74,10 +74,12 @@ def test_sanitize(github_addon):
     mock_file = mock.MagicMock(spec=file, wraps=StringIO(git_config))
     assert github_addon['access_token'] in mock_file.read()
     mock_file.seek(0)
-    with mock.patch('__builtin__.open', create=True) as mock_open:
-        mock_open.return_value = mock_file
+    with mock.patch('archiver.worker.tasks.archivers.github_archiver.open', create=True) as mock_open:
+        mock_open.return_value.__enter__.return_value = mock_file
         GithubArchiver(github_addon).sanitize_config('')
-    assert not github_addon['access_token'] not in mock_file.read()
+    post_san = mock_file.read()
+    assert post_san != git_config
+    assert github_addon['access_token'] not in post_san
 
 
 def test_pulls_all_branches(monkeypatch):
