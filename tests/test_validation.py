@@ -21,7 +21,8 @@ def test_bad_structure():
 
 
 def test_bad_addon():
-    pass  # todo
+    # TODO
+    pass
 
 
 def test_success():

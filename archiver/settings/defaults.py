@@ -13,6 +13,10 @@ ACCESS_KEY = 'CHANGEME'
 SECRET_KEY = 'CHANGEME'
 BUCKET_NAME = 'CHANGEME'
 
+### smartfile ###
+smartfile_ACCESS_KEY = 'CHANGEME'
+smartfile_SECRET_KEY = 'CHANGEME'
+
 #### CELERY OPTIONS ####
 BROKER_URL = 'amqp://guest:guest@192.168.33.10//'
 CELERY_TASK_SERIALIZER = 'pickle'
@@ -37,3 +41,4 @@ FIGSHARE_OAUTH_TOKENS = [
     'CLIENT ID',
     'CLIENT SECRET'
 ]
+
