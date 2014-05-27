@@ -31,7 +31,7 @@ def _validate_metadata(data):
         valid = valid and bool(data['id'])
         valid = valid and bool(data['title'])
         # description can be ''
-        valid = valid and data['description'] is not None
+        # valid = valid and data['description'] is not None
         valid = valid and bool(data['contributors'])
         return valid
     except KeyError:
