@@ -24,7 +24,7 @@ def push_task(node):
         ret.status_code = http.CREATED
 
     except SocketError as e:
-        if e.errno == 54:
+        if e.errno in [54, 61]:
             ret.update(
                 {'status': 'ERROR',
                  'reason': 'could not connect to rabbitmq'
