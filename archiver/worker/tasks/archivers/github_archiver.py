@@ -14,15 +14,15 @@ class GithubArchiver(ServiceArchiver):
     RESOURCE = 'repo'
     CLONE_TPL = 'https://{token}@github.com/{user}/{repo}.git'
 
-    def __init__(self, addon):
-        self.repo = addon['repo']
-        self.user = addon['user']
-        self.token = addon['access_token']
+    def __init__(self, service):
+        self.repo = service['repo']
+        self.user = service['user']
+        self.token = service['access_token']
         self.url = self.CLONE_TPL.format(token=self.token,
                                          user=self.user,
                                          repo=self.repo
                                          )
-        super(GithubArchiver, self).__init__(addon)
+        super(GithubArchiver, self).__init__(service)
 
     def clone(self):
         path, save_loc = self.build_directories('')

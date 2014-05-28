@@ -2,14 +2,14 @@ import os
 import errno
 
 
-class Addon(object):
+class Service(object):
 
     def __init__(self, json, parent):
-        self.addon, self.raw_json = json.items()[0]
+        self.service, self.raw_json = json.items()[0]
         self.parent = parent
 
     def path(self, extra):
-        return os.path.join(self.parent.path, 'addons', self.addon, extra) + os.sep
+        return os.path.join(self.parent.path, 'services', self.service, extra) + os.sep
 
     def full_path(self, extra):
         return os.path.join(self.parent.TEMP_DIR, self.path(extra))
@@ -29,8 +29,8 @@ class Addon(object):
 
     # @classmethod
     # def from_json(cls, json):
-    #     if validator.validate_addon(json):
-    #         data = json['node']['addons']
+    #     if validator.validate_service(json):
+    #         data = json['container']['services']
     #         return cls(data['github'], data['S3'],
     #             data['osffiles'], raw=data)
 
@@ -47,7 +47,7 @@ class Addon(object):
     #         self.secret_key = S3['secret_key']
     #         self.bucket = S3['bucket']
 
-    # def addon(self):
+    # def service(self):
     #     rv = []
     #     if 'github' in self.names:
     #         rv.append(

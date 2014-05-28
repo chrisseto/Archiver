@@ -4,7 +4,7 @@ import tempfile
 from datetime import datetime
 
 import validation
-from .addon import Addon
+from .service import Service
 
 
 class Node(object):
@@ -16,9 +16,9 @@ class Node(object):
         if validation.validate_project(json):
             data = json['node']
             return cls(data['metadata']['id'], data['metadata']['title'],
-                data['metadata']['description'], data['metadata']['contributors'], data['children'], data['addons'], raw=data, parent=parent)
+                data['metadata']['description'], data['metadata']['contributors'], data['children'], data['services'], raw=data, parent=parent)
 
-    def __init__(self, id, title, description, contributors, children, addons, raw=None, parent=None):
+    def __init__(self, id, title, description, contributors, children, services, raw=None, parent=None):
         self.raw_json = raw
         self.parent = parent
         self.id = id
@@ -30,9 +30,9 @@ class Node(object):
         for child in children:
             self.children.append(Node.from_json(child, parent=self))
 
-        self.addons = []
-        for addon in addons:
-            self.addons.append(Addon(addon, self))
+        self.services = []
+        for service in services:
+            self.services.append(Service(service, self))
 
         self.registered_on = datetime.now()
 

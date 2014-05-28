@@ -13,10 +13,10 @@ class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
     RESOURCE = ''  # Dropbox will include the entire path
 
-    def __init__(self, addon):
-        self.client = DropboxClient(addon['access_token'])
-        self.folder_name = addon['folder']
-        super(DropboxArchiver, self).__init__(addon)
+    def __init__(self, service):
+        self.client = DropboxClient(service['access_token'])
+        self.folder_name = service['folder']
+        super(DropboxArchiver, self).__init__(service)
 
     def clone(self):
         start_folder = self.client.metadata(self.folder_name)

@@ -8,7 +8,7 @@
                 ""
             ]
         },
-        "addons": [
+        "services": [
             {
                 "github": {
 
@@ -39,7 +39,7 @@
                     "children": [
 
                     ],
-                    "addons": [
+                    "services": [
                         {
                             "github": {
 

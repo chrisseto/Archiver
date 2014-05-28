@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 def archive(node):
     header = [create_archive.si(node)]
 
-    for addon in node.addons:
-        header.append(archive_addon.si(addon))
+    for service in node.services:
+        header.append(archive_service.si(service))
 
     for child in node.children:
         header.append(archive.si(child))
@@ -44,7 +44,7 @@ def create_archive(node):
 
 
 @celery.task
-def archive_addon(addon):
+def archive_service(service):
     #Lol one liners
     #WWSD
-    get_archiver(addon.addon)(addon).clone()
+    get_archiver(service.service)(service).clone()

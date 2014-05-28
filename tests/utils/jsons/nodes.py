@@ -9,7 +9,7 @@ bad_structure = {
             'john smith'
         ]
     },
-    'addons': [
+    'services': [
         {
             'github': {
                 'access_token': 'some secret key',
@@ -23,7 +23,7 @@ bad_structure = {
 
 bad_children = {}
 
-bad_addon = {
+bad_service = {
     'node':
     {
         'metadata': {
@@ -34,7 +34,7 @@ bad_addon = {
                 'john smith'
             ]
         },
-        'addons': [
+        'services': [
             {
                 'github': {
                     'user': 'chrisseto'
@@ -45,7 +45,7 @@ bad_addon = {
     }
 }
 
-unimplemented_addon = {
+unimplemented_service = {
 
 }
 
@@ -60,7 +60,7 @@ good = {
                 'john smith'
             ]
         },
-        'addons': [
+        'services': [
             {
                 'github': {
                     'access_token': 'some secret key',
@@ -85,7 +85,7 @@ good_with_children = {
                 'john smith'
             ]
         },
-        'addons': [
+        'services': [
             {
                 'github': {
                     'access_token': 'some secret key',
@@ -105,7 +105,7 @@ good_with_children = {
                             'john smith'
                         ]
                     },
-                    'addons': [
+                    'services': [
                         {
                             'github': {
                                 'access_token': 'some secret key',
@@ -122,7 +122,7 @@ good_with_children = {
 }
 
 
-good_multi_addon = {
+good_multi_service = {
     'node':
     {
         'metadata': {
@@ -133,7 +133,7 @@ good_multi_addon = {
                 'john smith'
             ]
         },
-        'addons': [
+        'services': [
             {
                 'github': {
                     'access_token': 'some secret key',

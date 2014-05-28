@@ -12,10 +12,10 @@ class S3Archiver(ServiceArchiver):
     ARCHIVES = 's3'
     RESOURCE = 'bucket'
 
-    def __init__(self, addon):
-        self.connection = S3Connection(addon['access_key'], addon['secret_key'])
-        self.bucket = self.connection.get_bucket(addon['bucket'], validate=False)  # TODO Should validate?
-        super(S3Archiver, self).__init__(addon)
+    def __init__(self, service):
+        self.connection = S3Connection(service['access_key'], service['secret_key'])
+        self.bucket = self.connection.get_bucket(service['bucket'], validate=False)  # TODO Should validate?
+        super(S3Archiver, self).__init__(service)
 
     def clone(self):
         for key in self.bucket.list():

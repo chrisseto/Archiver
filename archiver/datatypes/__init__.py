@@ -1,5 +1,5 @@
 from .node import Node
-from .addon import Addon
+from .service import Service
 #Make linters happy
 Node = Node
-Addon = Addon
+Service = Service

@@ -20,7 +20,7 @@ def test_bad_structure():
     assert exc.value.reason == 'missing node segment'
 
 
-def test_bad_addon():
+def test_bad_service():
     # TODO
     pass
 
@@ -36,14 +36,14 @@ def test_node_creation():
     assert node.raw_json == jsons.good['node']
 
 
-def test_addon_creation():
+def test_service_creation():
     node = Node.from_json(jsons.good)
-    assert len(node.addons) == 1
-    addon = node.addons[0]
-    assert addon
-    assert addon.addon == 'github'
-    assert addon['user'] == 'chrisseto'
-    assert addon.parent == node
+    assert len(node.services) == 1
+    service = node.services[0]
+    assert service
+    assert service.service == 'github'
+    assert service['user'] == 'chrisseto'
+    assert service.parent == node
 
 
 # Disclaimer: node probably is not good with children

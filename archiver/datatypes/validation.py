@@ -16,9 +16,9 @@ def _validate_project(node):
             for child in node['children']:
                 if not _validate_project(child['node']):
                     raise ValidationError('bad child')
-            for addon in node['addons']:
-                if not _validate_addon(addon):
-                    raise ValidationError('bad addon')
+            for service in node['services']:
+                if not _validate_service(service):
+                    raise ValidationError('bad service')
             return True
     except (KeyError, TypeError):
         raise ValidationError('malformed data')
@@ -39,5 +39,5 @@ def _validate_metadata(data):
 
 
 #TODO
-def _validate_addon(data):
+def _validate_service(data):
     return True

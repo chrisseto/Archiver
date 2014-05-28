@@ -20,8 +20,8 @@ def patch_client(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def dropbox_addon():
-    return Node.from_json(jsons.node_with_dropbox).addons[0]
+def dropbox_service():
+    return Node.from_json(jsons.node_with_dropbox).services[0]
 
 
 @pytest.fixture(autouse=True)
@@ -42,9 +42,9 @@ def test_gets_called():
     assert get_archiver('dropbox') == DropboxArchiver
 
 
-def test_recurses(monkeypatch, dropbox_addon):
-    MockDropBox.folder_name = dropbox_addon['folder']
-    archiver = DropboxArchiver(dropbox_addon)
+def test_recurses(monkeypatch, dropbox_service):
+    MockDropBox.folder_name = dropbox_service['folder']
+    archiver = DropboxArchiver(dropbox_service)
     mock_fetch = mock.MagicMock()
     monkeypatch.setattr(archiver, 'fetch', mock_fetch)
     archiver.clone()
@@ -53,9 +53,9 @@ def test_recurses(monkeypatch, dropbox_addon):
     mock_fetch.has_calls(kalls, any_order=True)
 
 
-def test_pushes(monkeypatch, dropbox_addon, patch_push):
-    MockDropBox.folder_name = dropbox_addon['folder']
-    archiver = DropboxArchiver(dropbox_addon)
+def test_pushes(monkeypatch, dropbox_service, patch_push):
+    MockDropBox.folder_name = dropbox_service['folder']
+    archiver = DropboxArchiver(dropbox_service)
     archiver.clone()
     assert len(patch_push.mock_calls) == len(archiver.client.gets)
     assert len(patch_push.mock_calls) == len(archiver.client.collect_calls())

@@ -24,7 +24,7 @@ A lot of things work!
     - The controlling flask app
 * Worker
     - The celery worker
-* [Addon](formats/addons)
+* [Service](formats/services)
     - An arbitrary 3rd party service
 
 
@@ -55,7 +55,7 @@ registration will have directory structure as such:
     children/
         {child id}/
             {project}
-    addons/
+    services/
         github/
             {repo name}/
                 {repo contents}

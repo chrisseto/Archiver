@@ -9,10 +9,10 @@ class ServiceArchiver(object):
     CHUNK_SIZE = 1024  # 1KB
     CUTOFF_SIZE = 1024 ** 2 * 500  # 500 MB
 
-    def __init__(self, addon):
+    def __init__(self, service):
         self.dirinfo = {
-            'tempdir': addon.parent.TEMP_DIR,
-            'prefix': addon.path(addon.get(self.RESOURCE, ''))
+            'tempdir': service.parent.TEMP_DIR,
+            'prefix': service.path(service.get(self.RESOURCE, ''))
         }
 
     def clone(self):

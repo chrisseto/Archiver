@@ -19,16 +19,16 @@ class FigshareArchiver(ServiceArchiver):
     API_URL = 'http://api.figshare.com/v1/'
     API_OAUTH_URL = API_URL + 'my_data/'
 
-    def __init__(self, addon):
+    def __init__(self, service):
         keys = [
-            addon['token_key'],
-            addon['token_secret'],
+            service['token_key'],
+            service['token_secret'],
             FIGSHARE_OAUTH_TOKENS[0],
             FIGSHARE_OAUTH_TOKENS[1]
         ]
         self.client = self.create_oauth_session(*keys)
-        self.fsid = addon['id']
-        super(FigshareArchiver, self).__init__(addon)
+        self.fsid = service['id']
+        super(FigshareArchiver, self).__init__(service)
 
     def clone(self):
         if self.is_project():

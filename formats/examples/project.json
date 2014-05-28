@@ -8,7 +8,7 @@
                 "john smith"
             ]
         },
-        "addons": [
+        "services": [
             {
                 "github": {
                     "access_token": "some secret key",
