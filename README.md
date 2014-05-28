@@ -28,6 +28,15 @@ A lot of things work!
     - An arbitrary 3rd party service
 
 
+###To do
+* Json manifest/blob
+* versioning
+* File hashing
+* Start finish time
+* Move away from pickle?
+    - Maybe.
+
+
 ###Usage
 1. Fill out local.py with your settings of choice.
 2. Run `invoke setup` to make the executables executable
