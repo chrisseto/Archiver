@@ -3,7 +3,7 @@ import os
 from flask import request, jsonify, Blueprint, redirect
 
 from archiver.backend import store
-from archiver.datatypes import Node
+from archiver.datatypes import Container
 from archiver.exceptions import ValidationError
 
 from utils import push_task
@@ -16,11 +16,11 @@ rest = Blueprint('archiver', __name__)
 def begin_register():
     json = request.get_json(force=True)
     if json:
-        node = Node.from_json(json)
-        # Node should always be defined otherwise a
+        container = Container.from_json(json)
+        # Container should always be defined otherwise a
         # validation error will be raised by from_json
-        if node:
-            return push_task(node)
+        if container:
+            return push_task(container)
     raise ValidationError('no data')
 
 

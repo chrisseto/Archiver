@@ -11,7 +11,7 @@ ADD policy-rc.d /usr/sbin/policy-rc.d
 RUN /bin/chmod 755 /usr/sbin/policy-rc.d
 
 # Another way to work around Upstart problems
-# https://www.nesono.com/node/368
+# https://www.nesono.com/container/368
 # RUN dpkg-divert --local --rename --add /sbin/initctl
 # RUN ln -s /bin/true /sbin/initctl
 

@@ -9,7 +9,7 @@ import pytest
 from archiver import settings
 settings.BACKEND = 'debug'
 
-from archiver.datatypes import Node
+from archiver.datatypes import Container
 from archiver.worker.tasks import archive, archive_service
 from archiver.worker.tasks.archivers.github_archiver import GithubArchiver
 
@@ -17,13 +17,13 @@ from utils import jsons
 
 
 @pytest.fixture
-def github_node():
-    return Node.from_json(jsons.good)
+def github_container():
+    return Container.from_json(jsons.good)
 
 
 @pytest.fixture
 def github_service():
-    return Node.from_json(jsons.good).services[0]
+    return Container.from_json(jsons.good).services[0]
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def patch_callback(monkeypatch):
 @pytest.fixture(autouse=True)
 def ctrl_tempdir(monkeypatch, tmpdir):
     #Use py.test tmpdir
-    monkeypatch.setattr('archiver.datatypes.node.Node.TEMP_DIR', str(tmpdir))
+    monkeypatch.setattr('archiver.datatypes.container.Container.TEMP_DIR', str(tmpdir))
     return tmpdir
 
 
@@ -48,17 +48,17 @@ def celery_sync(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def dont_register(monkeypatch):
-    monkeypatch.setattr('archiver.worker.tasks.archive', lambda node: node)
+    monkeypatch.setattr('archiver.worker.tasks.archive', lambda container: container)
 
 
-def test_github_called(monkeypatch, github_node, patch_callback):
+def test_github_called(monkeypatch, github_container, patch_callback):
     mock_git = mock.MagicMock()
     mock_git.return_value = None
     monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GithubArchiver.__init__', mock_git)
     monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GithubArchiver.clone', mock.Mock())
-    archive(github_node)
+    archive(github_container)
     assert patch_callback.called
-    mock_git.assert_called_once_with(github_node.services[0])
+    mock_git.assert_called_once_with(github_container.services[0])
 
 
 def test_folder_structure(monkeypatch, github_service, ctrl_tempdir):

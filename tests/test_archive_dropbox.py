@@ -6,7 +6,7 @@ import mock
 
 import pytest
 
-from archiver.datatypes import Node
+from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.dropbox_archiver import DropboxArchiver
 
@@ -21,12 +21,12 @@ def patch_client(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def dropbox_service():
-    return Node.from_json(jsons.node_with_dropbox).services[0]
+    return Container.from_json(jsons.container_with_dropbox).services[0]
 
 
 @pytest.fixture(autouse=True)
-def dropbox_node():
-    return Node.from_json(jsons.node_with_dropbox)
+def dropbox_container():
+    return Container.from_json(jsons.container_with_dropbox)
 
 
 @pytest.fixture

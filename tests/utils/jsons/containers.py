@@ -24,7 +24,7 @@ bad_structure = {
 bad_children = {}
 
 bad_service = {
-    'node':
+    'container':
     {
         'metadata': {
             'id': '12345',
@@ -50,7 +50,7 @@ unimplemented_service = {
 }
 
 good = {
-    'node':
+    'container':
     {
         'metadata': {
             'id': '12345',
@@ -75,7 +75,7 @@ good = {
 
 
 good_with_children = {
-    'node':
+    'container':
     {
         'metadata': {
             'id': '12345',
@@ -96,7 +96,7 @@ good_with_children = {
         ],
         'children': [
             {
-                'node': {
+                'container': {
                     'metadata': {
                         'id': '12345',
                         'title': 'example project',
@@ -123,7 +123,7 @@ good_with_children = {
 
 
 good_multi_service = {
-    'node':
+    'container':
     {
         'metadata': {
             'id': '12345',

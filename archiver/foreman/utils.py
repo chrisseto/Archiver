@@ -7,14 +7,14 @@ from archiver.worker.tasks import archive
 
 
 #  Preprocessing would go here
-def push_task(node):
+def push_task(container):
     ret = {
-        'id': node.id,
-        'date': node.registered_on
+        'id': container.id,
+        'date': container.registered_on
     }
 
     try:
-        archive.delay(node)
+        archive.delay(container)
 
         ret.update({
             'status': 'STARTED',

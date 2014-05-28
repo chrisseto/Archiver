@@ -4,7 +4,7 @@ import pytest
 
 from webtest import TestApp
 
-from archiver.datatypes import Node
+from archiver.datatypes import Container
 from archiver.foreman import build_app
 
 from utils.jsons import good
@@ -40,4 +40,4 @@ def test_empty_json(app):
 def test_good_json(app, patch_push):
     ret = app.post_json('/', good)
     assert ret.status_code == 201
-    assert patch_push.call_args[0][0].raw_json == good['node']
+    assert patch_push.call_args[0][0].raw_json == good['container']

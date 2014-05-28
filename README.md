@@ -6,17 +6,17 @@ A lot of things work!
 
 ###Work flow
 
-* Server sends [properly formatted json](formats/node.json)
+* Server sends [properly formatted json](formats/container.json)
 * Json is parsed by flask app
 * Job is passed to foreman
-* [201 (created)](formats/confirmation.json) and the node id are sent back to the server
+* [201 (created)](formats/confirmation.json) and the container id are sent back to the server
 * foreman begins the archival process
 * Project is chunked up even more
 * On completion a callback is fired and the celeryworker pings the foreman
 
 ###Vocabulary
 
-* [Node](formats/node.json)
+* [Container](formats/container.json)
     - Any given osf project that is not a registration
 * Registration
     - A "frozen" osf project

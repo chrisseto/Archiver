@@ -3,20 +3,20 @@ from archiver.exceptions import ValidationError
 
 def validate_project(data):
     try:
-        if data['node']:
-            return _validate_project(data['node'])
+        if data['container']:
+            return _validate_project(data['container'])
     except KeyError:
         pass
-    raise ValidationError('missing node segment')
+    raise ValidationError('missing container segment')
 
 
-def _validate_project(node):
+def _validate_project(container):
     try:
-        if _validate_metadata(node['metadata']):
-            for child in node['children']:
-                if not _validate_project(child['node']):
+        if _validate_metadata(container['metadata']):
+            for child in container['children']:
+                if not _validate_project(child['container']):
                     raise ValidationError('bad child')
-            for service in node['services']:
+            for service in container['services']:
                 if not _validate_service(service):
                     raise ValidationError('bad service')
             return True

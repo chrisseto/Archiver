@@ -4,7 +4,7 @@ import mock
 
 import pytest
 
-from archiver.datatypes import Node
+from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.s3_archiver import S3Archiver
 
@@ -24,16 +24,16 @@ def patch_push(monkeypatch):
 
 
 @pytest.fixture
-def s3_node():
-    return Node.from_json(jsons.good_multi_service)
+def s3_container():
+    return Container.from_json(jsons.good_multi_service)
 
 
 @pytest.fixture
 def s3_service():
     temp = copy.deepcopy(jsons.good_multi_service)
     #Remove github service
-    del temp['node']['services'][0]
-    return Node.from_json(temp).services[0]
+    del temp['container']['services'][0]
+    return Container.from_json(temp).services[0]
 
 
 def test_gets_called():

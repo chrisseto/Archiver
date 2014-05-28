@@ -12,35 +12,35 @@ logger = logging.getLogger(__name__)
 
 
 @celery.task
-def archive(node):
-    header = [create_archive.si(node)]
+def archive(container):
+    header = [create_archive.si(container)]
 
-    for service in node.services:
+    for service in container.services:
         header.append(archive_service.si(service))
 
-    for child in node.children:
+    for child in container.children:
         header.append(archive.si(child))
 
-    if node.is_child:
+    if container.is_child:
         c = group(header)
     else:
-        c = chord(header, callbacks.archival_finish.s(node))
+        c = chord(header, callbacks.archival_finish.s(container))
 
     c.delay()
 
 
 @celery.task
-def create_archive(node):
-    logger.info('Begin archiving of "{}"'.format(node.title))
+def create_archive(container):
+    logger.info('Begin archiving of "{}"'.format(container.title))
 
-    node.make_dir()
+    container.make_dir()
 
-    with open('{}metadata.json'.format(node.full_path), 'w+') as metadata:
-        metadata.write(json.dumps(node.metadata()))
+    with open('{}metadata.json'.format(container.full_path), 'w+') as metadata:
+        metadata.write(json.dumps(container.metadata()))
 
-    store.push_directory(node.full_path, node.path)
+    store.push_directory(container.full_path, container.path)
 
-    return node
+    return container
 
 
 @celery.task

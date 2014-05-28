@@ -1,5 +1,5 @@
-from .node import Node
+from .container import Container
 from .service import Service
 #Make linters happy
-Node = Node
+Container = Container
 Service = Service

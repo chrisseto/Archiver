@@ -7,14 +7,14 @@ import validation
 from .service import Service
 
 
-class Node(object):
+class Container(object):
 
     TEMP_DIR = tempfile.mkdtemp()
 
     @classmethod
     def from_json(cls, json, parent=None):
         if validation.validate_project(json):
-            data = json['node']
+            data = json['container']
             return cls(data['metadata']['id'], data['metadata']['title'],
                 data['metadata']['description'], data['metadata']['contributors'], data['children'], data['services'], raw=data, parent=parent)
 
@@ -28,7 +28,7 @@ class Node(object):
 
         self.children = []
         for child in children:
-            self.children.append(Node.from_json(child, parent=self))
+            self.children.append(Container.from_json(child, parent=self))
 
         self.services = []
         for service in services:
