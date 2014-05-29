@@ -1,5 +1,7 @@
 import os
-import errno
+import json
+import hashlib
+import tempfile
 
 
 class ServiceArchiver(object):
@@ -14,6 +16,7 @@ class ServiceArchiver(object):
             'tempdir': service.parent.TEMP_DIR,
             'prefix': service.path(service.get(self.RESOURCE, ''))
         }
+        self.cid = service.parent.cid
 
     def clone(self):
         raise NotImplementedError()
@@ -34,12 +37,42 @@ class ServiceArchiver(object):
         return to_loc
 
     @classmethod
-    def ensure_directory(cls, directory):
-        try:
-            os.makedirs(directory)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
+    def sha256(cls, path):
+        sha = hashlib.sha256()
+        with open(path) as to_hash:
+            for chunk in cls.chunked_file(to_hash):
+                sha.update(chunk)
+        return sha.hexdigest()
+
+    @classmethod
+    def md5(cls, path):
+        md5 = hashlib.md5()
+        with open(path) as to_hash:
+            for chunk in cls.chunked_file(to_hash):
+                md5.update(chunk)
+        return md5.hexdigest()
+
+    @classmethod
+    def get_temp_file(cls):
+        return tempfile.mkstemp()
+
+    @classmethod
+    def get_metadata(cls, path, name):
+        return {
+            "name": os.path.basename(name),
+            "fullName": name,
+            "md5": cls.md5(path),
+            "sha256": cls.sha256(path),
+            "size": os.path.getsize(path),
+            "lastModified": os.path.getmtime(path)
+        }
+
+    @classmethod
+    def write_json(cls, blob):
+        fobj, path = cls.get_temp_file()
+        fobj.write(json.dumps(blob))
+        fobj.close()
+        return path
 
     def build_directories(self, resource):
         full_path = os.path.join(self.dirinfo['tempdir'], self.dirinfo['prefix'], resource)

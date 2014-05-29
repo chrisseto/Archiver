@@ -15,14 +15,18 @@ class StorageBackEnd(object):
     def clean_directory(self, directory):
         rmtree(directory)
 
-    def push_directory(self, from_loc, to):
-        diff = from_loc.replace(to, '')
-        for current_dir, dirs, files in os.walk(from_loc, topdown=True):
+    def push_directory(self, dir_path):
+        for current_dir, dirs, files in os.walk(dir_path, topdown=True):
             for f in files:
-                f = os.path.join(current_dir, f)
-                self.push_file(f, f.replace(diff, ''))
-        self.clean_directory(from_loc)
-        return True
+                full_path = os.path.join(current_dir, f)
+                yield full_path, self.push_file(full_path)
+        self.clean_directory(dir_path)
+
+    def push_file(self, path, name):
+        pass
+
+    def push_json(self, blob, name):
+        pass
 
     def get_file(self, path):
         raise NotImplementedError('No get_file method')
@@ -30,8 +34,8 @@ class StorageBackEnd(object):
     def list_directory(self, directory):
         raise NotImplementedError('No list_directory method')
 
-    def push_file(self, from_loc, to):
-        raise NotImplementedError('No push_file method')
-
     def get_metadata(self, id):
         raise NotImplementedError('Not get_metadata')
+
+    def upload_file(self, path, metadata):
+        raise NotImplementedError()
