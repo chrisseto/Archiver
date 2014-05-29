@@ -1,5 +1,7 @@
 import os
+import json
 import logging
+import tempfile
 from shutil import rmtree
 
 logger = logging.getLogger(__name__)
@@ -23,10 +25,13 @@ class StorageBackEnd(object):
         self.clean_directory(dir_path)
 
     def push_file(self, path, name):
-        pass
+        raise NotImplementedError('No push_file method')
 
     def push_json(self, blob, name):
-        pass
+        fd, path = tempfile.mkstemp()
+        with os.fdopen(fd, 'w') as json_file:
+            json_file.write(json.dumps(blob))
+        return self.push_file(path, name)
 
     def get_file(self, path):
         raise NotImplementedError('No get_file method')

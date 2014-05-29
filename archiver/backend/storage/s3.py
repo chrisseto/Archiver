@@ -6,6 +6,7 @@ needs to export methods with a signature of:
     were foo and bar will sync the given object to S3
 """
 import os
+import json
 import logging
 
 from base import StorageBackEnd
@@ -34,17 +35,12 @@ class S3(StorageBackEnd):
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
-    def push_file(self, from_loc, to):
-        if not self.bucket.get_key(to):
-            logger.info('Pushing "{}"" to Bucket "{}"'.format(to, BUCKET_NAME))
-            if os.path.getsize(from_loc) >= self.MULTIPART_THRESHOLD:
-                # TODO
-                #mult = bucket.initiate_multipart_upload(src)
-                pass
-            else:
-                pass
-            k = self.bucket.new_key(to)
-            k.set_contents_from_filename(from_loc)
+    def push_file(self, path, name):
+        if not self.bucket.get_key(name):
+            # if os.path.getsize(path) >= self.MULTIPART_THRESHOLD:
+            # TODO
+            k = self.bucket.new_key(name)
+            k.set_contents_from_filename(path)
 
     def get_file(self, path):
         return self.bucket.get_key(path, headers={'Content-Disposition': 'attachment'}).generate_url(self.DOWNLOAD_LINK_LIFE)
