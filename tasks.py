@@ -50,3 +50,8 @@ def prepdocker():
 @task
 def clean():
     run('find . -name \*.pyc -delete')
+
+
+@task
+def purge():
+    run('celery -A archiver.celery purge -f')
