@@ -1,7 +1,12 @@
 import os
+import copy
 import mock
 import random
 import string
+
+
+def rnd_str(length=10):
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 class MockDropBox(object):
@@ -47,7 +52,7 @@ class MockDropBox(object):
         mock_item = {
             'is_dir': False,
             'bytes': random.randint(0, 5000000),
-            'path': ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+            'path': rnd_str()
         }
         mock_item['path'] = os.path.join(parent, mock_item['path'])
         return mock_item
@@ -57,7 +62,7 @@ class MockDropBox(object):
         mock_dir = {
             'is_dir': True,
             'bytes': 0,
-            'path': ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10)),
+            'path': rnd_str(),
             'contents': []
         }
         mock_dir['path'] = os.path.join(parent, mock_dir['path'])
@@ -67,3 +72,58 @@ class MockDropBox(object):
             else:
                 mock_dir['contents'].append(self.create_mock_item(mock_dir['path']))
         return mock_dir
+
+
+class MockKey(object):
+    def __init__(self):
+        self.key = rnd_str()
+        self.name = self.key
+        self.version_id = 'null'
+        self.versions = self.get_versions()
+
+    def get_contents_to_filename(self, name):
+        pass
+
+    def last_modified(self):
+        return 7
+
+    def get_version(self):
+        clone = copy.deepcopy(self)
+        clone.version_id = rnd_str()
+        return clone
+
+    def get_versions(self):
+        return [
+            self.get_version()
+            for _ in
+            xrange(random.randint(2, 5))
+        ]
+
+
+class MockBucket(object):
+    def __init__(self):
+        self.name = rnd_str()
+        self.keys = [
+            MockKey()
+            for _ in
+            xrange(random.randint(2, 5))
+        ]
+
+    def list(self):
+        for key in self.keys:
+            yield key
+
+    def get_all_versions(self, prefix=None):
+        if not prefix:
+            versions = self.keys
+            versions.extend(
+                [
+                    version
+                    for key in self.keys
+                    for version in key.versions
+                ]
+            )
+            return versions
+        for key in self.keys:
+            if prefix == key.key:
+                return [key] + key.versions
