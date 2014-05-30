@@ -1,12 +1,16 @@
-from boto.s3.connection import S3Connection
+import logging
+
+from boto.s3.connection import S3Connection, Key
 
 from celery import chord
-from celery.contrib.methods import task_method
 
 from archiver import celery
 from archiver.backend import store
 
 from base import ServiceArchiver
+
+
+logger = logging.getLogger(__name__)
 
 
 class S3Archiver(ServiceArchiver):
@@ -18,44 +22,74 @@ class S3Archiver(ServiceArchiver):
         self.bucket = self.connection.get_bucket(service['bucket'], validate=False)  # TODO Should validate?
         super(S3Archiver, self).__init__(service)
 
-    def clone(self):
+    def clone(self, versions=False):
+        '''versions may be a truthy or falsey value or an integer specifing the number of versions desired
+        '''
         master_chord = []
         for key in self.bucket.list():
-            header = [
-                self.get_key.si(version)
-                for version in
-                self.bucket.get_all_versions(prefix=key.key)
-                if key.key[-1] != '/'
-            ]
-            master_chord.append(chord(header, self.key_call_back.s(key)))
-        chord(master_chord, self.bucket_call_back.s()).delay()
+            if versions:
 
-    @celery.task(filter=task_method)
+                header = [
+                    self.get_key.si(self, version)
+                    for version in
+                    self.bucket.get_all_versions(prefix=key.key)
+                    if isinstance(version, Key)
+                    and key.key[-1] != '/'
+                ]
+                key_back = self.key_call_back.s(self, key)
+
+                if isinstance(versions, int):
+                    key_chord = chord(header[:versions], key_back)
+                else:
+                    key_chord = chord(header, key_back)
+                master_chord.append(key_chord)
+
+            else:
+                master_chord.append(self.get_key.si(self, key))
+
+        logger.info('{} files to archive from {}'.format(sum([len(_) for _ in master_chord]), self.bucket.name))
+        return chord(master_chord, self.bucket_call_back.s(self))
+
+    @celery.task
     def get_key(self, key):
         fobj, path = self.get_temp_file()
         fobj.close()
         key.get_contents_to_filename(path)
         metadata = self.get_metadata(path, key.name)
         store.push_file(path, metadata['sha256'])
-        store.push_file(self.write_json(metadata), '{}.json'.format(metadata['sha256']))
+        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
         return key, metadata
 
-    @celery.task(filter=task_method)
-    def key_call_back(self, rets, key):
+    @celery.task
+    def key_call_back(rets, self, key):
         versions = {
-            key.version_id: metadata
-            for key, metadata
+            vkey.version_id: metadata
+            for vkey, metadata
             in rets
         }
-        return {key.key: versions}
 
-    @celery.task(filter=task_method)
-    def bucket_call_back(self, rets):
+        current = rets[0][0].version_id
+        to_beat = rets[0][1]['lastModified']
+
+        for k, m in rets:
+            if k.version_id == 'null':
+                current = 'null'
+                break
+            if m['lastModified'] < to_beat:
+                to_beat = m['lastModified']
+                current = k.version_id
+
+        return {
+            'current': current,
+            key.key: versions
+        }
+
+    @celery.task
+    def bucket_call_back(rets, self):
         service = {
             'service': 's3',
             'resource': self.bucket.name,
             'files': rets
         }
-        store.push_file(self.write_json(service), '{}.s3.json'.format(self.cid))
+        store.push_json(service, '{}.s3.json'.format(self.cid))
         return service
-
