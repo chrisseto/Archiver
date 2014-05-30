@@ -10,7 +10,6 @@ from archiver.backend import store
 from base import ServiceArchiver
 
 
-# TODO Should The entire path be stored?
 class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
 
@@ -50,6 +49,7 @@ class DropboxArchiver(ServiceArchiver):
         metadata['lastModified'] = lastmod
         store.push_file(tpath, metadata['sha256'])
         store.push_json(metadata, '{}.json'.format(metadata['sha256']))
+        return metadata
 
     @celery.task
     def file_done(rets, self, path):
@@ -72,3 +72,4 @@ class DropboxArchiver(ServiceArchiver):
             'files': rets
         }
         store.push_json(service, '{}.dropbox.json'.format(self.cid))
+        return service
