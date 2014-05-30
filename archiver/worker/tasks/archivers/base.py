@@ -1,21 +1,23 @@
 import os
+import pytz
+import logging
 import hashlib
 import tempfile
+import datetime
+
+
+logger = logging.getLogger(__name__)
 
 
 class ServiceArchiver(object):
 
     ARCHIVES = None
-    RESOURCE = None
     CHUNK_SIZE = 1024  # 1KB
     CUTOFF_SIZE = 1024 ** 2 * 500  # 500 MB
 
     def __init__(self, service):
-        self.dirinfo = {
-            'tempdir': service.parent.TEMP_DIR,
-            'prefix': service.path(service.get(self.RESOURCE, ''))
-        }
         self.cid = service.parent.id
+        logger.info('Archiving {} for project {}'.format(self.ARCHIVES, self.cid))
 
     def clone(self):
         raise NotImplementedError()
@@ -29,11 +31,12 @@ class ServiceArchiver(object):
             yield chunk
 
     @classmethod
-    def chunked_save(cls, fobj, to_loc):
-        with open(to_loc, 'w+') as to_file:
-            for chunk in cls.chunked_file(fobj):
-                to_file.write(chunk)
-        return to_loc
+    def chunked_save(cls, fobj):
+        to_file, path = cls.get_temp_file()
+        for chunk in cls.chunked_file(fobj):
+            to_file.write(chunk)
+        to_file.close()
+        return path
 
     @classmethod
     def sha256(cls, path):
@@ -57,6 +60,10 @@ class ServiceArchiver(object):
         return os.fdopen(fd, 'w'), path
 
     @classmethod
+    def to_epoch(cls, dt):
+        return (dt.replace(tzinfo=pytz.UTC) - datetime.datetime(1970, 1, 1).replace(tzinfo=pytz.UTC)).total_seconds()
+
+    @classmethod
     def get_metadata(cls, path, name):
         return {
             "name": os.path.basename(name),
@@ -66,10 +73,3 @@ class ServiceArchiver(object):
             "size": os.path.getsize(path),
             "lastModified": os.path.getmtime(path)
         }
-
-    def build_directories(self, resource):
-        full_path = os.path.join(self.dirinfo['tempdir'], self.dirinfo['prefix'], resource)
-        full_dir = os.path.dirname(full_path)
-        save_path = os.path.join(self.dirinfo['prefix'], resource)
-        self.ensure_directory(full_dir)
-        return full_path, save_path

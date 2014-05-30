@@ -1,6 +1,8 @@
-from dropbox.client import DropboxClient
+from celery import chord
 
-from celery.contrib.methods import task_method
+from dateutil import parser
+
+from dropbox.client import DropboxClient
 
 from archiver import celery
 from archiver.backend import store
@@ -11,37 +13,62 @@ from base import ServiceArchiver
 # TODO Should The entire path be stored?
 class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
-    RESOURCE = ''  # Dropbox will include the entire path
 
     def __init__(self, service):
         self.client = DropboxClient(service['access_token'])
         self.folder_name = service['folder']
         super(DropboxArchiver, self).__init__(service)
 
-    def clone(self):
-        start_folder = self.client.metadata(self.folder_name)
-        self.recurse(start_folder)
+    def clone(self, versions=False):
+        header = self.build_header(self.folder_name)
+        return chord(header, self.clone_done.s(self))
 
-    @celery.task(filter=task_method)
-    def recurse(self, contents):
-        for item in contents['contents']:
+    def build_header(self, folder, versions=None):
+        header = []
+        for item in self.client.metadata(folder)['contents']:
             if item['is_dir']:
-                new_contents = self.client.metadata(item['path'])
-                if item['bytes'] > self.CUTOFF_SIZE:
-                    self.recurse.delay(new_contents)
-                else:
-                    self.recurse(new_contents)
+                header.extend(self.build_header(item['path']), versions=versions)
             else:
-                if item['bytes'] > self.CUTOFF_SIZE:
-                    self.fetch.delay(item['path'])
-                else:
-                    self.fetch(item['path'])
+                header.append(self.build_file_chord(item, versions=versions))
+        return header
 
-    @celery.task(filter=task_method)
-    def fetch(self, path):
-        fobj = self.client.get_file(path)
+    def build_file_chord(self, item, versions=None):
+        if not versions:
+            return self.fetch.si(self, item['path'], rev=None)
+        header = []
+        for rev in self.client.revisions(item['path'], versions):
+            header.append(self.fetch.si(self, item['path'], rev=rev['rev']))
+        return chord(header, self.file_done.s(self, item['path']))
 
-        path, save_loc = self.build_directories(path[1:])  # Remove beginning /
+    @celery.task
+    def fetch(self, path, rev=None):
+        fobj, metadata = self.client.get_file_and_metadata(path, rev)
+        tpath = self.chunked_save(fobj)
+        fobj.close()
+        lastmod = self.to_epoch(parser.parse(metadata['modified']))
+        metadata = self.get_metadata(tpath, path)
+        metadata['lastModified'] = lastmod
+        store.push_file(tpath, metadata['sha256'])
+        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
 
-        self.chunked_save(fobj, path)
-        store.push_file(path, save_loc)
+    @celery.task
+    def file_done(rets, self, path):
+        versions = {}
+        current = rets[0]
+        for item in rets:
+            versions['rev'] = item
+            if current['lastModified'] > item['lastModified']:
+                current = item
+        return {
+            'current': current['rev'],
+            'versions': versions
+        }
+
+    @celery.task
+    def clone_done(rets, self):
+        service = {
+            'service': 'dropbox',
+            'resource': self.folder_name,
+            'files': rets
+        }
+        store.push_json(service, '{}.dropbox.json'.format(self.cid))
