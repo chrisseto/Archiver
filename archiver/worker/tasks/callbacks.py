@@ -19,7 +19,7 @@ def archival_finish(rvs, container):
             'metadata': container.metadata(),
             'services': {service['service']: service for service in rvs if service}
         }
-    store.push_json(meta, '{}.json'.format(container.id))
+        store.push_json(meta, '{}.json'.format(container.id))
 
     payload = {
         'status': 'failed' if errs else 'success',
