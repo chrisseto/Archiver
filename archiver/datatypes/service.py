@@ -8,6 +8,10 @@ class Service(object):
         self.service, self.raw_json = json.items()[0]
         self.parent = parent
 
+    @property
+    def versions(self):
+        return self.raw_json.get('versions')
+
     def path(self, extra):
         return os.path.join(self.parent.path, 'services', self.service, extra) + os.sep
 

@@ -22,27 +22,27 @@ class S3Archiver(ServiceArchiver):
         self.bucket = self.connection.get_bucket(service['bucket'], validate=False)
         super(S3Archiver, self).__init__(service)
 
-    def clone(self, versions=False):
+    def clone(self):
         '''versions may be a truthy or falsey value or an integer specifing the number of versions desired
         '''
-        header = self.build_header(versions)
+        header = self.build_header()
 
         logger.info('{} files to archive from {}'.format(len(header), self.bucket.name))
         return chord(header, self.clone_done.s(self))
 
-    def build_header(self, versions=None):
+    def build_header(self):
         header = []
         for key in self.bucket.list():
             if key.key[-1] == '/':
                 continue
 
-            if versions:
-                header.extend(self.build_key_chord(key, versions))
+            if self.versions:
+                header.append(self.build_key_chord(key))
             else:
                 header.append(self.get_key.si(self, key))
         return header
 
-    def build_key_chord(self, key, versions):
+    def build_key_chord(self, key):
         header = [
             self.get_key.si(self, version)
             for version

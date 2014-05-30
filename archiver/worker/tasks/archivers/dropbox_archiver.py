@@ -23,8 +23,8 @@ class DropboxArchiver(ServiceArchiver):
         self.folder_name = service['folder']
         super(DropboxArchiver, self).__init__(service)
 
-    def clone(self, versions=False):
-        header = self.build_header(self.folder_name)
+    def clone(self):
+        header = self.build_header(self.folder_name, self.versions)
         logging.info('Archiving {} items from "{}"'.format(len(header), self.folder_name))
         return chord(header, self.clone_done.s(self))
 
@@ -32,7 +32,7 @@ class DropboxArchiver(ServiceArchiver):
         header = []
         for item in self.client.metadata(folder)['contents']:
             if item['is_dir']:
-                header.extend(self.build_header(item['path'], versions=versions))
+                header.append(self.build_header(item['path'], versions=versions))
             else:
                 header.append(self.build_file_chord(item, versions=versions))
         return header

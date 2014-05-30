@@ -19,7 +19,10 @@ class ServiceArchiver(object):
 
     def __init__(self, service):
         self.cid = service.parent.id
+        self.versions = service.versions
         logger.info('Archiving {} for project {}'.format(self.ARCHIVES, self.cid))
+        if self.versions:
+            logger.info('Archiving {} versions'.format('all' if self.versions is True else self.versions))
 
     def clone(self):
         raise NotImplementedError()
