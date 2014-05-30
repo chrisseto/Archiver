@@ -1,3 +1,5 @@
+import logging
+
 from celery import chord
 
 from dateutil import parser
@@ -10,6 +12,9 @@ from archiver.backend import store
 from base import ServiceArchiver
 
 
+logger = logging.getLogger(__name__)
+
+
 class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
 
@@ -20,13 +25,14 @@ class DropboxArchiver(ServiceArchiver):
 
     def clone(self, versions=False):
         header = self.build_header(self.folder_name)
+        logging.info('Archiving {} items from "{}"'.format(len(header), self.folder_name))
         return chord(header, self.clone_done.s(self))
 
     def build_header(self, folder, versions=None):
         header = []
         for item in self.client.metadata(folder)['contents']:
             if item['is_dir']:
-                header.extend(self.build_header(item['path']), versions=versions)
+                header.extend(self.build_header(item['path'], versions=versions))
             else:
                 header.append(self.build_file_chord(item, versions=versions))
         return header
@@ -57,7 +63,7 @@ class DropboxArchiver(ServiceArchiver):
         current = rets[0]
         for item in rets:
             versions['rev'] = item
-            if current['lastModified'] > item['lastModified']:
+            if current['lastModified'] < item['lastModified']:
                 current = item
         return {
             'current': current['rev'],

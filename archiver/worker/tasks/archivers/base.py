@@ -5,6 +5,8 @@ import hashlib
 import tempfile
 import datetime
 
+from dateutil import parser
+
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,8 @@ class ServiceArchiver(object):
 
     @classmethod
     def to_epoch(cls, dt):
+        if not isinstance(dt, datetime.datetime):
+            dt = parser.parse(dt)
         return (dt.replace(tzinfo=pytz.UTC) - datetime.datetime(1970, 1, 1).replace(tzinfo=pytz.UTC)).total_seconds()
 
     @classmethod
