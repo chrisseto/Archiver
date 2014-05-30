@@ -19,36 +19,37 @@ class S3Archiver(ServiceArchiver):
 
     def __init__(self, service):
         self.connection = S3Connection(service['access_key'], service['secret_key'])
-        self.bucket = self.connection.get_bucket(service['bucket'], validate=False)  # TODO Should validate?
+        self.bucket = self.connection.get_bucket(service['bucket'], validate=False)
         super(S3Archiver, self).__init__(service)
 
     def clone(self, versions=False):
         '''versions may be a truthy or falsey value or an integer specifing the number of versions desired
         '''
-        master_chord = []
+        header = self.build_header(versions)
+
+        logger.info('{} files to archive from {}'.format(len(header), self.bucket.name))
+        return chord(header, self.clone_done.s(self))
+
+    def build_header(self, versions=None):
+        header = []
         for key in self.bucket.list():
+            if key.key[-1] == '/':
+                continue
+
             if versions:
-
-                header = [
-                    self.get_key.si(self, version)
-                    for version in
-                    self.bucket.get_all_versions(prefix=key.key)
-                    if isinstance(version, Key)
-                    and key.key[-1] != '/'
-                ]
-                key_back = self.key_call_back.s(self, key)
-
-                if isinstance(versions, int):
-                    key_chord = chord(header[:versions], key_back)
-                else:
-                    key_chord = chord(header, key_back)
-                master_chord.append(key_chord)
-
+                header.extend(self.build_key_chord(key, versions))
             else:
-                master_chord.append(self.get_key.si(self, key))
+                header.append(self.get_key.si(self, key))
+        return header
 
-        logger.info('{} files to archive from {}'.format(sum([len(_) for _ in master_chord]), self.bucket.name))
-        return chord(master_chord, self.bucket_call_back.s(self))
+    def build_key_chord(self, key, versions):
+        header = [
+            self.get_key.si(self, version)
+            for version
+            in self.bucket.get_all_versions(prefix=key.key)
+            if isinstance(version, Key)
+        ]
+        return chord(header, self.key_done.s(self, key))
 
     @celery.task
     def get_key(self, key):
@@ -56,40 +57,39 @@ class S3Archiver(ServiceArchiver):
         fobj.close()
         key.get_contents_to_filename(path)
         metadata = self.get_metadata(path, key.name)
+        metadata['lastModified'] = self.to_epoch(key.last_modified)
         store.push_file(path, metadata['sha256'])
         store.push_json(metadata, '{}.json'.format(metadata['sha256']))
         return key, metadata
 
     @celery.task
-    def key_call_back(rets, self, key):
-        versions = {
-            vkey.version_id: metadata
-            for vkey, metadata
-            in rets
-        }
+    def key_done(rets, self, key):
+        versions = {}
+        ckey, current = rets[0]
 
-        current = rets[0][0].version_id
-        to_beat = rets[0][1]['lastModified']
-
-        for k, m in rets:
-            if k.version_id == 'null':
-                current = 'null'
-                break
-            if m['lastModified'] < to_beat:
-                to_beat = m['lastModified']
-                current = k.version_id
+        for vkey, metadata in rets:
+            versions[vkey.version_id] = metadata
+            if vkey.version_id == 'null' or metadata['lastModified'] > current['lastModified']:
+                ckey, current = vkey, metadata
 
         return {
-            'current': current,
+            'current': ckey.version_id,
             key.key: versions
         }
 
     @celery.task
-    def bucket_call_back(rets, self):
+    def clone_done(rets, self):
+        files = []
+        for ret in rets:
+            if isinstance(ret, tuple):
+                files.append(ret[1])
+            else:
+                files.append(ret)
+
         service = {
             'service': 's3',
             'resource': self.bucket.name,
-            'files': rets
+            'files': files
         }
         store.push_json(service, '{}.s3.json'.format(self.cid))
         return service
