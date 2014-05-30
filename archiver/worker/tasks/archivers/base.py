@@ -1,5 +1,4 @@
 import os
-import json
 import hashlib
 import tempfile
 
@@ -16,7 +15,7 @@ class ServiceArchiver(object):
             'tempdir': service.parent.TEMP_DIR,
             'prefix': service.path(service.get(self.RESOURCE, ''))
         }
-        self.cid = service.parent.cid
+        self.cid = service.parent.id
 
     def clone(self):
         raise NotImplementedError()
@@ -54,7 +53,8 @@ class ServiceArchiver(object):
 
     @classmethod
     def get_temp_file(cls):
-        return tempfile.mkstemp()
+        fd, path = tempfile.mkstemp()
+        return os.fdopen(fd, 'w'), path
 
     @classmethod
     def get_metadata(cls, path, name):
@@ -66,13 +66,6 @@ class ServiceArchiver(object):
             "size": os.path.getsize(path),
             "lastModified": os.path.getmtime(path)
         }
-
-    @classmethod
-    def write_json(cls, blob):
-        fobj, path = cls.get_temp_file()
-        fobj.write(json.dumps(blob))
-        fobj.close()
-        return path
 
     def build_directories(self, resource):
         full_path = os.path.join(self.dirinfo['tempdir'], self.dirinfo['prefix'], resource)

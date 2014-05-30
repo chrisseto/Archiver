@@ -3,6 +3,7 @@ import logging
 import requests
 
 from archiver import celery
+from archiver.backend import store
 from archiver.settings import FOREMAN_ADDRESS
 
 
@@ -13,6 +14,12 @@ headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 @celery.task
 def archival_finish(rvs, container):
     errs = [error.message for error in rvs if isinstance(error, Exception)]
+    if not errs:
+        meta = {
+            'metadata': container.metadata(),
+            'services': {service['service']: service for service in rvs if service}
+        }
+    store.push_json(meta, '{}.json'.format(container.id))
 
     payload = {
         'status': 'failed' if errs else 'success',
