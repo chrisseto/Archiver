@@ -43,7 +43,7 @@ class MockDropBox(object):
             listing = self.listing
         for item in listing['contents']:
             if not item['is_dir']:
-                calls.append(item['path'])
+                calls.append((self, item['path']))
             else:
                 calls.extend(self.collect_calls(item['path']))
         return calls
