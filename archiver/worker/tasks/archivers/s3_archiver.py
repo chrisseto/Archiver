@@ -23,8 +23,6 @@ class S3Archiver(ServiceArchiver):
         super(S3Archiver, self).__init__(service)
 
     def clone(self):
-        '''versions may be a truthy or falsey value or an integer specifing the number of versions desired
-        '''
         header = self.build_header()
 
         logger.info('{} files to archive from {}'.format(len(header), self.bucket.name))
@@ -59,37 +57,27 @@ class S3Archiver(ServiceArchiver):
         metadata = self.get_metadata(path, key.name)
         metadata['lastModified'] = self.to_epoch(key.last_modified)
         store.push_file(path, metadata['sha256'])
-        store.push_json(metadata, metadata['sha256'])
+        store.push_metadata(metadata, metadata['sha256'])
         return key, metadata
 
     @celery.task
     def key_done(rets, self, key):
-        versions = {}
         ckey, current = rets[0]
+        versions = {}
 
         for vkey, metadata in rets:
-            versions[vkey.version_id] = metadata
+            versions[vkey.version_id] = metadata['sha256']
             if vkey.version_id == 'null' or metadata['lastModified'] > current['lastModified']:
                 ckey, current = vkey, metadata
-
-        return {
-            'current': ckey.version_id,
-            key.key: versions
-        }
+        current['versions'] = versions
+        return current
 
     @celery.task
     def clone_done(rets, self):
-        files = []
-        for ret in rets:
-            if isinstance(ret, tuple):
-                files.append(ret[1])
-            else:
-                files.append(ret)
-
         service = {
             'service': 's3',
             'resource': self.bucket.name,
-            'files': files
+            'files': rets
         }
         store.push_manifest(service, '{}.s3'.format(self.cid))
         return service

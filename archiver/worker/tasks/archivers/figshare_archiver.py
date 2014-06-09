@@ -124,7 +124,7 @@ class FigshareArchiver(ServiceArchiver):
         metadata = self.get_metadata(tpath, path)
         metadata['lastModified'] = lastmod
         store.push_file(tpath, metadata['sha256'])
-        store.push_json(metadata, metadata['sha256'])
+        store.push_metadata(metadata, metadata['sha256'])
         return metadata
 
     @celery.task
@@ -135,10 +135,9 @@ class FigshareArchiver(ServiceArchiver):
             versions['rev'] = item
             if current['lastModified'] < item['lastModified']:
                 current = item
-        return {
-            'current': current['rev'],
-            'versions': versions
-        }
+
+        current['versions'] = versions
+        return current
 
     @celery.task
     def clone_done(rets, self):

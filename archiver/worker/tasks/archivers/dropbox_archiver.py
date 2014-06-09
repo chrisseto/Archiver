@@ -54,27 +54,27 @@ class DropboxArchiver(ServiceArchiver):
         metadata = self.get_metadata(tpath, path)
         metadata['lastModified'] = lastmod
         store.push_file(tpath, metadata['sha256'])
-        store.push_json(metadata, metadata['sha256'])
+        store.push_metadata(metadata, metadata['sha256'])
+        metadata['path'] = metadata['path'].replace('{}/'.format(self.folder_name), '')
         return metadata
 
     @celery.task
     def file_done(rets, self, path):
         versions = {}
         current = rets[0]
+
         for item in rets:
             versions['rev'] = item
             if current['lastModified'] < item['lastModified']:
                 current = item
-        return {
-            'current': current['rev'],
-            'versions': versions
-        }
+        current['versions'] = versions
+        return current
 
     @celery.task
     def clone_done(rets, self):
         service = {
             'service': 'dropbox',
-            'resource': self.folder_name,
+            'resource': self.folder_name[1:],
             'files': rets
         }
         store.push_manifest(service, '{}.dropbox'.format(self.cid))
