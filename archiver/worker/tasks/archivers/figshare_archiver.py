@@ -2,9 +2,13 @@ import os
 
 import requests
 
+from celery import chord
+
 from requests_oauthlib import OAuth1Session
 
 from celery.contrib.methods import task_method
+
+from dateutil import parser
 
 from archiver import celery
 from archiver.backend import store
@@ -92,3 +96,56 @@ class FigshareArchiver(ServiceArchiver):
                     save.write(chunk)
                     save.flush()  # Needed?
         return True
+
+
+    def build_header(self, id, versions=None):
+        header = []
+        for item in self.client.metadata(id)['contents']:
+            if item['is_dir']:
+                header.append(self.build_header(item['path'], versions=versions))
+            else:
+                header.append(self.build_file_chord(item, versions=versions))
+        return header
+
+    def build_file_chord(self, item, versions=None):
+        if not versions:
+            return self.fetch.si(self, item['path'], rev=None)
+        header = []
+        for rev in self.client.revisions(item['path'], versions):
+            header.append(self.fetch.si(self, item['path'], rev=rev['rev']))
+        return chord(header, self.file_done.s(self, item['path']))
+
+    @celery.task
+    def fetch(self, path, rev=None):
+        fobj, metadata = self.client.get_file_and_metadata(path, rev)
+        tpath = self.chunked_save(fobj)
+        fobj.close()
+        lastmod = self.to_epoch(parser.parse(metadata['modified']))
+        metadata = self.get_metadata(tpath, path)
+        metadata['lastModified'] = lastmod
+        store.push_file(tpath, metadata['sha256'])
+        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
+        return metadata
+
+    @celery.task
+    def file_done(rets, self, path):
+        versions = {}
+        current = rets[0]
+        for item in rets:
+            versions['rev'] = item
+            if current['lastModified'] < item['lastModified']:
+                current = item
+        return {
+            'current': current['rev'],
+            'versions': versions
+        }
+
+    @celery.task
+    def clone_done(rets, self):
+        service = {
+            'service': 'figshare',
+            'resource': self.id,
+            'files': rets
+        }
+        store.push_json(service, '{}.figshare.json'.format(self.cid))
+        return service
