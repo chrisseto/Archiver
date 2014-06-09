@@ -5,6 +5,7 @@ needs to export methods with a signature of:
     bar(file_name)
     were foo and bar will sync the given object to S3
 """
+import os
 import json
 import logging
 import httplib as http
@@ -37,8 +38,8 @@ class S3(StorageBackEnd):
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
-    def push_file(self, path, name, dir='Files/'):
-        name = '{}{}'.format(dir, name)
+    def push_file(self, path, name, dir='Files'):
+        name = os.path.join(dir, name)
         if not self.bucket.get_key(name):
             # if os.path.getsize(path) >= self.MULTIPART_THRESHOLD:
             # TODO

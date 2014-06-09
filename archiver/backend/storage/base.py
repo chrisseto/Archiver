@@ -15,6 +15,8 @@ class StorageBackEnd(object):
 
     FILES_DIR = 'Files/'
     MANIFEST_DIR = 'Manifests/'
+    METADATA_DIR = 'File Metadata/'
+    DIRSTRUCT_DIR = 'Directory Structures/'
 
     DELIMITER = '.manifest.json'
 

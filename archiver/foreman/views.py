@@ -52,6 +52,6 @@ def get_file_route(fid):
     #TODO Move constants to settings
     try:
         request.args['metadata']
-        return store.get_file('{}.json'.format(fid))
+        return store.get_file('File Metadata/{}.json'.format(fid))
     except KeyError:
         return store.get_file('Files/{}'.format(fid))
