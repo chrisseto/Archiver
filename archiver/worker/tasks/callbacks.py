@@ -20,6 +20,7 @@ def archival_finish(rvs, container):
             'services': {service['service']: service for service in rvs if service}
         }
         store.push_manifest(meta, container.id)
+        store.push_directory_structure(meta)
 
     payload = {
         'status': 'failed' if errs else 'success',

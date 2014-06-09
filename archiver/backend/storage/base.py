@@ -1,5 +1,6 @@
 import re
 import os
+import copy
 import json
 import logging
 import tempfile
@@ -50,6 +51,26 @@ class StorageBackEnd(object):
 
     def push_manifest(self, blob, name):
         self.push_json(blob, '{}.manifest'.format(name), directory=self.MANIFEST_DIR)
+
+    def push_metadata(self, blob, name):
+        clone = copy.deepcopy(blob)
+        try:
+            del clone['path']
+            del clone['name']
+        except:
+            pass
+        return self.push_json(clone, os.path.join(self.METADATA_DIR, name))
+
+    def push_directory_structure(self, final):
+        prefix = os.path.join(self.DIRSTRUCT_DIR, final['metadata']['id'])
+        self.push_json(final, 'manifest', directory=prefix)
+
+        for service in final['services'].values():
+            self.push_json(service, 'manifest', os.path.join(prefix, service['service']))
+            sprefix = os.path.join(prefix, service['service'], service['resource'])
+
+            for fid in service['files']:
+                self.push_json(fid, fid['path'], directory=sprefix)
 
     def list_containers(self, limit=None):
         return self._filter(
