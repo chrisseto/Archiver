@@ -1,10 +1,9 @@
-import copy
-import random
-import string
-
 import mock
 
 import pytest
+
+from archiver import settings
+settings.CELERY_ALWAYS_EAGER = True
 
 from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
@@ -29,33 +28,26 @@ def dropbox_container():
     return Container.from_json(jsons.container_with_dropbox)
 
 
-@pytest.fixture
-def patch_push(monkeypatch):
-    patched = mock.MagicMock()
-    monkeypatch.setattr('archiver.worker.tasks.archivers.dropbox_archiver.store.push_file', patched)
-    monkeypatch.setattr(DropboxArchiver, 'chunked_save', mock.MagicMock())
-
-    return patched
-
-
 def test_gets_called():
     assert get_archiver('dropbox') == DropboxArchiver
+    assert get_archiver('dropbox').ARCHIVES == 'dropbox'
 
 
 def test_recurses(monkeypatch, dropbox_service):
     MockDropBox.folder_name = dropbox_service['folder']
     archiver = DropboxArchiver(dropbox_service)
     mock_fetch = mock.MagicMock()
-    monkeypatch.setattr(archiver, 'fetch', mock_fetch)
+    monkeypatch.setattr(archiver.fetch, 'si', mock_fetch)
     archiver.clone()
     assert mock_fetch.called
     kalls = archiver.client.collect_calls()
     mock_fetch.has_calls(kalls, any_order=True)
 
 
-def test_pushes(monkeypatch, dropbox_service, patch_push):
-    MockDropBox.folder_name = dropbox_service['folder']
-    archiver = DropboxArchiver(dropbox_service)
-    archiver.clone()
-    assert len(patch_push.mock_calls) == len(archiver.client.gets)
-    assert len(patch_push.mock_calls) == len(archiver.client.collect_calls())
+# def test_pushes(monkeypatch, patch_client, dropbox_service, push_file, push_json):
+#     MockDropBox.folder_name = dropbox_service['folder']
+#     monkeypatch.setattr(MockDropBox.fetch)
+#     archiver = DropboxArchiver(dropbox_service)
+#     archiver.clone()()
+#     assert len(push_file.mock_calls) == len(archiver.client.gets)
+#     assert len(push_file.mock_calls) == len(archiver.client.collect_calls())
