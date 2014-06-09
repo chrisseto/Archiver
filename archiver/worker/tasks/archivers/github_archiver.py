@@ -69,7 +69,6 @@ class GithubArchiver(ServiceArchiver):
         git.fetch('--all')
         git.pull('--all')
 
-
     def build_header(self, branch, versions=None):
         header = []
         for item in self.client.metadata(branch)['contents']:
@@ -96,7 +95,7 @@ class GithubArchiver(ServiceArchiver):
         metadata = self.get_metadata(tpath, path)
         metadata['lastModified'] = lastmod
         store.push_file(tpath, metadata['sha256'])
-        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
+        store.push_json(metadata, metadata['sha256'])
         return metadata
 
     @celery.task
@@ -119,5 +118,5 @@ class GithubArchiver(ServiceArchiver):
             'resource': self.repo_name,
             'files': rets
         }
-        store.push_json(service, '{}.github.json'.format(self.cid))
+        store.push_manifest(service, '{}.github'.format(self.cid))
         return service

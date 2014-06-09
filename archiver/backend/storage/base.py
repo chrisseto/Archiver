@@ -1,3 +1,4 @@
+import re
 import os
 import json
 import logging
@@ -11,8 +12,25 @@ class StorageBackEnd(object):
 
     USES = None
 
+    FILES_DIR = 'Files/'
+    MANIFEST_DIR = 'Manifests/'
+
+    DELIMITER = '.manifest.json'
+
+    FILTER_SERVICES = r'^[^\.]+\.{}\.json$'
+    FILTER_CONTAINER_SERVICE = r'^{}\.{}\.json$'
+    FILTER_CONTAINERS = r'^[^\.]+\.manifest\.json$'
+
     def __init__(self):
         logger.debug('Loading backend {}'.format(self.__class__.__name__))
+
+    @classmethod
+    def remove(cls, string, blob):
+        if isinstance(blob, list):
+            for i in blob:
+                string = cls.remove(string, i)
+            return string
+        return string.replace(blob, '')
 
     def clean_directory(self, directory):
         rmtree(directory)
@@ -24,14 +42,46 @@ class StorageBackEnd(object):
                 yield full_path, self.push_file(full_path)
         self.clean_directory(dir_path)
 
-    def push_file(self, path, name):
-        raise NotImplementedError('No push_file method')
-
-    def push_json(self, blob, name):
+    def push_json(self, blob, name, directory=''):
         fd, path = tempfile.mkstemp()
         with os.fdopen(fd, 'w') as json_file:
             json_file.write(json.dumps(blob))
-        return self.push_file(path, name)
+        return self.push_file(path, '{}.json'.format(name), dir=directory)
+
+    def push_manifest(self, blob, name):
+        self.push_json(blob, '{}.manifest'.format(name), directory=self.MANIFEST_DIR)
+
+    def list_containers(self, limit=None):
+        return self._filter(
+            self.FILTER_CONTAINERS,
+            limit=limit,
+            directory=self.MANIFEST_DIR,
+            remove=[self.DELIMITER, self.MANIFEST_DIR])
+
+    def list_container_service(self, cid, service, limit=None):
+        return self._filter(
+            self.FILTER_CONTAINER_SERVICES.format(cid, service),
+            limit=limit,
+            directory=self.MANIFEST_DIR,
+            remove=self.DELEMITER)
+
+    def _filter(self, filter, limit=None, remove='', directory=''):
+        #TODO Pagination?
+        return [
+            self.remove(container, remove)
+            for container in
+            self.list_directory(directory)
+            if re.search(filter, container)
+        ][:None]
+
+    def get_container(self, cid):
+        return self.get_file('{}{}{}'.format(self.MANIFEST_DIR, cid, self.DELIMITER))
+
+    def get_container_service(self, cid, service):
+        return self.get_file('{}{}.{}{}'.format(self.MANIFEST_DIR, cid, service, self.DELIMITER))
+
+    def push_file(self, path, name, dir=FILES_DIR):
+        raise NotImplementedError('No push_file method')
 
     def get_file(self, path):
         raise NotImplementedError('No get_file method')

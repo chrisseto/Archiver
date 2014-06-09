@@ -124,7 +124,7 @@ class FigshareArchiver(ServiceArchiver):
         metadata = self.get_metadata(tpath, path)
         metadata['lastModified'] = lastmod
         store.push_file(tpath, metadata['sha256'])
-        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
+        store.push_json(metadata, metadata['sha256'])
         return metadata
 
     @celery.task
@@ -147,5 +147,5 @@ class FigshareArchiver(ServiceArchiver):
             'resource': self.id,
             'files': rets
         }
-        store.push_json(service, '{}.figshare.json'.format(self.cid))
+        store.push_manifest(service, '{}.figshare'.format(self.cid))
         return service

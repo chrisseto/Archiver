@@ -54,7 +54,7 @@ class DropboxArchiver(ServiceArchiver):
         metadata = self.get_metadata(tpath, path)
         metadata['lastModified'] = lastmod
         store.push_file(tpath, metadata['sha256'])
-        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
+        store.push_json(metadata, metadata['sha256'])
         return metadata
 
     @celery.task
@@ -77,5 +77,5 @@ class DropboxArchiver(ServiceArchiver):
             'resource': self.folder_name,
             'files': rets
         }
-        store.push_json(service, '{}.dropbox.json'.format(self.cid))
+        store.push_manifest(service, '{}.dropbox'.format(self.cid))
         return service

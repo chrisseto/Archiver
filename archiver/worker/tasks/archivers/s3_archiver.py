@@ -59,7 +59,7 @@ class S3Archiver(ServiceArchiver):
         metadata = self.get_metadata(path, key.name)
         metadata['lastModified'] = self.to_epoch(key.last_modified)
         store.push_file(path, metadata['sha256'])
-        store.push_json(metadata, '{}.json'.format(metadata['sha256']))
+        store.push_json(metadata, metadata['sha256'])
         return key, metadata
 
     @celery.task
@@ -91,5 +91,5 @@ class S3Archiver(ServiceArchiver):
             'resource': self.bucket.name,
             'files': files
         }
-        store.push_json(service, '{}.s3.json'.format(self.cid))
+        store.push_manifest(service, '{}.s3'.format(self.cid))
         return service

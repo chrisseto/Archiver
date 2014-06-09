@@ -5,16 +5,18 @@ needs to export methods with a signature of:
     bar(file_name)
     were foo and bar will sync the given object to S3
 """
-import os
 import json
 import logging
+import httplib as http
 
-from base import StorageBackEnd
+from flask import redirect, jsonify
 
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 
+from archiver.exceptions import HTTPError
 from archiver.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
 
+from base import StorageBackEnd
 from exceptions import RemoteStorageError
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,8 @@ class S3(StorageBackEnd):
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
-    def push_file(self, path, name):
+    def push_file(self, path, name, dir='Files/'):
+        name = '{}{}'.format(dir, name)
         if not self.bucket.get_key(name):
             # if os.path.getsize(path) >= self.MULTIPART_THRESHOLD:
             # TODO
@@ -43,13 +46,20 @@ class S3(StorageBackEnd):
             k.set_contents_from_filename(path)
 
     def get_file(self, path):
-        return self.bucket.get_key(path, headers={'Content-Disposition': 'attachment'}).generate_url(self.DOWNLOAD_LINK_LIFE)
+        key = self.bucket.get_key(path, headers={'response-content-disposition': 'attachment'})
+
+        if not key:
+            raise HTTPError(http.NOT_FOUND)
+
+        if '.json' in path:
+            ret = json.loads(key.get_contents_as_string())
+            return jsonify(ret)
+
+        return redirect(key.generate_url(self.DOWNLOAD_LINK_LIFE))
 
     def list_directory(self, directory, recurse=False):
         return [
-            {
-                'path': key.name
-            }
+            key.name
             for key in
             self.bucket.list(prefix=directory, delimiter='' if recurse else '/')
         ]
