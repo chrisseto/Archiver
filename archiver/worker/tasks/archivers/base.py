@@ -74,7 +74,7 @@ class ServiceArchiver(object):
     def get_metadata(cls, path, name):
         return {
             "name": os.path.basename(name),
-            "fullName": name,
+            "path": name,
             "md5": cls.md5(path),
             "sha256": cls.sha256(path),
             "size": os.path.getsize(path),

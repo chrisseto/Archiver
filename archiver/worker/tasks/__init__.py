@@ -14,9 +14,11 @@ def archive(container):
     header = []
 
     for service in container.services:
+        logging.info('Found service {} for {}'.format(service.service, container.id))
         header.append(archive_service(service))
 
     for child in container.children:
+        logging.info('Found child {} for {}'.format(child.id, container.id))
         header.append(archive.si(child))
 
     if container.is_child:
@@ -30,4 +32,6 @@ def archive(container):
 def archive_service(service):
     #Lol one liners
     #WWSD
+    logger.info('Archiving service {} for {}'.format(service.service, service.parent.id))
+    #Note .clone() should return an unstarted celery task
     return get_archiver(service.service)(service).clone()

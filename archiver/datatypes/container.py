@@ -63,5 +63,5 @@ class Container(object):
             'title': self.title,
             'description': self.description,
             'contributors': self.contributors,
-            'registered_on': str(self.registered_on)
+            'archivedOn': str(self.registered_on)
         }

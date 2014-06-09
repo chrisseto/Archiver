@@ -4,8 +4,6 @@ from git import Git
 
 from celery import chord
 
-from celery.contrib.methods import task_method
-
 from dateutil import parser
 
 from archiver import celery
