@@ -15,7 +15,7 @@ from flask import redirect, jsonify
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 
 from archiver.exceptions import HTTPError
-from archiver.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
+from archiver.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME, FILES_DIR
 
 from base import StorageBackEnd
 from exceptions import RemoteStorageError
@@ -38,7 +38,7 @@ class S3(StorageBackEnd):
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
-    def push_file(self, path, name, dir='Files'):
+    def push_file(self, path, name, dir=FILES_DIR):
         name = os.path.join(dir, name)
         if not self.bucket.get_key(name):
             # if os.path.getsize(path) >= self.MULTIPART_THRESHOLD:
@@ -47,6 +47,10 @@ class S3(StorageBackEnd):
             k.set_contents_from_filename(path)
 
     def get_file(self, path):
+        # you can set the Content-Disposition header on your s3 file to set the downloading filename:
+        # Content-Disposition: attachment; filename=foo.bar
+        # http://stackoverflow.com/questions/2611432/amazon-s3-change-file-download-name
+
         key = self.bucket.get_key(path, headers={'response-content-disposition': 'attachment'})
 
         if not key:

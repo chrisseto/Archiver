@@ -6,17 +6,14 @@ import logging
 import tempfile
 from shutil import rmtree
 
+from archiver import settings
+
 logger = logging.getLogger(__name__)
 
 
 class StorageBackEnd(object):
 
     USES = None
-
-    FILES_DIR = 'Files/'
-    MANIFEST_DIR = 'Manifests/'
-    METADATA_DIR = 'File Metadata/'
-    DIRSTRUCT_DIR = 'Directory Structures/'
 
     DELIMITER = '.manifest.json'
 
@@ -52,7 +49,7 @@ class StorageBackEnd(object):
         return self.push_file(path, '{}.json'.format(name), dir=directory)
 
     def push_manifest(self, blob, name):
-        self.push_json(blob, '{}.manifest'.format(name), directory=self.MANIFEST_DIR)
+        self.push_json(blob, '{}.manifest'.format(name), directory=settings.MANIFEST_DIR)
 
     def push_metadata(self, blob, name):
         clone = copy.deepcopy(blob)
@@ -61,10 +58,10 @@ class StorageBackEnd(object):
             del clone['name']
         except:
             pass
-        return self.push_json(clone, os.path.join(self.METADATA_DIR, name))
+        return self.push_json(clone, os.path.join(settings.METADATA_DIR, name))
 
     def push_directory_structure(self, final):
-        prefix = os.path.join(self.DIRSTRUCT_DIR, final['metadata']['id'])
+        prefix = os.path.join(settings.DIRSTRUCT_DIR, final['metadata']['id'])
         self.push_json(final, 'manifest', directory=prefix)
 
         for service in final['services'].values():
@@ -78,15 +75,15 @@ class StorageBackEnd(object):
         return self._filter(
             self.FILTER_CONTAINERS,
             limit=limit,
-            directory=self.MANIFEST_DIR,
-            remove=[self.DELIMITER, self.MANIFEST_DIR])
+            directory=settings.MANIFEST_DIR,
+            remove=[self.DELIMITER, settings.MANIFEST_DIR])
 
     def list_container_service(self, cid, service, limit=None):
         return self._filter(
             self.FILTER_CONTAINER_SERVICES.format(cid, service),
             limit=limit,
-            directory=self.MANIFEST_DIR,
-            remove=self.DELEMITER)
+            directory=settings.MANIFEST_DIR,
+            remove=settings.DELEMITER)
 
     def _filter(self, filter, limit=None, remove='', directory=''):
         #TODO Pagination?
@@ -98,12 +95,12 @@ class StorageBackEnd(object):
         ][:None]
 
     def get_container(self, cid):
-        return self.get_file('{}{}{}'.format(self.MANIFEST_DIR, cid, self.DELIMITER))
+        return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
 
     def get_container_service(self, cid, service):
-        return self.get_file('{}{}.{}{}'.format(self.MANIFEST_DIR, cid, service, self.DELIMITER))
+        return self.get_file('{}{}.{}{}'.format(settings.MANIFEST_DIR, cid, service, self.DELIMITER))
 
-    def push_file(self, path, name, dir=FILES_DIR):
+    def push_file(self, path, name, dir=settings.FILES_DIR):
         raise NotImplementedError('No push_file method')
 
     def get_file(self, path):

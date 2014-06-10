@@ -8,6 +8,11 @@ CELERY_SYNC = False
 
 #### FILE STORAGE OPTIONS ####
 BACKEND = 's3'
+#### FILE STORAGE LOCATIONS ####
+FILES_DIR = 'Files/'
+MANIFEST_DIR = 'Manifests/'
+METADATA_DIR = 'File Metadata/'
+DIRSTRUCT_DIR = 'Directory Structures/'
 ### S3 Options ###
 ACCESS_KEY = 'CHANGEME'
 SECRET_KEY = 'CHANGEME'
@@ -41,4 +46,3 @@ FIGSHARE_OAUTH_TOKENS = [
     'CLIENT ID',
     'CLIENT SECRET'
 ]
-
