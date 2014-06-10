@@ -39,7 +39,6 @@ def callback():
 
 
 @rest.route('/<string(maxlength=60):cid>')
-@rest.route('/<cid>/metadata')
 def get_metadata_route(cid):
     service = request.args.get('service')
     if service:
