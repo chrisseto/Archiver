@@ -2,8 +2,6 @@
 [![Travis](https://travis-ci.org/chrisseto/Archiver.svg?branch=develop)](https://travis-ci.org/chrisseto/Archiver)
 [![Coverage Status](https://coveralls.io/repos/chrisseto/Archiver/badge.png?branch=develop)](https://coveralls.io/r/chrisseto/Archiver?branch=develop)
 
-A lot of things work!
-
 ###Work flow
 
 * Server sends [properly formatted json](formats/container.json)
@@ -29,13 +27,8 @@ A lot of things work!
 
 
 ###To do
-* Json manifest/blob
-* versioning
-* File hashing
-* Start finish time
-* Move away from pickle?
-    - Maybe.
-
+* ansible
+* Par2 files
 
 ###Usage
 1. Fill out local.py with your settings of choice.

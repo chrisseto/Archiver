@@ -8,7 +8,7 @@ from archiver.datatypes import Container
 from archiver.worker.tasks import archive
 from archiver.worker.tasks.archivers import get_archiver
 
-from utils import jsons, DebugArchiver
+from utils import jsons
 
 
 @pytest.fixture
