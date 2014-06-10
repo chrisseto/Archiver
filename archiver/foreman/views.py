@@ -56,4 +56,5 @@ def get_file_route(fid):
         request.args['metadata']
         return store.get_file(os.path.join(settings.METADATA_DIR, '{}.json'.format(fid)))
     except KeyError:
-        return store.get_file(os.path.join(settings.FILES_DIR, fid))
+        name = request.args.get('name')
+        return store.get_file(os.path.join(settings.FILES_DIR, fid), name=name)

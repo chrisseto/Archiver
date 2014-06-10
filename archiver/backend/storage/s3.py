@@ -46,12 +46,12 @@ class S3(StorageBackEnd):
             k = self.bucket.new_key(name)
             k.set_contents_from_filename(path)
 
-    def get_file(self, path):
+    def get_file(self, path, name=None):
         # you can set the Content-Disposition header on your s3 file to set the downloading filename:
         # Content-Disposition: attachment; filename=foo.bar
         # http://stackoverflow.com/questions/2611432/amazon-s3-change-file-download-name
 
-        key = self.bucket.get_key(path, headers={'response-content-disposition': 'attachment'})
+        key = self.bucket.get_key(path)
 
         if not key:
             raise HTTPError(http.NOT_FOUND)
@@ -60,7 +60,12 @@ class S3(StorageBackEnd):
             ret = json.loads(key.get_contents_as_string())
             return jsonify(ret)
 
-        return redirect(key.generate_url(self.DOWNLOAD_LINK_LIFE))
+        if name:
+            content_dispo = 'attachment; filename="{}"'.format(name)
+        else:
+            content_dispo = 'attachment'
+
+        return redirect(key.generate_url(self.DOWNLOAD_LINK_LIFE, response_headers={'response-content-disposition': content_dispo}))
 
     def list_directory(self, directory, recurse=False):
         return [
