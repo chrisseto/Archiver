@@ -1,3 +1,5 @@
+import os
+
 from invoke import task, run
 
 
@@ -55,3 +57,17 @@ def clean():
 @task
 def purge():
     run('celery -A archiver.celery purge -f')
+
+
+@task
+def getpar2():
+    cwd = os.getcwd()
+    run('wget http://downloads.sourceforge.net/project/parchive/par2cmdline/0.4/par2cmdline-0.4.tar.gz')
+    run('tar -xf par2cmdline-0.4.tar.gz')
+    os.chdir('par2cmdline-0.4')
+    run('wget http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/app-arch/par2cmdline/files/par2cmdline-0.4-gcc4.patch?revision=1.1 -O reedsolomon.patch')
+    run('patch -i reedsolomon.patch')
+    run('./configure')
+    run('make && make check && make install')
+    os.chdir(cwd)
+    run('rm -rf par2cmdline-0.4 par2cmdline-0.4.tar.gz')
