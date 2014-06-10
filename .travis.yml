@@ -8,7 +8,6 @@ python:
 install:
     - pip install -r requirements.txt
     - pip install python-coveralls
-    - pip install pytest-cov
 
 script:
     - py.test --cov archiver --cov-report term-missing
