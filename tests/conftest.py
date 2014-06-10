@@ -2,19 +2,24 @@ import mock
 
 import pytest
 
+from archiver import settings
+settings.BACKEND = 'debug'
+settings.CELERY_ALWAYS_EAGER = True
+settings.CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
 from archiver.datatypes import Container
 
-from utils import jsons
+from utils import jsons, DebugArchiver
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def push_file(monkeypatch):
     patched = mock.MagicMock()
     monkeypatch.setattr('archiver.backend.store.push_file', patched)
     return patched
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def push_json(monkeypatch):
     patched = mock.MagicMock()
     monkeypatch.setattr('archiver.backend.store.push_json', patched)
@@ -34,3 +39,18 @@ def no_metadata(monkeypatch):
 @pytest.fixture
 def container(monkeypatch):
     return Container.from_json(jsons.container_with_dropbox)
+
+
+@pytest.fixture
+def callback(monkeypatch):
+    patch = mock.MagicMock()
+    monkeypatch.setattr('archiver.worker.tasks.callbacks.archival_finish.run', patch)
+    return patch
+
+
+@pytest.fixture
+def ignore_services(monkeypatch):
+    mock_archive = mock.MagicMock()
+    mock_archive.return_value = DebugArchiver().clone()
+    monkeypatch.setattr('archiver.worker.tasks.archive_service', mock_archive)
+    return mock_archive
