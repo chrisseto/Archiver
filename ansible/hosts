@@ -1,0 +1,10 @@
+[master]
+#Foreman address here
+
+
+[workers]
+#list workers here
+
+
+[rabbitmq]
+#server running rabbit

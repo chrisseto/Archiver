@@ -1,0 +1,26 @@
+---
+
+- hosts: all
+    roles:
+    - role: common
+
+- hosts: master workers
+    roles:
+    - role: archiver
+
+- hosts: workers
+    roles:
+     - role: worker
+    tasks:
+    - include: roles/archiver/tasks/worker.yml
+
+- hosts: foreman
+    roles:
+    - role: master
+    tasks:
+    - include: roles/archiver/tasks/foreman.yml
+
+
+- hosts: rabbitmq
+    roles:
+    - roles: rabbit

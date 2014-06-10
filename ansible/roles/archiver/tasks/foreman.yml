@@ -1,0 +1,4 @@
+---
+
+- name: start foreman
+    - shell: "cd ~/Archiver && ./Foreman"

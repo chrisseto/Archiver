@@ -1,0 +1,11 @@
+---
+# Handlers for archiver
+
+- name: update archiver
+    - shell: "cd ~/Archiver && git pull"
+
+
+- name: restart foreman
+
+
+- name: restart worker
