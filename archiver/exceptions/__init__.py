@@ -48,7 +48,7 @@ class HTTPError(Exception):
             }
         else:
             data['message_short'] = 'Unable to resolve'
-            data['message_long'] = 'OSF was unable to resolve your request.  If this issue persists, please report it to <a href="mailto:support@osf.io">support@osf.io</a>.'
+            data['message_long'] = ''
 
         data['code'] = self.code
         data['reason'] = self.reason

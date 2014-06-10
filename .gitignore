@@ -7,3 +7,4 @@ local.py
 local-celery.py
 local-docker.py
 .coverage
+.env
