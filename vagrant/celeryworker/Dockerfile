@@ -7,5 +7,6 @@ WORKDIR /archiver
 RUN cp /local.py archiver/settings/local.py
 RUN pip install -r requirements.txt
 RUN invoke setup
+RUN invoke getpar2
 ENTRYPOINT ./Worker
 USER daemon
