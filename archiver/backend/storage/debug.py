@@ -23,7 +23,7 @@ class Debug(StorageBackEnd):
     def list_directory(self, directory):
         pass
 
-    def push_file(self, from_loc, to):
+    def upload_file(self, from_loc, to):
         pass
 
     def push_directory(*args):

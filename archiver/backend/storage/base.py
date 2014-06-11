@@ -1,5 +1,6 @@
 import re
 import os
+import abc
 import copy
 import json
 import logging
@@ -7,11 +8,13 @@ import tempfile
 from shutil import rmtree
 
 from archiver import settings
+from archiver import parchive
 
 logger = logging.getLogger(__name__)
 
 
 class StorageBackEnd(object):
+    __metaclass__ = abc.ABCMeta
 
     USES = None
 
@@ -35,18 +38,11 @@ class StorageBackEnd(object):
     def clean_directory(self, directory):
         rmtree(directory)
 
-    def push_directory(self, dir_path):
-        for current_dir, dirs, files in os.walk(dir_path, topdown=True):
-            for f in files:
-                full_path = os.path.join(current_dir, f)
-                yield full_path, self.push_file(full_path)
-        self.clean_directory(dir_path)
-
     def push_json(self, blob, name, directory=''):
         fd, path = tempfile.mkstemp()
         with os.fdopen(fd, 'w') as json_file:
             json_file.write(json.dumps(blob))
-        return self.push_file(path, '{}.json'.format(name), dir=directory)
+        return self.upload_file(path, '{}.json'.format(name), directory=directory)
 
     def push_manifest(self, blob, name):
         self.push_json(blob, '{}.manifest'.format(name), directory=settings.MANIFEST_DIR)
@@ -94,23 +90,36 @@ class StorageBackEnd(object):
             if re.search(filter, container)
         ][:None]
 
+    def push_file(self, path, name):
+        if settings.CREATE_PARITIES:
+            self.build_parities(path, name)
+        else:
+            logger.info('Skipping parity creation for %s' % path)
+        return self.upload_file(path, name, directory=settings.FILES_DIR)
+
+    def build_parities(self, path, name):
+        logger.info('Creating parities for %s' % path)
+        parities = parchive.create_parity_files(path, name, force=settings.IGNORE_PARITIY_SIZE_LIMIT)
+        if parities:
+            metadata = parchive.build_parity_metadata(parities)
+            self.push_metadata(metadata, '%s.par2' % name)
+            for parity in parities:
+                self.upload_file(parity, os.path.basename(parity), directory=settings.PARITY_DIR)
+
     def get_container(self, cid):
         return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
 
     def get_container_service(self, cid, service):
         return self.get_file('{}{}.{}{}'.format(settings.MANIFEST_DIR, cid, service, self.DELIMITER))
 
-    def push_file(self, path, name, dir=settings.FILES_DIR):
-        raise NotImplementedError('No push_file method')
+    @abc.abstractmethod
+    def upload_file(self, path, name, directory=''):
+        raise NotImplementedError('No upload_file method')
 
-    def get_file(self, path):
-        raise NotImplementedError('No get_file method')
-
-    def list_directory(self, directory):
+    @abc.abstractmethod
+    def list_directory(self, directory, recurse=False):
         raise NotImplementedError('No list_directory method')
 
-    def get_metadata(self, id):
-        raise NotImplementedError('Not get_metadata')
-
-    def upload_file(self, path, metadata):
-        raise NotImplementedError()
+    @abc.abstractmethod
+    def get_file(self, path, name=None):
+        raise NotImplementedError('No get_file')

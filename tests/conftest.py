@@ -27,6 +27,13 @@ def push_json(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def upload_file(monkeypatch):
+    patched = mock.MagicMock()
+    monkeypatch.setattr('archiver.backend.store.upload_file', patched)
+    return patched
+
+
+@pytest.fixture(autouse=True)
 def no_metadata(monkeypatch):
     fake_meta = {
         'lastModified': 5,

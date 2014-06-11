@@ -8,11 +8,14 @@ CELERY_SYNC = False
 
 #### FILE STORAGE OPTIONS ####
 BACKEND = 's3'
+CREATE_PARITIES = True
+IGNORE_PARITIY_SIZE_LIMIT = False
 #### FILE STORAGE LOCATIONS ####
 FILES_DIR = 'Files/'
 MANIFEST_DIR = 'Manifests/'
 METADATA_DIR = 'File Metadata/'
 DIRSTRUCT_DIR = 'Directory Structures/'
+PARITY_DIR = 'Parities/'
 ### S3 Options ###
 ACCESS_KEY = 'CHANGEME'
 SECRET_KEY = 'CHANGEME'

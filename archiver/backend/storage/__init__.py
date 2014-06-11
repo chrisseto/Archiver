@@ -54,7 +54,7 @@ class StorageBackEndCollective(StorageBackEnd):
         else:
             self._try_all('get_file', [path])
 
-    def push_file(self, from_loc, to, backend=None):
+    def upload_file(self, from_loc, to, backend=None):
         if backend:
             self._use_one('push_file', [from_loc, to], backend)
         else:
