@@ -90,16 +90,16 @@ class StorageBackEnd(object):
             if re.search(filter, container)
         ][:None]
 
-    def push_file(self, path, name):
+    def push_file(self, path, name, force_parity=settings.IGNORE_PARITIY_SIZE_LIMIT):
         if settings.CREATE_PARITIES:
-            self.build_parities(path, name)
+            self.build_parities(path, name, force=force_parity)
         else:
             logger.info('Skipping parity creation for %s' % path)
         return self.upload_file(path, name, directory=settings.FILES_DIR)
 
-    def build_parities(self, path, name):
+    def build_parities(self, path, name, force=False):
         logger.info('Creating parities for %s' % path)
-        parities = parchive.create_parity_files(path, name, force=settings.IGNORE_PARITIY_SIZE_LIMIT)
+        parities = parchive.create_parity_files(path, name, force=force)
         if parities:
             metadata = parchive.build_parity_metadata(parities)
             self.push_metadata(metadata, '%s.par2' % name)

@@ -12,6 +12,10 @@ class Service(object):
     def versions(self):
         return self.raw_json.get('versions')
 
+    @property
+    def force_parity(self):
+        return self.raw_json.get('forceParity', False)
+
     def path(self, extra):
         return os.path.join(self.parent.path, 'services', self.service, extra) + os.sep
 
