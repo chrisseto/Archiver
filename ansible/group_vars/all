@@ -1,6 +1,0 @@
-# Global variable definitions
-
-s3_access_key: CHANGEME
-s3_secret_key: CHANGEME
-
-rabbitmq_url: "ampq://changeme//"
