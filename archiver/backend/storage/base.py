@@ -99,9 +99,9 @@ class StorageBackEnd(object):
 
     def build_parities(self, path, name, force=False):
         logger.info('Creating parities for %s' % path)
-        parities = parchive.create_parity_files(path, name, force=force)
+        parities = parchive.create(path, name, force=force)
         if parities:
-            metadata = parchive.build_parity_metadata(parities)
+            metadata = parchive.build_metadata(parities)
             self.push_metadata(metadata, '%s.par2' % name)
             for parity in parities:
                 self.upload_file(parity, os.path.basename(parity), directory=settings.PARITY_DIR)

@@ -33,14 +33,14 @@ def _metadata(path):
     }
 
 
-def build_parity_metadata(paths):
+def build_metadata(paths):
     meta = {}
     for path in paths:
         meta[os.path.basename(path)] = _metadata(path)
     return meta
 
 
-def create_parity_files(path, name, redundancy=5, force=False, files=1):
+def create(path, name, redundancy=5, force=False, files=1):
     if not force and os.path.getsize(path) < PARITY_CUT_OFF_SIZE:
         logger.info('Skipping parity creation for "%s", too small.' % name)
         return []
@@ -61,9 +61,9 @@ def create_parity_files(path, name, redundancy=5, force=False, files=1):
     raise ParchiveException()
 
 
-def verify_parity_files():
-    pass
+def verify_file(to_verify, parities):
+    return subprocess.call([PAR2BIN, 'v', ' '.join(parities), to_verify]) is 0
 
 
-def restory_file_from_parities():
+def restory_file():
     pass
