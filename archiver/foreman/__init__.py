@@ -22,7 +22,7 @@ def start():
     logger.addHandler(ch)
 
     app = build_app()
-    app.run(port=settings.PORT)
+    app.run(host='0.0.0.0', port=settings.PORT)
 
 
 def build_app():
