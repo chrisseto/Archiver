@@ -77,7 +77,8 @@ class S3Archiver(ServiceArchiver):
         service = {
             'service': 's3',
             'resource': self.bucket.name,
-            'files': rets
+            'files': [ret[1] for ret in rets if isinstance(ret, tuple)] +
+            [ret for ret in rets if isinstance(ret, dict)]
         }
         store.push_manifest(service, '{}.s3'.format(self.cid))
         return service

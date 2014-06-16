@@ -32,7 +32,7 @@ class DropboxArchiver(ServiceArchiver):
         header = []
         for item in self.client.metadata(folder)['contents']:
             if item['is_dir']:
-                header.append(self.build_header(item['path'], versions=versions))
+                header.extend(self.build_header(item['path'], versions=versions))
             else:
                 header.append(self.build_file_chord(item, versions=versions))
         return header
