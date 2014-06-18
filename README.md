@@ -25,40 +25,59 @@
 * [Service](formats/services)
     - An arbitrary 3rd party service
 
-
-###To do
-* ansible
-* Par2 files
-
-###Usage
-1. Fill out local.py with your settings of choice.
-2. Run `invoke setup` to make the executables executable
-3. Ensure that RabbitMQ is running
-4. Launch the foreman with `./Foreman`
-5. On any number of machines launch the celery worker with `./Worker`
-
 ###Registration structure
 
 registration will have directory structure as such:
 (subject to change)
-
 ```
-{project id}/
-    metadata.json
+Directory Structures/
+    {See Below}
+File Metadata/
+    {some sha256}.json
+    {some sha256}.par2.json
+Files/
+    {some sha256}
+Manifests/
+    {some container id}.manifest.json
+    {some container id}.{some 3rd party service}.manifest.json
+Parities/
+    {some sha256}.par2
+    {some sha256}.vol00+xxx.par2
+```
+
+The directory structure of Directory Structures is as follows
+```
+{some container id id}/
+    manifest.json
     children/
         {child id}/
-            {project}
-    services/
-        github/
-            {repo name}/
-                {repo contents}
-        s3/
-            {bucket name}/
-                {bucker contents}
-        figshare/
-            {id}/
-                {figshare contents}
-        dropbox/
-            {folder}/
-                {folder contents}
+            {container}
+    github/
+        {repo name}/
+            {repo contents}
+    s3/
+        {bucket name}/
+            {bucker contents}
+    figshare/
+        {id}/
+            {figshare contents}
+    dropbox/
+        {folder}/
+            {folder contents}
 ```
+
+
+###Setting up the Archiver to run locally
+* `mv group_vars/archiver.example group_vars/archiver`
+* Fill out archiver with the proper information
+    - Minimally your S3 keys and bucket name
+
+1. Change directorys to vagrant
+2. `vagrant up`
+3. `invoke provision`
+4. `cd ..`
+5. `invoke notebook`
+6. From here you will need the API key from whatever service you wish to archiver.
+7. Fill out the cell defining `container` and run the notebook
+8. ???
+9. profit
