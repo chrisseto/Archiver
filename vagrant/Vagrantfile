@@ -1,41 +1,42 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrant configuration file, simplified from:
+# https://github.com/pjan/the-ansibles/blob/master/contrib/vagrant/Vagrantfile
+
+# --- Configuration
+
+PROJECT_NAME  = ENV['PROJECT_NAME']  || "ANSIBLES"
+
+BOX_IMAGE     = ENV['BOX_IMAGE']     || "ubuntu/trusty64"
+BOX_NAME      = ENV['BOX_NAME']      || "vagrantbox"
+BOX_ADMIN     = ENV['BOX_ADMIN']     || "vagrant"
+BOX_IP_ZONE   = ENV['BOX_IP_ZONE']   || "192.168.111"
+BOX_IP_END    = ENV['BOX_IP_END']    || 111
+BOX_MEMORY    = ENV['BOX_MEMORY']    || "500"
+BOX_CPUS      = ENV['BOX_CPUS']      || "1"
+BOX_DOCKER    = ENV['BOX_DOCKER']    || false
+NODE_NUMBER   = ENV['NODE_NUMBER']   || 5
+
+
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # CONFIGURATION
+  NODES = Hash[NODE_NUMBER.times.map { |n| ['Node%d' % n, '%s.%d' % [BOX_IP_ZONE, (BOX_IP_END + n)]] }]
 
-  config.vm.box = "precise/docker"
-  config.vm.box_url = "http://nitron-vagrant.s3-website-us-east-1.amazonaws.com/vagrant_ubuntu_12.04.3_amd64_virtualbox.box"
+  NODES.each do |nodenumber, node_ip|
+    config.vm.define nodenumber do |node_config|
 
-  config.vm.provision "docker" do |d|
+      node_config.vm.box = BOX_IMAGE
+      node_config.vm.network :private_network, ip: node_ip
 
-    d.build_image "/vagrant/rabbitmq",
-      args: '-t "rabbitmq"'
-
-    d.run "rabbitmq",
-      args: "-h rabbithost -i -t -p 5672:5672 -p 15672:15672"
-
-    d.build_image "/vagrant/celeryworker",
-      args: '-t "celeryworker"'
-
-    5.times do |n|
-      d.run 'worker%d' % (n+1),
-        args: '-i -t --link rabbitmq:service -h worker%d' % (n+1),
-        image: 'celeryworker',
-        daemonize: true
+      node_config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--ioapic", "on"]
+        vb.customize ["modifyvm", :id, "--memory", BOX_MEMORY]
+        vb.customize ["modifyvm", :id, "--cpus", BOX_CPUS]
+      end
     end
-
   end
-
-  config.vm.provider "virtualbox" do |v|
-    v.memory = 1024
-  end
-
-  #RabbitMQ
-  config.vm.network :forwarded_port, guest: 15672, host: 15672,  auto_correct: true
-  config.vm.network :forwarded_port, guest: 4369,  host: 4369,   auto_correct: true
-  config.vm.network :forwarded_port, guest: 5672,  host: 5672,   auto_correct: true
-
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  config.vm.network :private_network, ip: "192.168.33.10"
 end

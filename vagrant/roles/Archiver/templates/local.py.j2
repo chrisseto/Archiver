@@ -1,0 +1,40 @@
+# QUEUE_NAME = 'celeryq'
+FOREMAN_ADDRESS = '{{ master_address }}'
+
+DEBUG = False
+PORT = {{ master_port }}
+
+#### FILE STORAGE OPTIONS ####
+BACKEND = 's3'
+CREATE_PARITIES = True
+IGNORE_PARITIY_SIZE_LIMIT = False
+
+#### FILE STORAGE LOCATIONS ####
+FILES_DIR = '{{ files_directory }}'
+MANIFEST_DIR = '{{ manifest_directory }}'
+METADATA_DIR = '{{ metadata_directory }}'
+DIRSTRUCT_DIR = '{{ dirstruct_directory }}'
+PARITY_DIR = '{{ parity_directory }}'
+
+### S3 Options ###
+ACCESS_KEY = '{{ s3_access_key }}'
+SECRET_KEY = '{{ s3_secret_key }}'
+BUCKET_NAME = '{{ s3_bucket }}'
+
+### smartfile ###
+smartfile_ACCESS_KEY = 'CHANGEME'
+smartfile_SECRET_KEY = 'CHANGEME'
+
+#### CELERY OPTIONS ####
+BROKER_URL = '{{ rabbitmq_url }}'
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle']
+
+
+#### CLONER OPTIONS ####
+# Figshare
+FIGSHARE_OAUTH_TOKENS = [
+    '{{ figshare_client_id }}',
+    '{{ figshare_client_secret }}'
+]

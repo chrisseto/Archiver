@@ -1,0 +1,34 @@
+- name: Create log files directory
+  file:
+    path: /var/log/archiver/
+    state: directory
+
+- name: Create log files
+  file:
+    path: /var/log/archiver/foreman.log
+    state: touch
+
+- name: Check if managed by Supervisor
+  supervisorctl: name=archiverforeman state=present
+  register: foreman_is_managed
+  ignore_errors: true
+
+- name: Add to Supervisor
+  template:
+    src: archiverforeman.conf.j2
+    dest: /etc/supervisor/conf.d/archiverforeman.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: 'foreman_is_managed|failed'
+
+- name: Reload Supervisor
+  supervisorctl:
+    name: archiverforeman
+    state: present
+
+- name: Start foreman
+  supervisorctl:
+    name: archiverforeman
+    state: started
+  ignore_errors: yes

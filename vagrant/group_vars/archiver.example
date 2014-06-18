@@ -1,0 +1,16 @@
+rabbitmq_plugins:
+  - rabbitmq_management
+rabbitmq_ssl        : no
+rabbitmq_users_definitions:
+  - vhost: /
+    user: archiver
+    password: archiver
+    tags:
+    - administrator
+
+s3_access_key: CHANGE ME
+s3_secret_key: CHANGE ME
+s3_bucket: CHANGE ME
+
+rabbitmq_url: "amqp://archiver:archiver@192.168.111.113//"
+master_address: http://192.168.112:7000
