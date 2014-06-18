@@ -13,6 +13,7 @@ from dateutil import parser
 from archiver import celery
 from archiver.backend import store
 from archiver.settings import FIGSHARE_OAUTH_TOKENS
+from archiver.exceptions.archivers import FigshareArchiverError, FigshareKeyError
 
 from base import ServiceArchiver
 
@@ -24,6 +25,8 @@ class FigshareArchiver(ServiceArchiver):
     API_OAUTH_URL = API_URL + 'my_data/'
 
     def __init__(self, service):
+        if None in FIGSHARE_OAUTH_TOKENS:
+            raise FigshareKeyError('No OAuth tokens.')
         keys = [
             service['token_key'],
             service['token_secret'],
@@ -96,7 +99,6 @@ class FigshareArchiver(ServiceArchiver):
                     save.write(chunk)
                     save.flush()  # Needed?
         return True
-
 
     def build_header(self, id, versions=None):
         header = []
