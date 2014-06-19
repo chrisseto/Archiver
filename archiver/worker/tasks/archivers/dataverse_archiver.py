@@ -38,7 +38,8 @@ class DataverseArchiver(ServiceArchiver):
         return tpath
 
     def clone(self):
-        c = Connection(self.user, self.password, self.host)
+        #Disables ssl validation
+        c = Connection(self.user, self.password, self.host, disable_ssl=True)
         if not c.connected:
             raise DataverseArchiverError('Invalid creditials or host')
 
