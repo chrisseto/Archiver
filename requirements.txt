@@ -1,4 +1,4 @@
--e git+https://github.com/rliebz/python-client-sword2/tarball/master#egg=sword2
+-e git+https://github.com/rliebz/python-client-sword2.git#egg=sword2
 -e git+https://github.com/rliebz/dvn-client-python.git#egg=dataverse
 amqp==1.4.5
 anyjson==0.3.3
