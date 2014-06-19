@@ -3,11 +3,9 @@
   sudo: yes
   with_items:
     - git
-    - lib32z1-dev
-    - libxml2-dev
-    - libxslt1-dev
     - par2
     - python-dev
+    - python-lxml
     - python-pip
 
 - name: Ensure virtualenv
