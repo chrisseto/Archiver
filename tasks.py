@@ -1,5 +1,3 @@
-import os
-
 from invoke import task, run
 
 
@@ -12,11 +10,6 @@ def setup():
 @task
 def vagrant():
     run('cd vagrant && vagrant up')
-
-
-@task
-def build_worker():
-    print 'TODO'
 
 
 @task
@@ -42,11 +35,6 @@ def notebook():
 @task
 def flower():
     run('celery -A archiver.celery flower')
-
-
-@task
-def prepdocker():
-    run('cp archiver/settings/local-docker.py vagrant/celeryworker/local.py')
 
 
 @task
