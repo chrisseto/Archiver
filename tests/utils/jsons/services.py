@@ -59,3 +59,14 @@ figshare_bad = {
         'vq': 'svtfuner'
     }
 }
+
+
+dataverse_good = {
+    'dataverse': {
+        "username": "bobert",
+        "password": "bgure",
+        "dataverse": "DVN1",
+        "studyDoi": "somedoi",
+        "host": "dvn-demo.iq.harvard.edu"
+    }
+}

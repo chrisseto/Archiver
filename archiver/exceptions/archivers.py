@@ -4,3 +4,7 @@ class FigshareArchiverError(Exception):
 
 class FigshareKeyError(Exception):
     pass
+
+
+class DataverseArchiverError(Exception):
+    pass

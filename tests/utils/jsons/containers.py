@@ -1,3 +1,6 @@
+import services
+
+
 empty = {}
 
 bad_structure = {
@@ -148,6 +151,23 @@ good_multi_service = {
                     'bucket': 'a bucket name'
                 }
             }
+        ],
+        'children': []
+    }
+}
+
+good_with_dataverse = {
+    'container': {
+        'metadata': {
+            'id': '12345',
+            'title': 'example project',
+            'description': '',
+            'contributors': [
+                'john smith'
+            ]
+        },
+        'services': [
+            services.dataverse_good
         ],
         'children': []
     }
