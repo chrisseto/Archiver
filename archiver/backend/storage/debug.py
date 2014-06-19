@@ -28,3 +28,6 @@ class Debug(StorageBackEnd):
 
     def push_directory(*args):
         pass
+
+    def list_containers(self, limit=None):
+        return []

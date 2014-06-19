@@ -22,13 +22,14 @@ def begin_register():
         # Container should always be defined otherwise a
         # validation error will be raised by from_json
         if container:
+            if container.id in store.list_containers():
+                raise ValidationError('Container ID already exists')
             return push_task(container)
     raise ValidationError('no data')
 
 
 @rest.route('/', methods=['GET'])
 def list_projects():
-
     return jsonify({'projects': store.list_containers()})
 
 
