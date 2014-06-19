@@ -47,7 +47,7 @@ class DataverseArchiver(ServiceArchiver):
         if not dv:
             raise DataverseArchiverError('Invalid dataverse alias')
 
-        study = dv.get_study(self.study_doi)
+        study = dv.get_study_by_doi(self.study_doi)
         if not study:
             raise DataverseArchiverError('Invalid study doi')
 
