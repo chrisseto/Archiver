@@ -44,6 +44,15 @@ def test_recurses(monkeypatch, dropbox_service):
     mock_fetch.has_calls(kalls, any_order=True)
 
 
+def test_flat_list(monkeypatch, dropbox_service):
+    MockDropBox.folder_name = dropbox_service['folder']
+    archiver = DropboxArchiver(dropbox_service)
+    mock_fetch = mock.MagicMock()
+    monkeypatch.setattr(archiver.fetch, 'si', mock_fetch)
+    chord = archiver.clone()
+    for task in chord.task:
+        assert not isinstance(task, list)
+
 # def test_pushes(monkeypatch, patch_client, dropbox_service, push_file, push_json):
 #     MockDropBox.folder_name = dropbox_service['folder']
 #     monkeypatch.setattr(MockDropBox.fetch)
