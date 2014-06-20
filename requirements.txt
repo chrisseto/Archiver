@@ -6,7 +6,7 @@ beautifulsoup4==4.3.2
 billiard==3.3.0.17
 boto==2.28.0
 bson==0.3.3
-celery==3.1.11
+celery==3.1.12
 dropbox==2.0.0
 Flask==0.10.1
 GitPython==0.1.7
