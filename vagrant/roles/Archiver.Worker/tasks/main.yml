@@ -29,7 +29,7 @@
     name: celeryd
     state: present
 
-- name: Start worker
+- name: Restart worker
   supervisorctl:
     name: celeryd
     state: restarted

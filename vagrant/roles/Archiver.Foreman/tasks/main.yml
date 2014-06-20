@@ -27,7 +27,7 @@
     name: archiverforeman
     state: present
 
-- name: Start foreman
+- name: Restart foreman
   supervisorctl:
     name: archiverforeman
     state: restarted
