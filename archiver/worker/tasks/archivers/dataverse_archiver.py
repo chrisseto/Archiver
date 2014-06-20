@@ -31,7 +31,7 @@ class DataverseArchiver(ServiceArchiver):
     @classmethod
     def requests_save(cls, response):
         fobj, tpath = cls.get_temp_file()
-        for chunk in response.iter_contents(chunk_size=1024):
+        for chunk in response.iter_content(chunk_size=1024):
             if chunk:
                 fobj.write(chunk)
                 fobj.flush()
