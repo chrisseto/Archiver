@@ -1,10 +1,14 @@
-class FigshareArchiverError(Exception):
+class ArchiverError(Exception):
     pass
 
 
-class FigshareKeyError(Exception):
+class FigshareArchiverError(ArchiverError):
     pass
 
 
-class DataverseArchiverError(Exception):
+class FigshareKeyError(ArchiverError):
+    pass
+
+
+class DataverseArchiverError(ArchiverError):
     pass
