@@ -1,5 +1,5 @@
 # QUEUE_NAME = 'celeryq'
-FOREMAN_ADDRESS = 'http://10.0.2.2:7000'
+CALLBACK_ADDRESS = ['http://192.168.111.111:7000/callback']
 
 DEBUG = True
 PORT = 7000

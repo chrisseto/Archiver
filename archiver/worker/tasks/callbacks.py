@@ -1,10 +1,12 @@
 import json
 import logging
+
 import requests
+from requests.exceptions import RequestException
 
 from archiver import celery
 from archiver.backend import store
-from archiver.settings import FOREMAN_ADDRESS
+from archiver.settings import CALLBACK_ADDRESS
 
 
 logger = logging.getLogger(__name__)
@@ -27,5 +29,11 @@ def archival_finish(rvs, container):
         'id': container.id,
         'reasons': errs
     }
-    requests.post('{}/callback'.format(FOREMAN_ADDRESS), data=json.dumps(payload), headers=headers)
+
+    for address in CALLBACK_ADDRESS:
+        try:
+            requests.post(address, data=json.dumps(payload), headers=headers)
+        except RequestException:
+            logger.warning('Could not submit callback to %s' % address)
+
     logger.info('Registation finished for {}'.format(container.id))

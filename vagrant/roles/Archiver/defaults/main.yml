@@ -1,5 +1,5 @@
 archiver_repo: "http://github.com/chrisseto/Archiver"
-master_address: http://192.168.111.111:7000
+call_address: http://192.168.111.111:7000/callback
 master_port: 7000
 rabbitmq_url: "amqp://archiver:archiver@localhost//"
 virtualenv_path: /envs/
