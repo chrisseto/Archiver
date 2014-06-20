@@ -88,7 +88,7 @@ class DataverseArchiver(ServiceArchiver):
         except KeyError:
             raise DataverseArchiverError('File not found')
 
-        tpath = self.requests_save(response.iter_contents())
+        tpath = self.requests_save(response)
 
         metadata = self.get_metadata(tpath, filename)
         store.push_file(tpath, metadata['sha256'])
