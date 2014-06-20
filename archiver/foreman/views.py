@@ -30,7 +30,7 @@ def begin_register():
 
 @rest.route('/', methods=['GET'])
 def list_projects():
-    return jsonify({'projects': store.list_containers()})
+    return jsonify({'containers': store.list_containers()})
 
 
 @rest.route('/callback', methods=['POST', 'PUT'])
