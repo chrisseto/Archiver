@@ -104,3 +104,4 @@ class DataverseArchiver(ServiceArchiver):
             'files': rets
         }
         store.push_manifest(service, '%s.figshare' % self.cid)
+        return service
