@@ -32,3 +32,4 @@
     name: archiverforeman
     state: restarted
   ignore_errors: yes
+  tags: update

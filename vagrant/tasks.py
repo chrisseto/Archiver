@@ -34,6 +34,11 @@ def play(playbook, inventory='hosts', user='vagrant', sudo=True, verbose=False, 
 
 
 @task
+def update():
+    run('ansible-playbook site.yml -i hosts -u vagrant --private-key ~/.vagrant.d/insecure_private_key -s --tags update', pty=True)
+
+
+@task
 def vagrant_recycle():
     run('vagrant destroy -f')
     run('vagrant up')

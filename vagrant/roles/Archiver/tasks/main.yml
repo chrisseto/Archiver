@@ -20,9 +20,12 @@
 
 - name: Clone
   git: "repo={{ archiver_repo}} dest=/Archiver/"
+  tags: update
 
 - name: Python Requirements
   pip: requirements=/Archiver/requirements.txt
+  tags: update
 
 - name: Configuration
   template: src=local.py.j2 dest=/Archiver/archiver/settings/local.py
+  tags: update
