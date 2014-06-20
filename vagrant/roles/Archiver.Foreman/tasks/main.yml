@@ -30,5 +30,5 @@
 - name: Start foreman
   supervisorctl:
     name: archiverforeman
-    state: started
+    state: restarted
   ignore_errors: yes

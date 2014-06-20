@@ -5,8 +5,10 @@
     - git
     - par2
     - python-dev
-    - python-lxml
     - python-pip
+    - libxml2-dev
+    - libxslt1-dev
+    - lib32z1-dev
 
 - name: Ensure virtualenv
   pip:
