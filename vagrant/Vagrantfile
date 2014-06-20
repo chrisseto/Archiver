@@ -13,7 +13,7 @@ BOX_NAME      = ENV['BOX_NAME']      || "vagrantbox"
 BOX_ADMIN     = ENV['BOX_ADMIN']     || "vagrant"
 BOX_IP_ZONE   = ENV['BOX_IP_ZONE']   || "192.168.111"
 BOX_IP_END    = ENV['BOX_IP_END']    || 111
-BOX_MEMORY    = ENV['BOX_MEMORY']    || "500"
+BOX_MEMORY    = ENV['BOX_MEMORY']    || "800"
 BOX_CPUS      = ENV['BOX_CPUS']      || "1"
 BOX_DOCKER    = ENV['BOX_DOCKER']    || false
 NODE_NUMBER   = ENV['NODE_NUMBER']   || 5
@@ -31,6 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       node_config.vm.box = BOX_IMAGE
       node_config.vm.network :private_network, ip: node_ip
+      node_config.vm.hostname = 'cos-ansible-node%d' % nodenumber
 
       node_config.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--ioapic", "on"]
