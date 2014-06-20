@@ -103,5 +103,5 @@ class DataverseArchiver(ServiceArchiver):
             'resource': '%s, %s' % (self.dataverse_name, self.study_doi),
             'files': rets
         }
-        store.push_manifest(service, '%s.figshare' % self.cid)
+        store.push_manifest(service, '%s.dataverse' % self.cid)
         return service
