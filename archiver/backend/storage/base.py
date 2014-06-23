@@ -58,8 +58,9 @@ class StorageBackEnd(object):
             pass
         return self.push_json(clone, os.path.join(settings.METADATA_DIR, name))
 
-    def push_directory_structure(self, final):
-        prefix = os.path.join(settings.DIRSTRUCT_DIR, final['metadata']['id'])
+    def push_directory_structure(self, final, parent_id=''):
+        prefix = os.path.join(settings.DIRSTRUCT_DIR, parent_id, final['metadata']['id'])
+
         self.push_json(final, 'manifest', directory=prefix)
 
         for service in final['services'].values():
@@ -68,6 +69,9 @@ class StorageBackEnd(object):
 
             for fid in service['files']:
                 self.push_json(fid, fid['path'], directory=sprefix)
+
+        for child in final['children'].values():
+            self.push_directory_structure(child, final['metadata']['id'])
 
     def list_containers(self, limit=None):
         return self._filter(

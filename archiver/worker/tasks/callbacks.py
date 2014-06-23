@@ -16,13 +16,15 @@ headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 @celery.task
 def archival_finish(rvs, container):
     errs = [error.message for error in rvs if isinstance(error, Exception)]
+
     if not errs:
-        meta = {
-            'metadata': container.metadata(),
-            'services': {service['service']: service for service in rvs if service}
-        }
-        store.push_manifest(meta, container.id)
-        store.push_directory_structure(meta)
+        generate_manifest(rvs, container)
+
+    logger.info('Registation finished for {}'.format(container.id))
+
+    # Children dont get callbacks
+    if container.is_child:
+        return (rvs, container)
 
     payload = {
         'status': 'failed' if errs else 'success',
@@ -36,4 +38,22 @@ def archival_finish(rvs, container):
         except RequestException:
             logger.warning('Could not submit callback to %s' % address)
 
-    logger.info('Registation finished for {}'.format(container.id))
+
+def generate_manifest(blob, container):
+    manifest = {
+        'metadata': container.metadata(),
+        'services': {
+            service['service']: service
+            for service in blob
+            if isinstance(service, dict)
+        },
+        'children': {
+            child[1].id: generate_manifest(*child)
+            for child in blob
+            if isinstance(child, tuple)
+        }
+    }
+
+    store.push_manifest(manifest, container.id)
+    store.push_directory_structure(manifest)
+    return manifest
