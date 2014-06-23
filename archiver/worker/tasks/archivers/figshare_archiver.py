@@ -124,7 +124,7 @@ class FigshareArchiver(ServiceArchiver):
         return chord(header, self.file_done.s(self, afile))
 
     @celery.task
-    def file_done(rets, self, path):
+    def download_file_done(rets, self, path):
         versions = {}
         current = rets[0]
         for item in rets:

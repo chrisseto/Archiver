@@ -69,13 +69,13 @@ class GithubArchiver(ServiceArchiver):
         git.pull('--all')
 
     def build_header(self, url, versions=None):
-        fobj, path = self.get_temp_file(url, versions)
+        fobj, path = self.get_temp_file()
         fobj.close()
         Git().clone(self.url, path)
         g = Git(path)
         self.pull_all_branches(g)
         self.sanitize_config(path)
-        lastmod = self.to_epoch(self.url.last_modified)
+        lastmod = self.to_epoch(self.url)
         metadata = self.get_metadata(url, path)
         metadata['lastModified'] = lastmod
         store.push_file(url, metadata['sha256'])
@@ -92,7 +92,7 @@ class GithubArchiver(ServiceArchiver):
         return chord(header, self.file_done.s(self, url))
 
     @celery.task
-    def file_done(rets, self, path):
+    def pull_all_branches_done(rets, self, path):
         versions = {}
         current = rets[0]
 

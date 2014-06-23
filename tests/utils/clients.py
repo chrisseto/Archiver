@@ -127,3 +127,28 @@ class MockBucket(object):
         for key in self.keys:
             if prefix == key.key:
                 return [key] + key.versions
+
+class MockId(object):
+
+     def __init__(self):
+        self.id = rnd_str()
+        self.version_id = 'null'
+        self.versions = self.get_versions()
+
+     def get_contents_to_filename(self, name):
+        pass
+
+     def last_modified(self):
+        return 7
+
+     def get_version(self):
+        clone = copy.deepcopy(self)
+        clone.version_id = rnd_str()
+        return clone
+
+     def get_versions(self):
+        return [
+            self.get_version()
+            for _ in
+            xrange(random.randint(2, 5))
+        ]
