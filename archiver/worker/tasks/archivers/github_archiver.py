@@ -85,11 +85,11 @@ class GithubArchiver(ServiceArchiver):
 
     def build_file_chord(self, url, versions=None):
         if not versions:
-            return self.fetch.si(self, url, rev=None)
+            return self.pull_all_branches.si(self, url, rev=None)
         header = []
-        for rev in self.client.revisions(url, versions):
-            header.append(self.fetch.si(self, url, rev=rev['rev']))
-        return chord(header, self.file_done.s(self, url))
+        for rev in self.repo.revisions(url, versions):
+            header.append(self.pull_all_branches.si(self, url, rev=rev['rev']))
+        return chord(header, self.pull_all_branches_done.s(self, url))
 
     @celery.task
     def pull_all_branches_done(rets, self, path):

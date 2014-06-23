@@ -16,3 +16,6 @@ good_children_service['container']['children'][0] = copy.deepcopy(good_multi_ser
 
 container_with_dropbox = copy.deepcopy(good)
 container_with_dropbox['container']['services'][0] = dropbox_good
+
+container_with_figshare = copy.deepcopy(good)
+container_with_figshare['container']['services'][0] = figshare_good
