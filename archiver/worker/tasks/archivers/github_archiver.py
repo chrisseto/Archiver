@@ -69,7 +69,7 @@ class GithubArchiver(ServiceArchiver):
         git.pull('--all')
 
     def build_header(self, url, versions=None):
-        fobj, path = self.get_temp_file(url, versions)
+        fobj, path = self.get_temp_file(url)
         fobj.close()
         Git().clone(self.url, path)
         g = Git(path)
