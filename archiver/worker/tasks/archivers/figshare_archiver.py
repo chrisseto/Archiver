@@ -39,9 +39,8 @@ class FigshareArchiver(ServiceArchiver):
         super(FigshareArchiver, self).__init__(service)
 
     def clone(self):
-        header = self.build_header()
-
-        logger.info('{} files to archive from {}'.format(len(header), self.bucket.name))
+        header = self.build_header(self.fsid)
+        logger.info('{} files to archive from {}'.format(len(header), self.fsid))
         return chord(header, self.clone_done.s(self))
 
     def is_project(self):
@@ -101,7 +100,6 @@ class FigshareArchiver(ServiceArchiver):
     def build_header(self, id, versions=None):
         header = []
         if self.is_project():
-
             articles = self.get_project_articles()
             self.dirinfo['prefix'] += self.fsid
         else:
