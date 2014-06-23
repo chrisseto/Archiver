@@ -4,24 +4,24 @@ import mock
 
 import pytest
 
-from archiver.datatypes import Container
-from archiver.worker.tasks.archivers import get_archiver
-from archiver.worker.tasks.archivers.s3_archiver import S3Archiver
+from archiver import celery
+from archiver.backend import store
+from archiver.settings import FIGSHARE_OAUTH_TOKENS
 
 from utils import jsons
-from utils.clients import MockBucket, MockKey
+from utils.clients import MockProject, MockId
 
 
 @pytest.fixture
-def s3_container():
-    return Container.from_json(jsons.good_multi_service)
+def figshare_project():
+    return Project.from_json(jsons.good_multi_service)
 
 
 @pytest.fixture
-def bucket(monkeypatch):
-    bucket = MockBucket()
-    monkeypatch.setattr('archiver.worker.tasks.archivers.s3_archiver.S3Connection.get_bucket', lambda *_, **__: bucket)
-    return bucket
+def project(monkeypatch):
+    Project = MockProject()
+    monkeypatch.setattr('archiver.worker.tasks.archivers.fighare_archiver.FighareConnection.get_project', lambda *_, **__: project)
+    return project
 
 
 @pytest.fixture
