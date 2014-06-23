@@ -69,13 +69,13 @@ class GithubArchiver(ServiceArchiver):
         git.pull('--all')
 
     def build_header(self, url, versions=None):
-        fobj, path = self.get_temp_file(url)
+        fobj, path = self.get_temp_file()
         fobj.close()
         Git().clone(self.url, path)
         g = Git(path)
         self.pull_all_branches(g)
         self.sanitize_config(path)
-        lastmod = self.to_epoch(self.url.last_modified)
+        lastmod = self.to_epoch(self.url)
         metadata = self.get_metadata(url, path)
         metadata['lastModified'] = lastmod
         store.push_file(url, metadata['sha256'])

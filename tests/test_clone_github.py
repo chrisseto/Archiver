@@ -11,6 +11,7 @@ settings.BACKEND = 'debug'
 
 from archiver.datatypes import Container
 from archiver.worker.tasks import archive, archive_service
+from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.github_archiver import GithubArchiver
 
 from utils import jsons
@@ -56,17 +57,7 @@ def test_github_called(monkeypatch, github_container, patch_callback):
     mock_git.return_value = None
     monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GithubArchiver.__init__', mock_git)
     monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GithubArchiver.clone', mock.Mock())
-    archive(github_container)
-    assert patch_callback.called
-    mock_git.assert_called_once_with(github_container.services[0])
-
-
-def test_folder_structure(monkeypatch, github_service, ctrl_tempdir):
-    monkeypatch.setattr(GithubArchiver, 'pull_all_branches', lambda *_: None)
-    monkeypatch.setattr(GithubArchiver, 'sanitize_config', lambda *_: None)
-    monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.Git.execute', lambda *_, **__: None)
-    GithubArchiver(github_service).clone()
-    assert os.path.exists(github_service.full_path(github_service['repo']))
+    assert get_archiver('github') == GithubArchiver
 
 
 def test_sanitize(github_service):

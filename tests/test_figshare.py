@@ -4,9 +4,9 @@ import mock
 
 import pytest
 
-from archiver import celery
-from archiver.backend import store
-from archiver.settings import FIGSHARE_OAUTH_TOKENS
+
+from archiver.datatypes import Container
+from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.figshare_archiver import FigshareArchiver
 from utils import jsons
 from utils.clients import MockId
