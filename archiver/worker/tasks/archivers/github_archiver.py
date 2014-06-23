@@ -92,7 +92,7 @@ class GithubArchiver(ServiceArchiver):
         return chord(header, self.file_done.s(self, url))
 
     @celery.task
-    def file_done(rets, self, path):
+    def pull_all_branches_done(rets, self, path):
         versions = {}
         current = rets[0]
 

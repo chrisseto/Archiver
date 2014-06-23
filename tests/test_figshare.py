@@ -36,7 +36,7 @@ def test_gets_called():
     assert get_archiver('figshare') == FigshareArchiver
 
 
-def test_iters_bucket_list(monkeypatch, figshare_service, bucket):
+def test_(monkeypatch, figshare_service):
     mock_get_key = mock.MagicMock()
     archiver = FigshareArchiver(figshare_service)
     monkeypatch.setattr(archiver.get_key, 'si', mock_get_key)
