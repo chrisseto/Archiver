@@ -5,10 +5,12 @@ import copy
 import json
 import logging
 import tempfile
+import httplib as http
 from shutil import rmtree
 
 from archiver import settings
 from archiver import parchive
+from archiver.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +109,10 @@ class StorageBackEnd(object):
                 self.upload_file(parity, os.path.basename(parity), directory=settings.PARITY_DIR)
 
     def get_container(self, cid):
-        return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
+        try:
+            return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
+        except:
+            raise HTTPError(http.NOT_FOUND)
 
     def get_container_service(self, cid, service):
         return self.get_file('{}{}.{}{}'.format(settings.MANIFEST_DIR, cid, service, self.DELIMITER))
