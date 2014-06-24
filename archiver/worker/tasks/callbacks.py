@@ -1,13 +1,13 @@
 import json
 import logging
-
 import requests
+
 from requests.exceptions import RequestException
 
 from archiver import celery
 from archiver.backend import store
 from archiver.settings import CALLBACK_ADDRESS
-
+from archiver import settings
 
 logger = logging.getLogger(__name__)
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -23,7 +23,11 @@ def archival_finish(rvs, container):
         }
         store.push_manifest(meta, container.id)
         store.push_directory_structure(meta)
-
+        if settings.OSF_URL:
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            api_url = settings.API_URL + container.id + '/'
+            url = settings.OSF_URL + container.id + '/'
+            requests.post(api_url, {'archiver': 'finished', 'url':url}, headers=headers)
     payload = {
         'status': 'failed' if errs else 'success',
         'id': container.id,
