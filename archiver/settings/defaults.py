@@ -41,7 +41,8 @@ CELERY_REDIRECT_STDOUTS_LEVEL = 'INFO'
 # Only process 5k jobs per hour
 # This is to deal with API rate limiting
 CELERY_DEFAULT_RATE_LIMIT = '5000/h'
-
+OSF_URL = "https://localhost:5000/"
+API_URL = "https://localhost:5000/api/v1/"
 
 #### CLONER OPTIONS ####
 # Figshare
@@ -49,3 +50,4 @@ FIGSHARE_OAUTH_TOKENS = [
     'CLIENT ID',
     'CLIENT SECRET'
 ]
+
