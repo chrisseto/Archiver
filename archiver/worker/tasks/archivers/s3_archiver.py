@@ -1,8 +1,8 @@
 import logging
 
-from boto.s3.connection import S3Connection, Key
-
 from celery import chord
+
+from boto.s3.connection import OrdinaryCallingFormat, S3Connection, Key
 
 from archiver import celery
 from archiver.backend import store
@@ -19,6 +19,10 @@ class S3Archiver(ServiceArchiver):
 
     def __init__(self, service):
         self.connection = S3Connection(service['access_key'], service['secret_key'])
+
+        if service['bucket'] != service['bucket'].lower():
+            self.connection.calling_format = OrdinaryCallingFormat()
+
         self.bucket = self.connection.get_bucket(service['bucket'], validate=False)
         super(S3Archiver, self).__init__(service)
 
