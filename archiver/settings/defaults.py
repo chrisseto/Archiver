@@ -1,5 +1,8 @@
 # QUEUE_NAME = 'celeryq'
-CALLBACK_ADDRESS = ['http://192.168.111.111:7000/callback']
+CALLBACK_ADDRESS = [
+    'http://192.168.111.111:7000/callback',
+    'https://192.168.111.1/api/v1/registration/finished/'
+]
 
 DEBUG = True
 PORT = 7000
@@ -26,7 +29,7 @@ smartfile_ACCESS_KEY = 'CHANGEME'
 smartfile_SECRET_KEY = 'CHANGEME'
 
 #### CELERY OPTIONS ####
-BROKER_URL = 'amqp://guest:guest@192.168.33.10//'
+BROKER_URL = 'amqp://archiver:archiver@192.168.111.112//'
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
@@ -41,8 +44,6 @@ CELERY_REDIRECT_STDOUTS_LEVEL = 'INFO'
 # Only process 5k jobs per hour
 # This is to deal with API rate limiting
 CELERY_DEFAULT_RATE_LIMIT = '5000/h'
-OSF_URL = "https://localhost:5000/"
-API_URL = "https://localhost:5000/api/v1/"
 
 #### CLONER OPTIONS ####
 # Figshare
@@ -50,4 +51,3 @@ FIGSHARE_OAUTH_TOKENS = [
     'CLIENT ID',
     'CLIENT SECRET'
 ]
-
