@@ -5,7 +5,7 @@ import mock
 import pytest
 
 from archiver.datatypes import Container
-from archiver.worker.tasks import archive
+from archiver.worker.tasks import archive, build_task_list
 from archiver.worker.tasks.archivers import get_archiver
 
 from utils import jsons
@@ -40,10 +40,10 @@ def container_children_services():
 def archive_mon(monkeypatch):
     mock_archive = mock.MagicMock()
     # mock_archive.side_effect = lambda c: archive(c)
-    new_arc = copy.copy(archive)
-    mock_archive.side_effect = lambda c: new_arc.run(c)
+    new_arc = copy.copy(build_task_list)
+    mock_archive.side_effect = lambda c: new_arc(c)
 
-    monkeypatch.setattr('archiver.worker.tasks.archive.run', mock_archive)
+    monkeypatch.setattr('archiver.worker.tasks.build_task_list', mock_archive)
     return mock_archive
 
 

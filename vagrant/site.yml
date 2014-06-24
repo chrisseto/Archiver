@@ -1,3 +1,8 @@
+- name: Sync time
+  hosts: all
+  roles:
+    - role: Ansibles.timezone
+
 - name: Setup RabbitMQ
   hosts: rabbit
   roles:

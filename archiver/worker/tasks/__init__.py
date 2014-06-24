@@ -1,6 +1,6 @@
 import logging
 
-from celery import chord, group
+from celery import chord
 
 from archiver import celery
 from archiver.worker.tasks import callbacks
@@ -12,6 +12,18 @@ logger = logging.getLogger(__name__)
 
 @celery.task
 def archive(container):
+    build_task_list(container).delay()
+
+
+def archive_service(service):
+    #Lol one liners
+    #WWSD
+    logger.info('Archiving service {} for {}'.format(service.service, service.parent.id))
+    #Note .clone() should return an unstarted celery task
+    return get_archiver(service.service)(service).clone()
+
+
+def build_task_list(container):
     header = []
     try:
         for service in container.services:
@@ -22,19 +34,6 @@ def archive(container):
 
     for child in container.children:
         logging.info('Found child {} for {}'.format(child.id, container.id))
-        header.append(archive.si(child))
+        header.append(build_task_list(child))
 
-    if container.is_child:
-        c = group(header)
-    else:
-        c = chord(header, callbacks.archival_finish.s(container))
-
-    c.delay()
-
-
-def archive_service(service):
-    #Lol one liners
-    #WWSD
-    logger.info('Archiving service {} for {}'.format(service.service, service.parent.id))
-    #Note .clone() should return an unstarted celery task
-    return get_archiver(service.service)(service).clone()
+    return chord(header, callbacks.archival_finish.s(container))
