@@ -6,6 +6,7 @@ CALLBACK_ADDRESS = [
 
 DEBUG = True
 PORT = 7000
+SENTRY_DSN = None
 # Dont use celery just run everything syncronisly
 CELERY_SYNC = False
 

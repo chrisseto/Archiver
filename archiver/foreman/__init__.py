@@ -9,6 +9,10 @@ from archiver.exceptions import HTTPError
 
 from views import rest
 
+if settings.SENTRY_DSN:
+    from raven.contrib.flask import Sentry
+    sentry = Sentry(dsn=settings.SENTRY_DSN)
+
 logger = logging.getLogger(__name__)
 
 celery = Celery()
@@ -27,6 +31,10 @@ def start():
 
 def build_app():
     app = Flask(__name__)
+
+    if settings.SENTRY_DSN:
+        sentry.init_app(app)
+
     app.config.from_object('archiver.settings')
     app.register_blueprint(rest)
 
