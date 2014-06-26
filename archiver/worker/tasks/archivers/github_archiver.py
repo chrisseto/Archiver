@@ -79,14 +79,15 @@ def clone_github(github):
     Git().clone(github.url, path)
     g = Git(path)
     github.pull_all_branches(g)
-    #github.sanitize_config(path)
+    # github.sanitize_config(path)
 
     rets = []
 
     for root, dirs, files in os.walk(path):
         dirs[:] = [d for d in dirs if not d[0] == '.']
         rets.extend([
-            process_file(github, os.path.join(root, f), f)
+            process_file(github, os.path.join(root, f),
+                         os.path.join(root, f).replace(path, ''))
             for f in files
         ])
 
