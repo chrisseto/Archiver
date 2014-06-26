@@ -7,6 +7,7 @@ settings.CELERY_ALWAYS_EAGER = True
 
 from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
+from archiver.worker.tasks.archivers import dropbox_archiver
 from archiver.worker.tasks.archivers.dropbox_archiver import DropboxArchiver
 
 from utils import jsons
@@ -37,7 +38,7 @@ def test_recurses(monkeypatch, dropbox_service):
     MockDropBox.folder_name = dropbox_service['folder']
     archiver = DropboxArchiver(dropbox_service)
     mock_fetch = mock.MagicMock()
-    monkeypatch.setattr(archiver.fetch, 'si', mock_fetch)
+    monkeypatch.setattr(dropbox_archiver.fetch, 'si', mock_fetch)
     archiver.clone()
     assert mock_fetch.called
     kalls = archiver.client.collect_calls()
@@ -48,7 +49,7 @@ def test_flat_list(monkeypatch, dropbox_service):
     MockDropBox.folder_name = dropbox_service['folder']
     archiver = DropboxArchiver(dropbox_service)
     mock_fetch = mock.MagicMock()
-    monkeypatch.setattr(archiver.fetch, 'si', mock_fetch)
+    monkeypatch.setattr(dropbox_archiver.fetch, 'si', mock_fetch)
     chord = archiver.clone()
     for task in chord.task:
         assert not isinstance(task, list)

@@ -7,6 +7,7 @@ import pytest
 
 from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
+from archiver.worker.tasks.archivers import figshare_archiver
 from archiver.worker.tasks.archivers.figshare_archiver import FigshareArchiver
 from utils import jsons
 from utils.clients import MockClient
@@ -36,7 +37,7 @@ def test_gets_called():
 def test_(monkeypatch, figshare_service):
     mock_download = mock.MagicMock()
     archiver = FigshareArchiver(figshare_service)
-    monkeypatch.setattr(archiver.download_file, 'si', mock_download)
+    monkeypatch.setattr(figshare_archiver.download_file, 'si', mock_download)
     # archiver.clone()
     # assert mock_download.called
 
