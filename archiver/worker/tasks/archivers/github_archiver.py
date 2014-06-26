@@ -5,14 +5,13 @@ from git import Git
 
 from celery import chord
 
-from dateutil import parser
-
 from archiver import celery
 from archiver.backend import store
 
 from base import ServiceArchiver
 
 logger = logging.getLogger(__name__)
+
 
 class GithubArchiver(ServiceArchiver):
     ARCHIVES = 'github'
@@ -30,9 +29,7 @@ class GithubArchiver(ServiceArchiver):
         super(GithubArchiver, self).__init__(service)
 
     def clone(self):
-        header = self.build_header(self.url, self.versions)
-        logging.info('Archiving {} items from "{}"'.format(len(header), self.url))
-        return chord(header, self.clone_done.s(self))
+        return clone_github.si(self)
 
     def sanitize_config(self, path):
         git_path = os.path.join(path, '.git', 'config')
@@ -68,48 +65,36 @@ class GithubArchiver(ServiceArchiver):
         git.fetch('--all')
         git.pull('--all')
 
-    def build_header(self, url, versions=None):
-        fobj, path = self.get_temp_file()
-        fobj.close()
-        Git().clone(self.url, path)
-        g = Git(path)
-        self.pull_all_branches(g)
-        self.sanitize_config(path)
-        lastmod = self.to_epoch(self.url)
-        metadata = self.get_metadata(url, path)
-        metadata['lastModified'] = lastmod
-        store.push_file(url, metadata['sha256'])
-        store.push_metadata(metadata, metadata['sha256'])
-        return metadata
+
+def process_file(github, path, filename):
+    metadata = github.get_metadata(path, filename)
+    store.push_file(path, metadata['sha256'])
+    store.push_metadata(metadata, metadata['sha256'])
+    return metadata
 
 
-    def build_file_chord(self, url, versions=None):
-        if not versions:
-            return self.pull_all_branches.si(self, url, rev=None)
-        header = []
-        for rev in self.repo.revisions(url, versions):
-            header.append(self.pull_all_branches.si(self, url, rev=rev['rev']))
-        return chord(header, self.pull_all_branches_done.s(self, url))
+@celery.task
+def clone_github(github):
+    fobj, path = github.get_temp_file()
+    fobj.close()
+    Git().clone(github.url, path)
+    g = Git(path)
+    github.pull_all_branches(g)
+    github.sanitize_config(path)
 
-    @celery.task
-    def pull_all_branches_done(rets, self, path):
-        versions = {}
-        current = rets[0]
+    rets = []
 
-        for item in rets:
-            versions['rev'] = item
-            if current['lastModified'] < item['lastModified']:
-                current = item
+    for root, dirs, files in os.walk(path):
+        dirs[:] = [d for d in dirs if not d[0] == '.']
+        rets.extend([
+            process_file(github, os.path.join(root, f), f)
+            for f in files
+        ])
 
-        current['versions'] = versions
-        return current
-
-    @celery.task
-    def clone_done(rets, self):
-        service = {
-            'service': 'github',
-            'resource': self.repo_name,
-            'files': rets
-        }
-        store.push_manifest(service, '{}.github'.format(self.cid))
-        return service
+    service = {
+        'service': 'github',
+        'resource': github.repo_name,
+        'files': rets
+    }
+    store.push_manifest(service, '{}.github'.format(github.cid))
+    return service
