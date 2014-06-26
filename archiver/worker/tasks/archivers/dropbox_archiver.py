@@ -4,7 +4,7 @@ from celery import chord
 
 from dateutil import parser
 
-from dropbox.client import DropboxClient
+from dropbox.client import DropboxClient, ErrorResponse
 
 from archiver import celery
 from archiver.backend import store
@@ -45,37 +45,45 @@ class DropboxArchiver(ServiceArchiver):
             header.append(self.fetch.si(self, item['path'], rev=rev['rev']))
         return chord(header, self.file_done.s(self, item['path']))
 
-    @celery.task
-    def fetch(self, path, rev=None):
-        fobj, metadata = self.client.get_file_and_metadata(path, rev)
-        tpath = self.chunked_save(fobj)
-        fobj.close()
-        lastmod = self.to_epoch(parser.parse(metadata['modified']))
-        metadata = self.get_metadata(tpath, path)
-        metadata['lastModified'] = lastmod
-        store.push_file(tpath, metadata['sha256'])
-        store.push_metadata(metadata, metadata['sha256'])
-        metadata['path'] = metadata['path'].replace('{}/'.format(self.folder_name), '')
-        return metadata
 
-    @celery.task
-    def file_done(rets, self, path):
-        versions = {}
-        current = rets[0]
+@celery.task
+def fetch(dropbox, path, rev=None):
+    try:
+        fobj, metadata = dropbox.client.get_file_and_metadata(path, rev)
+    except ErrorResponse as e:
+        logger.info('Hit Dropbox rate limit, {}'.format(e.headers))
+        raise self.retry(exc=e, countdown=dict(e.headers)['Retry-After'])
 
-        for item in rets:
-            versions['rev'] = item
-            if current['lastModified'] < item['lastModified']:
-                current = item
-        current['versions'] = versions
-        return current
+    tpath = dropbox.chunked_save(fobj)
+    fobj.close()
+    lastmod = dropbox.to_epoch(parser.parse(metadata['modified']))
+    metadata = dropbox.get_metadata(tpath, path)
+    metadata['lastModified'] = lastmod
+    store.push_file(tpath, metadata['sha256'])
+    store.push_metadata(metadata, metadata['sha256'])
+    metadata['path'] = metadata['path'].replace('{}/'.format(dropbox.folder_name), '')
+    return metadata
 
-    @celery.task
-    def clone_done(rets, self):
-        service = {
-            'service': 'dropbox',
-            'resource': self.folder_name[1:],
-            'files': rets
-        }
-        store.push_manifest(service, '{}.dropbox'.format(self.cid))
-        return service
+
+@celery.task
+def file_done(rets, dropbox, path):
+    versions = {}
+    current = rets[0]
+
+    for item in rets:
+        versions['rev'] = item
+        if current['lastModified'] < item['lastModified']:
+            current = item
+    current['versions'] = versions
+    return current
+
+
+@celery.task
+def clone_done(rets, dropbox):
+    service = {
+        'service': 'dropbox',
+        'resource': dropbox.folder_name[1:],
+        'files': rets
+    }
+    store.push_manifest(service, '{}.dropbox'.format(dropbox.cid))
+    return service
