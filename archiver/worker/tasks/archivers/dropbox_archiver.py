@@ -55,7 +55,8 @@ def fetch(dropbox, path, rev=None):
         logger.info('Failed to get file "{}"'.format(path))
         if e.headers.get('Retry-After'):
             logger.info('Hit Dropbox rate limit, {}'.format(e.headers))
-            raise fetch.retry(exc=e, countdown=e.headers['Retry-After'])
+            raise fetch.retry(exc=DropboxArchiverError(
+                'Failed to get file "{}"'.format(path)), countdown=e.headers['Retry-After'])
         raise fetch.retry(exc=DropboxArchiverError(
             'Failed to get file "{}"'.format(path)), countdown=60 * 3)  # 3 Minutes
 
