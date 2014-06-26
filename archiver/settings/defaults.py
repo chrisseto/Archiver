@@ -1,7 +1,7 @@
 # QUEUE_NAME = 'celeryq'
 CALLBACK_ADDRESS = [
     'http://192.168.111.111:7000/callback',
-    'https://192.168.111.1/api/v1/registration/finished/'
+    'http://192.168.111.1:5000/api/v1/registration/finished/'
 ]
 
 DEBUG = True
@@ -41,6 +41,7 @@ CELERY_TASK_RESULT_EXPIRES = 18000  # 5 hours.
 CELERY_TRACK_STARTED = True
 CELERY_IMPORTS = 'archiver.worker.tasks'
 CELERY_REDIRECT_STDOUTS_LEVEL = 'INFO'
+CELERY_ACKS_LATE = True
 # Only process 5k jobs per hour
 # This is to deal with API rate limiting
 CELERY_DEFAULT_RATE_LIMIT = '5000/h'
