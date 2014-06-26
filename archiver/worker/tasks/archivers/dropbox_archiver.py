@@ -1,3 +1,4 @@
+import sys
 import logging
 
 from celery import chord
@@ -47,21 +48,21 @@ class DropboxArchiver(ServiceArchiver):
         return chord(header, file_done.s(self, item['path']))
 
 
-@celery.task
-def fetch(dropbox, path, rev=None):
+@celery.task(bind=True)
+def fetch(self, dropbox, path, rev=None):
     try:
         fobj, metadata = dropbox.client.get_file_and_metadata(path, rev)
+        tpath = dropbox.chunked_save(fobj)
+        fobj.close()
     except ErrorResponse as e:
         logger.info('Failed to get file "{}"'.format(path))
-        if e.headers.get('Retry-After'):
-            logger.info('Hit Dropbox rate limit, {}'.format(e.headers))
-            raise fetch.retry(exc=DropboxArchiverError(
-                'Failed to get file "{}"'.format(path)), countdown=e.headers['Retry-After'])
-        raise fetch.retry(exc=DropboxArchiverError(
-            'Failed to get file "{}"'.format(path)), countdown=60 * 3)  # 3 Minutes
 
-    tpath = dropbox.chunked_save(fobj)
-    fobj.close()
+        if e.headers.get('Retry-After'):
+            logger.info('Hit Dropbox rate limit')
+        sys.exc_clear()
+        raise self.retry(exc=DropboxArchiverError(
+            'Failed to get file "{}"'.format(path)), countdown=e.headers.get('Retry-After', 60 * 3))
+
     lastmod = dropbox.to_epoch(parser.parse(metadata['modified']))
     metadata = dropbox.get_metadata(tpath, path)
     metadata['lastModified'] = lastmod
