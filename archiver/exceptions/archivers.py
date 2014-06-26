@@ -12,3 +12,7 @@ class FigshareKeyError(ArchiverError):
 
 class DataverseArchiverError(ArchiverError):
     pass
+
+
+class DropboxArchiverError(ArchiverError):
+    pass
