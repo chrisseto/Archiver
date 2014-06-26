@@ -1,9 +1,9 @@
 import os
 import logging
+from tempfile import mkdtemp
+from shutil import rmtree
 
 from git import Git
-
-from celery import chord
 
 from archiver import celery
 from archiver.backend import store
@@ -75,12 +75,11 @@ def process_file(github, path, filename):
 
 @celery.task
 def clone_github(github):
-    fobj, path = github.get_temp_file()
-    fobj.close()
+    path = mkdtemp()
     Git().clone(github.url, path)
     g = Git(path)
     github.pull_all_branches(g)
-    github.sanitize_config(path)
+    #github.sanitize_config(path)
 
     rets = []
 
@@ -93,8 +92,9 @@ def clone_github(github):
 
     service = {
         'service': 'github',
-        'resource': github.repo_name,
+        'resource': github.repo,
         'files': rets
     }
     store.push_manifest(service, '{}.github'.format(github.cid))
+    rmtree(path)
     return service
