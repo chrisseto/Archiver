@@ -1,4 +1,4 @@
-CALLBACK_ADDRESS = ['{{ callback_address }}']
+CALLBACK_ADDRESS = [{% for address in callback_addresses %}'{{ address }}', {% endfor %}]
 
 DEBUG = False
 PORT = {{ master_port }}

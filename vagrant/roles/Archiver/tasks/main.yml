@@ -23,7 +23,8 @@
   tags: update
 
 - name: Python Requirements
-  pip: requirements=/Archiver/requirements.txt
+  pip:
+    requirements: /Archiver/requirements.txt
   tags: update
 
 - name: Configuration
