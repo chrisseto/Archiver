@@ -54,6 +54,7 @@ def fetch(self, dropbox, path, rev=None):
         fobj, metadata = dropbox.client.get_file_and_metadata(path, rev)
         tpath = dropbox.chunked_save(fobj)
         fobj.close()
+
     except ErrorResponse as e:
 
         if e.status == 461:
@@ -64,7 +65,9 @@ def fetch(self, dropbox, path, rev=None):
 
         if e.headers.get('Retry-After'):
             logger.info('Hit Dropbox rate limit.')
+
         sys.exc_clear()
+
         raise self.retry(exc=DropboxArchiverError(
             'Failed to get file "{}".'.format(path)), countdown=e.headers.get('Retry-After', 60 * 3))
 

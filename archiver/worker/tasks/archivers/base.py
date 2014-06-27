@@ -21,9 +21,12 @@ class ServiceArchiver(object):
         self.cid = service.parent.id
         self.versions = service.versions
         self.force_parity = service.force_parity
+
         logger.info('Archiving {} for project {}'.format(self.ARCHIVES, self.cid))
+
         if self.versions:
             logger.info('Archiving {} versions'.format('all' if self.versions is True else self.versions))
+
         if self.force_parity:
             logger.info('Forcing parities for service {} of {}'.format(self.ARCHIVES, self.cid))
 
@@ -41,25 +44,31 @@ class ServiceArchiver(object):
     @classmethod
     def chunked_save(cls, fobj):
         to_file, path = cls.get_temp_file()
+
         for chunk in cls.chunked_file(fobj):
             to_file.write(chunk)
+
         to_file.close()
         return path
 
     @classmethod
     def sha256(cls, path):
         sha = hashlib.sha256()
+
         with open(path) as to_hash:
             for chunk in cls.chunked_file(to_hash):
                 sha.update(chunk)
+
         return sha.hexdigest()
 
     @classmethod
     def md5(cls, path):
         md5 = hashlib.md5()
+
         with open(path) as to_hash:
             for chunk in cls.chunked_file(to_hash):
                 md5.update(chunk)
+
         return md5.hexdigest()
 
     @classmethod
@@ -71,6 +80,7 @@ class ServiceArchiver(object):
     def to_epoch(cls, dt):
         if not isinstance(dt, datetime.datetime):
             dt = parser.parse(dt)
+
         return (dt.replace(tzinfo=pytz.UTC) - datetime.datetime(1970, 1, 1).replace(tzinfo=pytz.UTC)).total_seconds()
 
     @classmethod
