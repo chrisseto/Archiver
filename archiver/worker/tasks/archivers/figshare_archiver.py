@@ -8,7 +8,7 @@ from requests_oauthlib import OAuth1Session
 from archiver import celery
 from archiver.backend import store
 from archiver.settings import FIGSHARE_OAUTH_TOKENS
-from archiver.exceptions.archivers import FigshareArchiverError, FigshareKeyError
+from archiver.exceptions.archivers import FigshareArchiverError, FigshareKeyError, UnfetchableFile
 
 from base import ServiceArchiver
 
@@ -90,7 +90,7 @@ class FigshareArchiver(ServiceArchiver):
         return ret.json()
 
 
-@celery.task
+@celery.task(raises=(UnfetchableFile))
 def download_file(figshare, filedict, aid):
     try:
         url = filedict['download_url']
@@ -108,8 +108,7 @@ def download_file(figshare, filedict, aid):
         return metadata
     except KeyError:
         logger.info('Unable to download file %s, no download url given.')
-        # Raise Error?
-        return None
+        raise UnfetchableFile('No download link available', filedict, 'figshare')
 
 
 @celery.task
@@ -117,7 +116,7 @@ def clone_done(rets, figshare):
     service = {
         'service': 'figshare',
         'resource': figshare.id,
-        'files': rets
+        'files': [ret for ret in rets if not isinstance(ret, UnfetchableFile)]
     }
     store.push_manifest(service, '{}.figshare'.format(figshare.cid))
-    return (service, [])
+    return (service, [ret for ret in rets if isinstance(ret, UnfetchableFile)])
