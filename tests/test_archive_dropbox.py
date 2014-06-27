@@ -2,6 +2,8 @@ import mock
 
 import pytest
 
+from celery import chord
+
 from archiver import settings
 settings.CELERY_ALWAYS_EAGER = True
 
@@ -32,6 +34,13 @@ def dropbox_container():
 def test_gets_called():
     assert get_archiver('dropbox') == DropboxArchiver
     assert get_archiver('dropbox').ARCHIVES == 'dropbox'
+
+
+def test_returns_chord(dropbox_service):
+    MockDropBox.folder_name = dropbox_service['folder']
+    archiver = get_archiver('dropbox')(dropbox_service)
+
+    assert isinstance(archiver.clone(), chord)
 
 
 def test_recurses(monkeypatch, dropbox_service):
