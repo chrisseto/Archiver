@@ -55,13 +55,18 @@ def fetch(self, dropbox, path, rev=None):
         tpath = dropbox.chunked_save(fobj)
         fobj.close()
     except ErrorResponse as e:
+
+        if e.status == 461:
+            logger.info('File {} is unavailable due to DMCA copyright reasons.')
+            raise DropboxArchiverError('Failed to get file "{}", DMACA.'.format(path))
+
         logger.info('Failed to get file "{}"'.format(path))
 
         if e.headers.get('Retry-After'):
-            logger.info('Hit Dropbox rate limit')
+            logger.info('Hit Dropbox rate limit.')
         sys.exc_clear()
         raise self.retry(exc=DropboxArchiverError(
-            'Failed to get file "{}"'.format(path)), countdown=e.headers.get('Retry-After', 60 * 3))
+            'Failed to get file "{}".'.format(path)), countdown=e.headers.get('Retry-After', 60 * 3))
 
     lastmod = dropbox.to_epoch(parser.parse(metadata['modified']))
     metadata = dropbox.get_metadata(tpath, path)
