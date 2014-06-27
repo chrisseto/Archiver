@@ -14,22 +14,38 @@ headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 @celery.task
 def archival_finish(rvs, container):
-    errs = [error.message for error in rvs if isinstance(error, Exception)]
+    errs = [
+        error.message
+        for error in rvs
+        if isinstance(error, Exception)
+    ]
 
     if not errs:
-        generate_manifest(rvs, container)
+        logger.info('Registation finished for {}'.format(container.id))
 
-    logger.info('Registation finished for {}'.format(container.id))
+        manifests, failures = zip(*rvs)
 
-    # Children dont get callbacks
-    if container.is_child:
-        return (rvs, container)
+        print rvs
+        print failures
 
-    payload = {
-        'status': 'failed' if errs else 'success',
-        'id': container.id,
-        'reasons': errs
-    }
+        generate_manifest(manifests, container)
+
+        # Children dont get callbacks
+        if container.is_child:
+            return (rvs, container)
+
+        payload = {
+            'status': 'success',
+            'id': container.id,
+            'failures': [failure.to_json() for failure in sum(failures, [])]
+        }
+
+    else:
+        payload = {
+            'status': 'failed',
+            'id': container.id,
+            'reasons': errs
+        }
 
     for address in CALLBACK_ADDRESS:
         try:

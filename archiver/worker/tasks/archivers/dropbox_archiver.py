@@ -9,7 +9,7 @@ from dropbox.client import DropboxClient, ErrorResponse
 
 from archiver import celery
 from archiver.backend import store
-from archiver.exceptions.archivers import DropboxArchiverError
+from archiver.exceptions.archivers import DropboxArchiverError, UnfetchableFile
 
 from base import ServiceArchiver
 
@@ -48,7 +48,7 @@ class DropboxArchiver(ServiceArchiver):
         return chord(header, file_done.s(self, item['path']))
 
 
-@celery.task(bind=True)
+@celery.task(bind=True, throws=(UnfetchableFile, ))
 def fetch(self, dropbox, path, rev=None):
     try:
         fobj, metadata = dropbox.client.get_file_and_metadata(path, rev)
@@ -59,7 +59,7 @@ def fetch(self, dropbox, path, rev=None):
 
         if e.status == 461:
             logger.info('File {} is unavailable due to DMCA copyright reasons.')
-            raise DropboxArchiverError('Failed to get file "{}", DMACA.'.format(path))
+            raise UnfetchableFile('Failed due to DMCA reasons', path, 'dropbox')
 
         logger.info('Failed to get file "{}"'.format(path))
 
@@ -95,10 +95,35 @@ def file_done(rets, dropbox, path):
 
 @celery.task
 def clone_done(rets, dropbox):
+    files = []
+    failures = []
+
+    for f in rets:
+        if isinstance(f, dict):
+
+            if f.get('versions'):
+
+                failures.extend([
+                    rev
+                    for rev in f['versions']
+                    if isinstance(rev, UnfetchableFile)
+                ])
+                f.versions = [
+                    rev
+                    for rev in f['versions']
+                    if not isinstance(rev, UnfetchableFile)
+                ]
+
+            files.append(f)
+        else:
+            failures.append(f)
+
     service = {
         'service': 'dropbox',
         'resource': dropbox.folder_name[1:],
-        'files': rets
+        'files': files
     }
+
     store.push_manifest(service, '{}.dropbox'.format(dropbox.cid))
-    return service
+
+    return (service, failures)

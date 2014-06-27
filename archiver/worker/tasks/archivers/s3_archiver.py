@@ -85,4 +85,4 @@ class S3Archiver(ServiceArchiver):
             [ret for ret in rets if isinstance(ret, dict)]
         }
         store.push_manifest(service, '{}.s3'.format(self.cid))
-        return service
+        return (service, [])

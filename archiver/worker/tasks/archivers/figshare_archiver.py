@@ -108,6 +108,7 @@ def download_file(figshare, filedict, aid):
         return metadata
     except KeyError:
         logger.info('Unable to download file %s, no download url given.')
+        # Raise Error?
         return None
 
 
@@ -119,4 +120,4 @@ def clone_done(rets, figshare):
         'files': rets
     }
     store.push_manifest(service, '{}.figshare'.format(figshare.cid))
-    return service
+    return (service, [])

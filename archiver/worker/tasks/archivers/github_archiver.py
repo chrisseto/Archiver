@@ -98,4 +98,4 @@ def clone_github(github):
     }
     store.push_manifest(service, '{}.github'.format(github.cid))
     rmtree(path)
-    return service
+    return (service, [])
