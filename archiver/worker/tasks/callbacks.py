@@ -30,6 +30,9 @@ def archival_finish(rvs, container):
 
         generate_manifest(manifests, container)
 
+        if failures:
+            store.push_metadata(failures, '%s.failures' % container.cid)
+
         # Children dont get callbacks
         if container.is_child:
             return (rvs, container)
