@@ -24,12 +24,14 @@ class FigshareArchiver(ServiceArchiver):
     def __init__(self, service):
         if None in FIGSHARE_OAUTH_TOKENS:
             raise FigshareKeyError('No OAuth tokens.')
+
         keys = [
             service['token_key'],
             service['token_secret'],
             FIGSHARE_OAUTH_TOKENS[0],
             FIGSHARE_OAUTH_TOKENS[1]
         ]
+
         self.client = self.create_oauth_session(*keys)
         self.fsid = str(service['id'])
         super(FigshareArchiver, self).__init__(service)
@@ -69,25 +71,41 @@ class FigshareArchiver(ServiceArchiver):
 
     def is_project(self):
         ret = self.client.get('{}projects'.format(self.API_OAUTH_URL))
+
         if not ret.ok:
             raise FigshareArchiverError('Could not connect to Figshare.')
+
         for project in ret.json():
-            if self.fsid == project['id']:
+            if self.fsid == str(project['id']):
                 return True
         return False
 
     #Assumes that self.fsid is an article
     def get_article_files(self, aid=None):
         aid = aid or self.fsid
-        url = '{}articles/{}'.format(self.API_OAUTH_URL, self.fsid)
+        url = '{}articles/{}'.format(self.API_OAUTH_URL, aid)
+
         ret = self.client.get(url)
-        return ret.json()['items'][0]['files']
+
+        try:
+            raise FigshareArchiverError(ret.json()['error'])
+        except (KeyError, TypeError):
+            return ret.json()['items'][0]['files']
+        except:
+            raise
 
     def get_project_articles(self, pid=None):
         pid = pid or self.fsid
-        url = '{}project/{}/articles'.format(self.API_OAUTH_URL, self.fsid)
+        url = '{}projects/{}/articles'.format(self.API_OAUTH_URL, self.fsid)
+
         ret = self.client.get(url)
-        return ret.json()
+
+        try:
+            raise FigshareArchiverError(ret.json()['error'])
+        except (KeyError, TypeError):
+            return ret.json()
+        except:
+            raise
 
 
 @celery.task(throws=(UnfetchableFile, ))
