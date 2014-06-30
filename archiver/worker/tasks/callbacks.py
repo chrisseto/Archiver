@@ -23,8 +23,10 @@ def archival_finish(rvs, container):
     if not errs:
         logger.info('Registation finished for {}'.format(container.id))
 
+        print rvs
         manifests, failures = zip(*rvs)
-
+        print manifests
+        print failures
         #Flattens failures
         failures = [failure.to_json() for failure in sum(failures, [])]
 
@@ -32,10 +34,6 @@ def archival_finish(rvs, container):
 
         if failures:
             store.push_manifest(failures, '%s.failures' % container.id)
-
-        # Children dont get callbacks
-        if container.is_child:
-            return (rvs, container)
 
         payload = {
             'status': 'success',
