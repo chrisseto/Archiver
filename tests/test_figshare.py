@@ -42,6 +42,16 @@ def test_(monkeypatch, figshare_service):
     # assert mock_download.called
 
 
+def test_figshare_404():
+    pass
+
+
+def test_figshare_errors():
+    pass
+
+
+def test_retry():
+    pass
 
 # @pytest.mark.usesfixtures('push_file')
 # @pytest.mark.usesfixtures('push_json')
