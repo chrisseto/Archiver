@@ -31,7 +31,7 @@ class FigshareArchiver(ServiceArchiver):
             FIGSHARE_OAUTH_TOKENS[1]
         ]
         self.client = self.create_oauth_session(*keys)
-        self.fsid = service['id']
+        self.fsid = str(service['id'])
         super(FigshareArchiver, self).__init__(service)
 
     @classmethod
@@ -64,7 +64,7 @@ class FigshareArchiver(ServiceArchiver):
 
         for article in articles:
             for afile in self.get_article_files(aid=article['id']):
-                header.append(download_file.si(self, afile, articles['id']))
+                header.append(download_file.si(self, afile, article['id']))
         return header
 
     def is_project(self):
@@ -90,7 +90,7 @@ class FigshareArchiver(ServiceArchiver):
         return ret.json()
 
 
-@celery.task(raises=(UnfetchableFile))
+@celery.task(throws=(UnfetchableFile, ))
 def download_file(figshare, filedict, aid):
     try:
         url = filedict['download_url']
@@ -108,14 +108,14 @@ def download_file(figshare, filedict, aid):
         return metadata
     except KeyError:
         logger.info('Unable to download file %s, no download url given.')
-        raise UnfetchableFile('No download link available', filedict, 'figshare')
+        raise UnfetchableFile('No download link available', filedict['name'], 'figshare')
 
 
 @celery.task
 def clone_done(rets, figshare):
     service = {
         'service': 'figshare',
-        'resource': figshare.id,
+        'resource': figshare.fsid,
         'files': [ret for ret in rets if not isinstance(ret, UnfetchableFile)]
     }
     store.push_manifest(service, '{}.figshare'.format(figshare.cid))
