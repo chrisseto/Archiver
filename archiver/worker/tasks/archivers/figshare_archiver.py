@@ -97,8 +97,11 @@ def download_file(figshare, filedict, aid):
         fobj, path = figshare.get_temp_file()
         fobj.close()
 
-        stream = requests.get(url, stream=True)
-        figshare.stream_file(stream, path)
+        try:
+            stream = requests.get(url, stream=True)
+            figshare.stream_file(stream, path)
+        except:
+            raise download_file.retry()
 
         metadata = figshare.get_metadata(url, path)
 

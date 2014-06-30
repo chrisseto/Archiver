@@ -76,7 +76,12 @@ def process_file(github, path, filename):
 @celery.task
 def clone_github(github):
     path = mkdtemp()
-    Git().clone(github.url, path)
+
+    try:
+        Git().clone(github.url, path)
+    except:
+        raise clone_github.retry()
+
     # Unused for the moment .git is ignored
     # and other branches are ignored
     #g = Git(path)
