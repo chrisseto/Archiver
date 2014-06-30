@@ -6,6 +6,7 @@ from requests.exceptions import RequestException
 
 from archiver import celery
 from archiver.backend import store
+from archiver.datatypes import Container
 from archiver.settings import CALLBACK_ADDRESS
 
 logger = logging.getLogger(__name__)
@@ -23,14 +24,9 @@ def archival_finish(rvs, container):
     if not errs:
         logger.info('Registation finished for {}'.format(container.id))
 
-        print rvs
-        manifests, failures = zip(*rvs)
-        print manifests
-        print failures
-        #Flattens failures
-        failures = [failure.to_json() for failure in sum(failures, [])]
+        manifests, failures, children = parse_return_bundle(rvs)
 
-        generate_manifest(manifests, container)
+        manifest = generate_manifest(manifests, children, container)
 
         if failures:
             store.push_manifest(failures, '%s.failures' % container.id)
@@ -54,22 +50,38 @@ def archival_finish(rvs, container):
         except RequestException:
             logger.warning('Could not submit callback to %s' % address)
 
+    if container.is_child:
+        return (manifests, failures, (container, manifest))
 
-def generate_manifest(blob, container):
+
+def generate_manifest(blob, children, container):
     manifest = {
         'metadata': container.metadata(),
         'services': {
             service['service']: service
             for service in blob
-            if isinstance(service, dict)
         },
         'children': {
-            child[1].id: generate_manifest(*child)
-            for child in blob
-            if isinstance(child, tuple)
+            child[0].id: child[1]
+            for child in children
         }
     }
 
     store.push_manifest(manifest, container.id)
     store.push_directory_structure(manifest)
     return manifest
+
+
+def parse_return_bundle(blob):
+    bundle = []
+    children = []
+
+    for rvs in blob:
+        if len(rvs) == 3:
+            children.append(rvs[2])
+            bundle.extend(zip(rvs[0], rvs[1]))
+        else:
+            bundle.append(rvs)
+
+    manifest, failures = zip(*bundle)
+    return manifest, [failure.to_json() for failure in sum(failures, [])], children
