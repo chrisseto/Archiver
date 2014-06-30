@@ -25,13 +25,13 @@ def archival_finish(rvs, container):
 
         manifests, failures = zip(*rvs)
 
-        print rvs
-        print failures
+        #Flattens failures
+        failures = sum(failures, [])
 
         generate_manifest(manifests, container)
 
         if failures:
-            store.push_metadata(failures, '%s.failures' % container.id)
+            store.push_manifest(failures, '%s.failures' % container.id)
 
         # Children dont get callbacks
         if container.is_child:
@@ -40,7 +40,7 @@ def archival_finish(rvs, container):
         payload = {
             'status': 'success',
             'id': container.id,
-            'failures': [failure.to_json() for failure in sum(failures, [])]
+            'failures': [failure.to_json() for failure in failures]
         }
 
     else:
