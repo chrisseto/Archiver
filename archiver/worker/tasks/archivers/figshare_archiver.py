@@ -128,7 +128,7 @@ def download_file(figshare, filedict, aid):
 
         return metadata
     except KeyError:
-        logger.info('Unable to download file %s, no download url given.')
+        logger.info('Unable to download file %s, no download url given.' % filedict['name'])
         raise UnfetchableFile('No download link available', filedict['name'], 'figshare')
 
 
