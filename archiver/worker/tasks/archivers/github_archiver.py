@@ -77,7 +77,9 @@ def process_file(github, path, filename):
 def clone_github(github):
     path = mkdtemp()
     Git().clone(github.url, path)
-    g = Git(path)
+    # Unused for the moment .git is ignored
+    # and other branches are ignored
+    #g = Git(path)
     # github.pull_all_branches(g)
     # github.sanitize_config(path)
 
@@ -87,7 +89,7 @@ def clone_github(github):
         dirs[:] = [d for d in dirs if not d[0] == '.']
         rets.extend([
             process_file(github, os.path.join(root, f),
-                         os.path.join(root, f).replace(path, ''))
+                         os.path.join(root, f).replace('%s/' % path, ''))
             for f in files
         ])
 
