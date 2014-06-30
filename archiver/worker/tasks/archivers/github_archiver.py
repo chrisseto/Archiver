@@ -78,7 +78,7 @@ def clone_github(github):
     path = mkdtemp()
     Git().clone(github.url, path)
     g = Git(path)
-    github.pull_all_branches(g)
+    # github.pull_all_branches(g)
     # github.sanitize_config(path)
 
     rets = []
