@@ -38,19 +38,26 @@ class S3(StorageBackEnd):
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
-    def upload_file(self, path, name, directory=''):
+    def upload_file(self, path, name, directory='', retries=0):
         if name[0] == '/':
             name = os.path.join(directory, name[1:])
         else:
             name = os.path.join(directory, name)
 
-        if not self.bucket.get_key(name):
-            # if os.path.getsize(path) >= self.MULTIPART_THRESHOLD:
-            # TODO
-            k = self.bucket.new_key(name)
-            logger.info('uploading "%s"' % name)
-            k.set_contents_from_filename(path)
-            os.remove(path)
+        try:
+            if not self.bucket.get_key(name):
+                # if os.path.getsize(path) >= self.MULTIPART_THRESHOLD:
+                # TODO
+                k = self.bucket.new_key(name)
+                logger.info('uploading "%s"' % name)
+                k.set_contents_from_filename(path)
+                os.remove(path)
+                return True
+        except:
+            if retries > self.UPLOAD_RETRIES:
+                raise
+            self.upload_file(path, name, directory=directory, retries=retries+1)
+
         return False
 
     def get_file(self, path, name=None):

@@ -39,6 +39,8 @@ def get_storagebackends(services):
 
 class StorageBackEndCollective(StorageBackEnd):
 
+    UPLOAD_RETRIES = 3
+
     def __init__(self, services):
         self.backends = [
             get_storagebackend(backend)
