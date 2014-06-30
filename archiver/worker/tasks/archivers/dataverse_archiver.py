@@ -63,32 +63,37 @@ class DataverseArchiver(ServiceArchiver):
     def download_file(self, file_url):
         session = requests.session()
 
-        response = session.get(file_url, stream=True)
-
-        # Agree to terms if a redirect has occurred
-        if response.history:
-            parsed = BeautifulSoup(response.content)
-            try:
-                view_state = parsed.find(id='javax.faces.ViewState').attrs['value']
-            except (KeyError, AttributeError):
-                raise DataverseArchiverError('Could not get ViewState value')
-
-            data = {
-                'form1': 'form1',
-                'javax.faces.ViewState': view_state,
-                'form1:termsAccepted': 'on',
-                'form1:termsButton': 'Continue',
-            }
-
-            session.post(response.url, data=data)
+        try:
             response = session.get(file_url, stream=True)
 
-        try:
-            filename = response.headers['content-disposition'].split('"')[1]
-        except KeyError:
-            raise DataverseArchiverError('File not found')
+            # Agree to terms if a redirect has occurred
+            if response.history:
+                parsed = BeautifulSoup(response.content)
+                try:
+                    view_state = parsed.find(id='javax.faces.ViewState').attrs['value']
+                except (KeyError, AttributeError):
+                    raise DataverseArchiverError('Could not get ViewState value')
 
-        tpath = self.requests_save(response)
+                data = {
+                    'form1': 'form1',
+                    'javax.faces.ViewState': view_state,
+                    'form1:termsAccepted': 'on',
+                    'form1:termsButton': 'Continue',
+                }
+
+                session.post(response.url, data=data)
+                response = session.get(file_url, stream=True)
+
+            try:
+                filename = response.headers['content-disposition'].split('"')[1]
+            except KeyError:
+                raise DataverseArchiverError('File not found')
+
+            tpath = self.requests_save(response)
+
+        except:
+            #Retry if failed
+            raise self.download_file.retry()
 
         metadata = self.get_metadata(tpath, filename)
         store.push_file(tpath, metadata['sha256'])
@@ -104,4 +109,4 @@ class DataverseArchiver(ServiceArchiver):
             'files': rets
         }
         store.push_manifest(service, '%s.dataverse' % self.cid)
-        return service
+        return (service, [])
