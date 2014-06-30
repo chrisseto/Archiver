@@ -23,10 +23,15 @@ def archival_finish(rvs, container):
     if not errs:
         logger.info('Registation finished for {}'.format(container.id))
 
+        print rvs
+
         manifests, failures = zip(*rvs)
 
+        print manifests
+        print failures
+
         #Flattens failures
-        failures = sum(failures, [])
+        failures = [failure.to_json() for failure in sum(failures, [])]
 
         generate_manifest(manifests, container)
 
@@ -40,7 +45,7 @@ def archival_finish(rvs, container):
         payload = {
             'status': 'success',
             'id': container.id,
-            'failures': [failure.to_json() for failure in failures]
+            'failures': failures
         }
 
     else:
