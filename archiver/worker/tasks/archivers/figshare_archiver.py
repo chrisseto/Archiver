@@ -88,11 +88,9 @@ class FigshareArchiver(ServiceArchiver):
         ret = self.client.get(url)
 
         try:
-            raise FigshareArchiverError(ret.json()['error'])
-        except (KeyError, TypeError):
             return ret.json()['items'][0]['files']
-        except:
-            raise
+        except KeyError:
+            raise FigshareArchiverError(ret.json()['error'])
 
     def get_project_articles(self, pid=None):
         pid = pid or self.fsid
@@ -100,12 +98,10 @@ class FigshareArchiver(ServiceArchiver):
 
         ret = self.client.get(url)
 
-        try:
-            raise FigshareArchiverError(ret.json()['error'])
-        except (KeyError, TypeError):
+        if isinstance(ret.json(), list):
             return ret.json()
-        except:
-            raise
+        else:
+            raise FigshareArchiverError(ret.json()['error'])
 
 
 @celery.task(throws=(UnfetchableFile, ))
