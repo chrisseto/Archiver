@@ -76,6 +76,8 @@ def parse_return_bundle(blob):
 
     for rvs in blob:
 
+        rvs = list(rvs)
+
         if isinstance(rvs[0], dict):
             rvs[0] = [rvs[0]]
 
