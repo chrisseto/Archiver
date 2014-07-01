@@ -6,7 +6,6 @@ from requests.exceptions import RequestException
 
 from archiver import celery
 from archiver.backend import store
-from archiver.datatypes import Container
 from archiver.settings import CALLBACK_ADDRESS
 
 logger = logging.getLogger(__name__)
@@ -29,12 +28,12 @@ def archival_finish(rvs, container):
         manifest = generate_manifest(manifests, children, container)
 
         if failures:
-            store.push_manifest(failures, '%s.failures' % container.id)
+            store.push_manifest([failure.to_json() for failure in failures], '%s.failures' % container.id)
 
         payload = {
             'status': 'success',
             'id': container.id,
-            'failures': failures
+            'failures': [failure.to_json() for failure in failures]
         }
 
     else:
@@ -73,15 +72,24 @@ def generate_manifest(blob, children, container):
 
 
 def parse_return_bundle(blob):
-    bundle = []
-    children = []
+    manifests, failures, children = [], [], []
 
     for rvs in blob:
-        if len(rvs) == 3:
-            children.append(rvs[2])
-            bundle.extend(zip(rvs[0], rvs[1]))
-        else:
-            bundle.append(rvs)
 
-    manifest, failures = zip(*bundle)
-    return manifest, [failure.to_json() for failure in sum(failures, [])], children
+        if isinstance(rvs[0], dict):
+            rvs[0] = [rvs[0]]
+
+        try:
+            rvs[1] = sum(rvs[1], [])
+        except TypeError:
+            pass
+
+        manifests.extend(rvs[0])
+        failures.extend(rvs[1])
+
+        try:
+            children.append(rvs[2])
+        except IndexError:
+            pass
+
+    return manifests, failures, children
