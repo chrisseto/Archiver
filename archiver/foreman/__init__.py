@@ -19,14 +19,15 @@ celery = Celery()
 celery.config_from_object(settings)
 
 
-def start():
+def start(app):
+    app.run(host='0.0.0.0', port=settings.PORT)
+
+
+def config_logging():
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     logger.addHandler(ch)
-
-    app = build_app()
-    app.run(host='0.0.0.0', port=settings.PORT)
 
 
 def build_app():
