@@ -39,6 +39,8 @@ class S3(StorageBackEnd):
             raise RemoteStorageError('Could not connect to S3')
 
     def upload_file(self, path, name, directory='', retries=0):
+        name = name.decode('utf-8')
+
         if name[0] == '/':
             name = os.path.join(directory, name[1:])
         else:
