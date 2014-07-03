@@ -1,12 +1,16 @@
+import hmac
 import json
 import logging
+import hashlib
 import requests
+import time
+import calendar
 
 from requests.exceptions import RequestException
 
 from archiver import celery
 from archiver.backend import store
-from archiver.settings import CALLBACK_ADDRESS
+from archiver.settings import CALLBACK_ADDRESS, IGNORE_CALLBACK_SSL, HMAC_KEY
 
 logger = logging.getLogger(__name__)
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -43,9 +47,11 @@ def archival_finish(rvs, container):
             'reasons': errs
         }
 
+    payload = stamp_and_sign(payload, key='id')
+
     for address in CALLBACK_ADDRESS:
         try:
-            requests.post(address, data=json.dumps(payload), headers=headers)
+            requests.post(address, data=json.dumps(payload), headers=headers, verify=IGNORE_CALLBACK_SSL)
         except RequestException:
             logger.warning('Could not submit callback to %s' % address)
 
@@ -95,3 +101,22 @@ def parse_return_bundle(blob):
             pass
 
     return manifests, failures, children
+
+
+def stamp_and_sign(package, key=None):
+    time_stamp = calendar.timegm(time.gmtime())
+
+    signature = hmac.new(
+        key=HMAC_KEY,
+        msg='{}{}'.format(
+            time_stamp,
+            package.get(key, ''),
+        ),
+        digestmod=hashlib.sha256,
+    ).hexdigest()
+
+    package.update({
+        'timeStamp': time_stamp,
+        'signature': signature
+    })
+    return package

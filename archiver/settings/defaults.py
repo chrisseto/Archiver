@@ -7,6 +7,9 @@ CALLBACK_ADDRESS = [
 DEBUG = True
 PORT = 7000
 SENTRY_DSN = None
+IGNORE_CALLBACK_SSL = False
+HMAC_KEY = 'CHANGEME'
+
 # Dont use celery just run everything syncronisly
 CELERY_SYNC = False
 
