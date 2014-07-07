@@ -20,6 +20,8 @@ class StorageBackEnd(object):
 
     USES = None
 
+    UPLOAD_RETRIES = 3
+
     DELIMITER = '.manifest.json'
 
     FILTER_SERVICES = r'^[^\.]+\.{}\.json$'
