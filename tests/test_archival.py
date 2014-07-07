@@ -136,6 +136,5 @@ def collect_service_calls(container):
 def collect_children_calls(container):
     kid_calls = [mock.call(container)]
     for child in container.children:
-        # kid_calls.append(mock.call(child))
         kid_calls.extend(collect_children_calls(child))
     return kid_calls
