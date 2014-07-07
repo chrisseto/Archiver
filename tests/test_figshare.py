@@ -53,15 +53,5 @@ def test_figshare_errors():
 def test_retry():
     pass
 
-# @pytest.mark.usesfixtures('push_file')
-# @pytest.mark.usesfixtures('push_json')
-# def test_pushes_files(figshare_service, push_file, push_json):
-#     mock_key = MockId()
-#     archiver = FigshareArchiver(figshare_service)
-#     key, meta = archiver.get_key(archiver, mock_key)
-#     assert key == mock_key
-#     assert len(push_file.mock_calls) == 1
-#     assert len(push_json.mock_calls) == 1
-#     assert push_json.called
 
 

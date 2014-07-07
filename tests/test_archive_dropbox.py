@@ -63,10 +63,3 @@ def test_flat_list(monkeypatch, dropbox_service):
     for task in chord.task:
         assert not isinstance(task, list)
 
-# def test_pushes(monkeypatch, patch_client, dropbox_service, push_file, push_json):
-#     MockDropBox.folder_name = dropbox_service['folder']
-#     monkeypatch.setattr(MockDropBox.fetch)
-#     archiver = DropboxArchiver(dropbox_service)
-#     archiver.clone()()
-#     assert len(push_file.mock_calls) == len(archiver.client.gets)
-#     assert len(push_file.mock_calls) == len(archiver.client.collect_calls())
