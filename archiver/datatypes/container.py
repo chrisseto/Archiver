@@ -1,6 +1,3 @@
-import os
-import errno
-import tempfile
 from datetime import datetime
 
 import validation
@@ -8,8 +5,6 @@ from .service import Service
 
 
 class Container(object):
-
-    TEMP_DIR = tempfile.mkdtemp()
 
     @classmethod
     def from_json(cls, json, parent=None):
@@ -37,25 +32,8 @@ class Container(object):
         self.registered_on = datetime.now()
 
     @property
-    def path(self):
-        if self.parent:
-            return os.path.join(self.parent.path, 'children', self.id) + os.sep
-        return os.path.join(self.id) + os.sep
-
-    @property
     def is_child(self):
         return self.parent is not None
-
-    @property
-    def full_path(self):
-        return os.path.join(self.TEMP_DIR, self.path)
-
-    def make_dir(self):
-        try:
-            os.makedirs(self.full_path)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise
 
     def metadata(self):
         return {
