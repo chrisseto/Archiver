@@ -62,4 +62,3 @@ def test_flat_list(monkeypatch, dropbox_service):
     chord = archiver.clone()
     for task in chord.task:
         assert not isinstance(task, list)
-

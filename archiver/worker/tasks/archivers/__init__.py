@@ -15,7 +15,12 @@ from . import *
 
 
 def get_archiver(service):
+    """Returns the service archiver for the requested service
+
+    :param str service The name of the requested service
+    :return: ServiceArchiver
+    """
     for archiver in ServiceArchiver.__subclasses__():
-        if archiver.ARCHIVES == service:
+        if archiver.ARCHIVES == service.lower():
             return archiver
     raise NotImplementedError('No archiver for {}'.format(service))

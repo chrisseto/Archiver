@@ -54,7 +54,7 @@ class StorageBackEnd(object):
     def push_metadata(self, blob, name):
         clone = copy.deepcopy(blob)
         try:
-            del clone['path']
+            del clone['path']  # Dont store name or path with generic file data
             del clone['name']
         except:
             pass
@@ -90,13 +90,19 @@ class StorageBackEnd(object):
             remove=settings.DELEMITER)
 
     def _filter(self, filter, limit=None, remove='', directory=''):
+        """Filter a list of string via regex
+        :param str filter a regex string
+        :param int limit The max amount of results to return
+        :param str remove A string to trim from the results
+        :param str directory The directory to search in
+        """
         #TODO Pagination?
         return [
             self.remove(container, remove)
             for container in
             self.list_directory(directory)
             if re.search(filter, container)
-        ][:None]
+        ][:limit]
 
     def push_file(self, path, name, force_parity=settings.IGNORE_PARITIY_SIZE_LIMIT):
         if settings.CREATE_PARITIES:

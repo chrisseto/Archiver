@@ -58,13 +58,13 @@ def fetch(self, dropbox, path, rev=None):
     except ErrorResponse as e:
 
         if e.status == 461:
-            logger.info('File {} is unavailable due to DMCA copyright reasons.')
-            raise UnfetchableFile('Failed due to DMCA reasons', path, 'dropbox')
+            logger.warning('File {} is unavailable due to DMCA copyright reasons.')
+            raise UnfetchableFile('Failed due to DMCA takedown requests.', path, 'dropbox')
 
-        logger.info('Failed to get file "{}"'.format(path))
+        logger.error('Failed to get file "{}"'.format(path))
 
         if e.headers.get('Retry-After'):
-            logger.info('Hit Dropbox rate limit.')
+            logger.warning('Hit Dropbox rate limit.')
 
         sys.exc_clear()
 

@@ -28,7 +28,7 @@ def _validate_project(container):
 def _validate_metadata(data):
     try:
         valid = data is not None
-        valid = valid and bool(data['id'])
+        valid = valid and bool(data['id']) and len(data['id']) < 61
         valid = valid and bool(data['title'])
         valid = valid and bool(data['contributors'])
         return valid

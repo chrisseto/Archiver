@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceArchiver(object):
-
+    """Base class for archiving 3rd party services.
+    Contains mostly helper functions.
+    """
     ARCHIVES = None
     CHUNK_SIZE = 1024  # 1KB
     CUTOFF_SIZE = 1024 ** 2 * 500  # 500 MB
@@ -31,10 +33,16 @@ class ServiceArchiver(object):
             logger.info('Forcing parities for service {} of {}'.format(self.ARCHIVES, self.cid))
 
     def clone(self):
+        """To be overridden by subclasses
+        """
         raise NotImplementedError()
 
     @classmethod
     def chunked_file(cls, fobj, chunk_size=CHUNK_SIZE):
+        """Read though files at iterators to save memory
+        :param File fobj a file like object
+        :param int chunk_size The amount of the file to load into memory
+        """
         while True:
             chunk = fobj.read(chunk_size)
             if not chunk:
@@ -53,6 +61,9 @@ class ServiceArchiver(object):
 
     @classmethod
     def sha256(cls, path):
+        """Computes the sha256 of a file in a memory efficient way
+        :param str path The path to the file to hash
+        """
         sha = hashlib.sha256()
 
         with open(path) as to_hash:
@@ -63,6 +74,9 @@ class ServiceArchiver(object):
 
     @classmethod
     def md5(cls, path):
+        """Computes the md5 of a file in a memory efficient way
+        :param str path The path to the file to hash
+        """
         md5 = hashlib.md5()
 
         with open(path) as to_hash:
@@ -73,6 +87,9 @@ class ServiceArchiver(object):
 
     @classmethod
     def get_temp_file(cls):
+        """Get a temporary file!
+        :return: File Object and the path to it
+        """
         fd, path = tempfile.mkstemp()
         return os.fdopen(fd, 'w'), path
 
