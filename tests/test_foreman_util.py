@@ -38,5 +38,5 @@ def test_returns_error(patch_archive, container, app):
     with app.test_request_context():
         ret = utils.push_task(container)
         assert 'ERROR' in ret.response[0]
-        assert ret.status_code == 500  # Created
+        assert ret.status_code == 500
         patch_archive.delay.assert_called_once_with(container)

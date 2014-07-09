@@ -4,7 +4,6 @@ import pytest
 
 from webtest import TestApp
 
-from archiver.datatypes import Container
 from archiver.foreman import build_app
 
 from utils.jsons import good

@@ -30,7 +30,7 @@ def push_task(container):
                  'reason': 'could not connect to rabbitmq'
                  })
             ret = jsonify({'response': ret})
-            ret.status_code = http.INTERNAL_SERVER_ERROR
+            ret.status_code = http.SERVICE_UNAVAILABLE
         else:
             raise
     except Exception:

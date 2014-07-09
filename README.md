@@ -67,7 +67,7 @@ The directory structure of Directory Structures is as follows
 ```
 
 
-###Setting up the Archiver to run locally
+###Setting up Archiver to run locally
 * `mv group_vars/archiver.example group_vars/archiver`
 * Fill out archiver with the proper information
     - Minimally your S3 keys and bucket name
