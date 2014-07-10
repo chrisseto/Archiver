@@ -7,9 +7,9 @@ from dateutil import parser
 
 from dropbox.client import DropboxClient, ErrorResponse
 
-from archiver import celery
+from archiver import celery, settings
 from archiver.backend import store
-from archiver.exceptions.archivers import DropboxArchiverError, UnfetchableFile
+from archiver.exceptions.archivers import DropboxArchiverError, UnfetchableFile, FileTooLargeError
 
 from base import ServiceArchiver
 
@@ -48,10 +48,15 @@ class DropboxArchiver(ServiceArchiver):
         return chord(header, file_done.s(self, item['path']))
 
 
-@celery.task(bind=True, throws=(UnfetchableFile, ))
+@celery.task(bind=True, throws=(UnfetchableFile, FileTooLargeError))
 def fetch(self, dropbox, path, rev=None):
     try:
         fobj, metadata = dropbox.client.get_file_and_metadata(path, rev)
+
+        if settings.MAX_FILE_SIZE and metadata['bytes'] > settings.MAX_FILE_SIZE:
+            fobj.close()
+            raise FileTooLargeError(path, 'dropbox')
+
         tpath = dropbox.chunked_save(fobj)
         fobj.close()
 

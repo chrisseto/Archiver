@@ -32,3 +32,9 @@ class UnfetchableFile(ArchiverError):
             'reason': self.reason,
             'service': self.service
         }
+
+
+class FileTooLargeError(UnfetchableFile):
+
+    def __init__(self, file, service):
+        UnfetchableFile.__init__(self, 'File is too large.', file, service)

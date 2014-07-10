@@ -13,6 +13,8 @@ IGNORE_CALLBACK_SSL = False
 HMAC_KEY = 'CHANGEME'
 REQUIRE_SIGNED_SUBMITIONS = False
 
+MAX_FILE_SIZE = None
+
 # Dont use celery just run everything syncronisly
 CELERY_SYNC = False
 

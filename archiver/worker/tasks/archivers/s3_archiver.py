@@ -4,8 +4,9 @@ from celery import chord
 
 from boto.s3.connection import OrdinaryCallingFormat, S3Connection, Key
 
-from archiver import celery
 from archiver.backend import store
+from archiver import celery, settings
+from archiver.exceptions.archivers import FileTooLargeError
 
 from base import ServiceArchiver
 
@@ -53,8 +54,11 @@ class S3Archiver(ServiceArchiver):
         ]
         return chord(header, self.key_done.s(self, key))
 
-    @celery.task
+    @celery.task(throws=(FileTooLargeError, ))
     def get_key(self, key):
+        if settings.MAX_FILE_SIZE and key.size > settings.MAX_FILE_SIZE:
+            raise FileTooLargeError(key.key, 's3')
+
         fobj, path = self.get_temp_file()
         fobj.close()
         key.get_contents_to_filename(path)

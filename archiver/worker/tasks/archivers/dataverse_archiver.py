@@ -6,9 +6,9 @@ from dataverse import Connection
 
 from bs4 import BeautifulSoup
 
-from archiver import celery
+from archiver import celery, settings
 from archiver.backend import store
-from archiver.exceptions.archivers import DataverseArchiverError
+from archiver.exceptions.archivers import DataverseArchiverError, FileTooLargeError
 
 from base import ServiceArchiver
 
@@ -59,7 +59,7 @@ class DataverseArchiver(ServiceArchiver):
 
         return chord(header, self.clone_done.s(self))
 
-    @celery.task
+    @celery.task(throws=(FileTooLargeError, ))
     def download_file(self, file_url):
         session = requests.session()
 
@@ -88,6 +88,13 @@ class DataverseArchiver(ServiceArchiver):
                 filename = response.headers['content-disposition'].split('"')[1]
             except KeyError:
                 raise DataverseArchiverError('File not found')
+
+            try:
+                size = response.headers['content-size']
+                if settings.MAX_FILE_SIZE and size > settings.MAX_FILE_SIZE:
+                    raise FileTooLargeError(filename, 'dataverse')
+            except KeyError:
+                pass  # ?
 
             tpath = self.requests_save(response)
 
