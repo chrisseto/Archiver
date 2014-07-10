@@ -1,16 +1,13 @@
-import hmac
 import json
 import logging
-import hashlib
 import requests
-import time
-import calendar
 
 from requests.exceptions import RequestException
 
 from archiver import celery
 from archiver.backend import store
-from archiver.settings import CALLBACK_ADDRESS, IGNORE_CALLBACK_SSL, HMAC_KEY
+from archiver.util.signing import sign
+from archiver.settings import CALLBACK_ADDRESS, IGNORE_CALLBACK_SSL
 
 logger = logging.getLogger(__name__)
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -41,13 +38,15 @@ def archival_finish(rvs, container):
         }
 
     else:
+        logger.error('Registation failed for {}'.format(container.id))
+
         payload = {
             'status': 'failed',
             'id': container.id,
             'reasons': errs
         }
 
-    payload = stamp_and_sign(payload, key='id')
+    payload = sign(payload)
 
     for address in CALLBACK_ADDRESS:
         try:
@@ -101,22 +100,3 @@ def parse_return_bundle(blob):
             pass
 
     return manifests, failures, children
-
-
-def stamp_and_sign(package, key=None):
-    time_stamp = calendar.timegm(time.gmtime())
-
-    signature = hmac.new(
-        key=HMAC_KEY,
-        msg='{}{}'.format(
-            time_stamp,
-            package.get(key, ''),
-        ),
-        digestmod=hashlib.sha256,
-    ).hexdigest()
-
-    package.update({
-        'timeStamp': time_stamp,
-        'signature': signature
-    })
-    return package
