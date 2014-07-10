@@ -1,3 +1,4 @@
+import sys
 import logging
 
 from celery import Celery
@@ -25,6 +26,7 @@ def start(app):
 
 def config_logging():
     logging.basicConfig(
+        stream=sys.stdout,
         level=logging.DEBUG,
         format='[%(asctime)s][%(levelname)s][%(name)s]: %(message)s',
         datefmt='%m-%d %H:%M'
