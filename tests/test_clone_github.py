@@ -1,5 +1,3 @@
-import os
-import json
 from StringIO import StringIO
 
 import mock
@@ -10,7 +8,6 @@ from archiver import settings
 settings.BACKEND = 'debug'
 
 from archiver.datatypes import Container
-from archiver.worker.tasks import archive, archive_service
 from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.github_archiver import GithubArchiver
 
@@ -32,13 +29,6 @@ def patch_callback(monkeypatch):
     mock_callback = mock.Mock()
     monkeypatch.setattr('archiver.worker.tasks.callbacks.archival_finish.run', mock_callback)
     return mock_callback
-
-
-@pytest.fixture(autouse=True)
-def ctrl_tempdir(monkeypatch, tmpdir):
-    #Use py.test tmpdir
-    monkeypatch.setattr('archiver.datatypes.container.Container.TEMP_DIR', str(tmpdir))
-    return tmpdir
 
 
 @pytest.fixture(autouse=True)

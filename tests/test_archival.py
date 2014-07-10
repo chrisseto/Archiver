@@ -51,7 +51,7 @@ def test_archive_service_not_implemented(container):
     service = container.services[0]
     service.service = 'FakeService'
     with pytest.raises(NotImplementedError) as err:
-        get_archiver(service)
+        get_archiver(service.service)
     assert err.type == NotImplementedError
     from archiver import settings
 
