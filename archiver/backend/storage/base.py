@@ -9,7 +9,7 @@ import httplib as http
 from shutil import rmtree
 
 from archiver import settings
-from archiver import parchive
+from archiver.util import parchive
 from archiver.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
