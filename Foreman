@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from archiver import foreman
 
-app = foreman.build_app()
+foreman.config_logging()
 
-foreman.config_logging(app, None)
+app = foreman.build_app()
 
 if __name__ == '__main__':
     foreman.start(app)

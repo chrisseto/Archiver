@@ -23,16 +23,12 @@ def start(app):
     app.run(host='0.0.0.0', port=settings.PORT)
 
 
-def config_logging(app, to_file='/var/log/archiver/flask.log'):
-    if not to_file:
-        ch = logging.StreamHandler()
-    else:
-        ch = logging.RotatingFileHandler(to_file, maxBytes=50 * 1024 ** 2, backupCount=5)
-
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(ch)
-    app.logger.addHandler(ch)
+def config_logging():
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='[%(asctime)s][%(levelname)s][%(name)s]: %(message)s',
+        datefmt='%m-%d %H:%M'
+    )
 
 
 def build_app():
