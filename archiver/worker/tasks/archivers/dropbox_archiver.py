@@ -21,8 +21,12 @@ class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
 
     def __init__(self, service):
-        self.client = DropboxClient(service['access_token'])
-        self.folder_name = service['folder']
+        try:
+            self.client = DropboxClient(service['access_token'])
+            self.folder_name = service['folder']
+        except KeyError as e:
+            raise DropboxArchiver('Missing argument "%s"' % e.message)
+
         super(DropboxArchiver, self).__init__(service)
 
     def clone(self):

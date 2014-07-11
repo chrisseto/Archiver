@@ -25,7 +25,8 @@ class DataverseArchiver(ServiceArchiver):
             self.study_doi = service['studyDoi']
             self.host = service.get('host', 'dvn-demo.iq.harvard.edu')
         except KeyError as e:
-            raise DataverseArchiverError('Miss argument "%s"' % e.message)
+            raise DataverseArchiverError('Missing argument "%s"' % e.message)
+
         super(DataverseArchiver, self).__init__(service)
 
     @classmethod
@@ -61,6 +62,7 @@ class DataverseArchiver(ServiceArchiver):
 
     @celery.task(throws=(FileTooLargeError, ))
     def download_file(self, file_url):
+        #Keep the session so that agreeing to ToS actually sticks
         session = requests.session()
 
         try:

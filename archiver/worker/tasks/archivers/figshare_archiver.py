@@ -25,15 +25,18 @@ class FigshareArchiver(ServiceArchiver):
         if None in FIGSHARE_OAUTH_TOKENS:
             raise FigshareKeyError('No OAuth tokens.')
 
-        keys = [
-            service['token_key'],
-            service['token_secret'],
-            FIGSHARE_OAUTH_TOKENS[0],
-            FIGSHARE_OAUTH_TOKENS[1]
-        ]
+        try:
+            keys = [
+                service['token_key'],
+                service['token_secret'],
+                FIGSHARE_OAUTH_TOKENS[0],
+                FIGSHARE_OAUTH_TOKENS[1]
+            ]
+            self.fsid = str(service['id'])
+        except KeyError as e:
+            raise FigshareArchiverError('Missing argument "%s"' % e.message)
 
         self.client = self.create_oauth_session(*keys)
-        self.fsid = str(service['id'])
         super(FigshareArchiver, self).__init__(service)
 
     @classmethod

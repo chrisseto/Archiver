@@ -6,7 +6,7 @@ from boto.s3.connection import OrdinaryCallingFormat, S3Connection, Key
 
 from archiver.backend import store
 from archiver import celery, settings
-from archiver.exceptions.archivers import FileTooLargeError
+from archiver.exceptions.archivers import FileTooLargeError, S3ArchiverError
 
 from base import ServiceArchiver
 
@@ -19,12 +19,17 @@ class S3Archiver(ServiceArchiver):
     RESOURCE = 'bucket'
 
     def __init__(self, service):
-        self.connection = S3Connection(service['access_key'], service['secret_key'])
+        try:
+            self.connection = S3Connection(service['access_key'], service['secret_key'])
 
-        if service['bucket'] != service['bucket'].lower():
-            self.connection.calling_format = OrdinaryCallingFormat()
+            if service['bucket'] != service['bucket'].lower():
+                self.connection.calling_format = OrdinaryCallingFormat()
+
+        except KeyError as e:
+            raise S3ArchiverError('Missing argument "%s"' % e.message)
 
         self.bucket = self.connection.get_bucket(service['bucket'], validate=False)
+
         super(S3Archiver, self).__init__(service)
 
     def clone(self):

@@ -18,6 +18,10 @@ class DropboxArchiverError(ArchiverError):
     pass
 
 
+class S3ArchiverError(ArchiverError):
+    pass
+
+
 class UnfetchableFile(ArchiverError):
 
     def __init__(self, reason, file, service):

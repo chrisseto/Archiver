@@ -2,6 +2,8 @@ import httplib as http
 
 from flask import jsonify
 
+from archivers import *  # WWSD
+
 
 class HTTPError(Exception):
 
