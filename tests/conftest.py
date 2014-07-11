@@ -37,7 +37,8 @@ def upload_file(monkeypatch):
 def no_metadata(monkeypatch):
     fake_meta = {
         'lastModified': 5,
-        'sha256': 'sha256'
+        'sha256': 'sha256',
+        'path': 'path'
     }
     monkeypatch.setattr('archiver.worker.tasks.archivers.base.ServiceArchiver.get_metadata', lambda *_, **__: fake_meta)
     monkeypatch.setattr('archiver.worker.tasks.archivers.base.ServiceArchiver.to_epoch', lambda *_, **__: 8)

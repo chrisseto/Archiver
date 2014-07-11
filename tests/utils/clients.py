@@ -3,10 +3,15 @@ import copy
 import mock
 import random
 import string
+from cStringIO import StringIO
 
 
 def rnd_str(length=10):
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(length))
+
+
+def mock_file():
+    return StringIO(rnd_str(80))
 
 
 class MockDropBox(object):
@@ -35,6 +40,9 @@ class MockDropBox(object):
                 return item
         raise Exception('Path not found')
 
+    def get_file_and_metadata(self, path, rev=None):
+        return mock_file(), self.metadata(path)
+
     def collect_calls(self, path=None):
         calls = []
         if path:
@@ -48,13 +56,19 @@ class MockDropBox(object):
                 calls.extend(self.collect_calls(item['path']))
         return calls
 
-    def create_mock_item(self, parent=''):
+    def create_mock_item(self, parent='', size=None, append=False):
         mock_item = {
             'is_dir': False,
-            'bytes': random.randint(0, 5000000),
-            'path': rnd_str()
+            'bytes': size or random.randint(0, 5000000),
+            'path': rnd_str(),
+            'modified': '7/11/2014'
         }
+
         mock_item['path'] = os.path.join(parent, mock_item['path'])
+
+        if append:
+            self.listing['contents'].append(mock_item)
+
         return mock_item
 
     def create_mock_dir(self, parent=''):
@@ -80,6 +94,7 @@ class MockKey(object):
         self.name = self.key
         self.version_id = 'null'
         self.versions = self.get_versions()
+        self.size = random.randint(0, 500000)
 
     def get_contents_to_filename(self, name):
         pass
@@ -127,6 +142,7 @@ class MockBucket(object):
         for key in self.keys:
             if prefix == key.key:
                 return [key] + key.versions
+
 
 class MockClient(object):
 
