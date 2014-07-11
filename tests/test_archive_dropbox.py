@@ -137,3 +137,23 @@ def test_everything_runs(monkeypatch, mockbox):
     assert isinstance(ret, tuple)
     assert isinstance(ret[0], dict)
     assert isinstance(ret[1], list)
+
+
+def test_raises_other_exceptions(mockbox):
+    path = mockbox.client.create_mock_item()['path']
+
+    mockbox.client.get_file_and_metadata = mock.MagicMock()
+    mockbox.client.get_file_and_metadata.side_effect = RuntimeError
+
+    with pytest.raises(RuntimeError):
+        fetch(mockbox, path)
+
+
+def test_raise_more_exceptions(mockbox):
+    path = mockbox.client.create_mock_item()['path']
+
+    mockbox.client.get_file_and_metadata = mock.MagicMock()
+    mockbox.client.get_file_and_metadata.side_effect = KeyError
+
+    with pytest.raises(KeyError):
+        fetch(mockbox, path)
