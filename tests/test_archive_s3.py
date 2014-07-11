@@ -4,6 +4,9 @@ import mock
 
 import pytest
 
+from celery import chord
+
+from archiver import settings, exceptions
 from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.s3_archiver import S3Archiver
@@ -17,7 +20,7 @@ def s3_container():
     return Container.from_json(jsons.good_multi_service)
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def bucket(monkeypatch):
     bucket = MockBucket()
     monkeypatch.setattr('archiver.worker.tasks.archivers.s3_archiver.S3Connection.get_bucket', lambda *_, **__: bucket)
@@ -30,6 +33,11 @@ def s3_service():
     #Remove github service
     del temp['container']['services'][0]
     return Container.from_json(temp).services[0]
+
+
+@pytest.fixture
+def s3archiver(s3_service):
+    return S3Archiver(s3_service)
 
 
 def test_gets_called():
@@ -57,5 +65,31 @@ def test_pushes_files(s3_service, push_file, push_json):
     assert push_json.called
 
 
-def test_resource_pulled(s3_service):
+def test_resource_pulled():
     assert S3Archiver.RESOURCE == 'bucket'
+
+
+def test_returns_flat_list(s3archiver):
+    ret = s3archiver.clone()
+    assert isinstance(ret, chord)
+    for notlist in ret.task:
+        assert not isinstance(notlist, list)
+
+
+def test_returns_flat_list_versioned(s3archiver):
+    s3archiver.versions = True
+    ret = s3archiver.clone()
+    assert isinstance(ret, chord)
+    for notlist in ret.task:
+        assert not isinstance(notlist, list)
+
+
+def test_key_too_large(s3archiver):
+    settings.MAX_FILE_SIZE = 500
+    mock_key = MockKey()
+    mock_key.size = 700
+
+    with pytest.raises(exceptions.archivers.FileTooLargeError) as e:
+        s3archiver.get_key(s3archiver, mock_key)
+    assert e.value.file == mock_key.key
+    settings.MAX_FILE_SIZE = None
