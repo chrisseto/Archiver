@@ -1,8 +1,11 @@
+import logging
 import httplib as http
 
 from flask import jsonify
 
 from archivers import *  # WWSD
+
+logger = logging.getLogger(__name__)
 
 
 class HTTPError(Exception):
@@ -65,4 +68,5 @@ class HTTPError(Exception):
 
 class ValidationError(HTTPError):
     def __init__(self, reason):
+        logger.debug('ValidationError raised. %s' % reason)
         super(ValidationError, self).__init__(400, reason=reason)
