@@ -24,7 +24,7 @@ def test_bad_service():
     with pytest.raises(ValidationError) as exc:
         validate_project(jsons.bad_service)
     assert exc.type == ValidationError
-    assert exc.value.reason == 'missing service segment'
+    assert exc.value.reason == 'bad service'
 
 
 def test_success():
