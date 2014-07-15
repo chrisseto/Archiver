@@ -54,7 +54,6 @@ def _validate_dataverse(data):
         valid = valid and bool(data['password'])
         valid = valid and bool(data['dataverse'])
         valid = valid and bool(data['studyDoi'])
-        valid = valid and bool(data['host'])
         return valid
     except KeyError:
         return False
