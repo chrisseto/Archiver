@@ -36,6 +36,76 @@ def _validate_metadata(data):
         return False
 
 
-#TODO
+def _validate_github(data):
+    try:
+        valid = data is not None
+        valid = valid and bool(data['access_token'])
+        valid = valid and bool(data['repo'])
+        valid = valid and bool(data['user'])
+        return valid
+    except KeyError:
+        return False
+
+
+def _validate_dataverse(data):
+    try:
+        valid = data is not None
+        valid = valid and bool(data['username'])
+        valid = valid and bool(data['password'])
+        valid = valid and bool(data['dataverse'])
+        valid = valid and bool(data['studyDoi'])
+        valid = valid and bool(data['host'])
+        return valid
+    except KeyError:
+        return False
+
+
+def _validate_dropbox(data):
+    try:
+        valid = data is not None
+        valid = valid and bool(data['access_token'])
+        valid = valid and bool(data['folder'])
+        return valid
+    except KeyError:
+        return False
+
+
+def _validate_figshare(data):
+    try:
+        valid = data is not None
+        valid = valid and bool(data['token_key'])
+        valid = valid and bool(data['token_secret'])
+        valid = valid and bool(data['id'])
+        return valid
+    except KeyError:
+        return False
+
+
+def _validate_s3(data):
+    try:
+        valid = data is not None
+        valid = valid and bool(data['access_key'])
+        valid = valid and bool(data['secret_key'])
+        valid = valid and bool(data['bucket'])
+        return valid
+    except KeyError:
+        return False
+
+
 def _validate_service(data):
-    return True
+    try:
+        valid = data is not None
+        if data['github']:
+            valid = valid and _validate_github(data['github'])
+        if data['dataverse']:
+            valid = valid and _validate_dataverse(data['dataverse'])
+        if data['dropbox']:
+            valid = valid and _validate_dropbox(data['dropbox'])
+        if data['figshare']:
+            valid = valid and _validate_figshare(data['figshare'])
+        if data['s3']:
+            valid = valid and _validate_s3(data['s3'])
+        return valid
+    except KeyError:
+        pass
+    raise ValidationError('missing service segment')

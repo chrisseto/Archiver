@@ -21,8 +21,10 @@ def test_bad_structure():
 
 
 def test_bad_service():
-    # TODO
-    pass
+    with pytest.raises(ValidationError) as exc:
+        validate_project(jsons.bad_service)
+    assert exc.type == ValidationError
+    assert exc.value.reason == 'missing service segment'
 
 
 def test_success():
