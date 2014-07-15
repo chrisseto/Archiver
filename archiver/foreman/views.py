@@ -26,10 +26,10 @@ def begin_register():
         raise HTTPError(http.UNAUTHORIZED)
 
     if request_json:
-        # logger.info('New Archival request from %s' % request.environ['REMOTE_ADDR'])
-        # logger.info('===Raw json===')
-        # logger.info(json.dumps(request_json, indent=4, sort_keys=True))
-        # logger.info('===End json===')
+        logger.info('New Archival request from %s' % request.environ['REMOTE_ADDR'])
+        logger.info('===Raw json===')
+        logger.info(json.dumps(request_json, indent=4, sort_keys=True))
+        logger.info('===End json===')
         container = Container.from_json(request_json)
         # Container should always be defined otherwise a
         # validation error will be raised by from_json
