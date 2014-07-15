@@ -92,20 +92,39 @@ def _validate_s3(data):
 
 
 def _validate_service(data):
+    valid = data is not None
+    count = 0
     try:
-        valid = data is not None
         if data['github']:
             valid = valid and _validate_github(data['github'])
-        elif data['dataverse']:
-            valid = valid and _validate_dataverse(data['dataverse'])
-        elif data['dropbox']:
-            valid = valid and _validate_dropbox(data['dropbox'])
-        elif data['figshare']:
-            valid = valid and _validate_figshare(data['figshare'])
-        elif data['s3']:
-            valid = valid and _validate_s3(data['s3'])
-        else:
-            return False
-        return valid
     except KeyError:
-        pass
+        count += 1
+
+    try:
+        if data['dataverse']:
+            valid = valid and _validate_dataverse(data['dataverse'])
+    except KeyError:
+        count += 1
+
+    try:
+        if data['dropbox']:
+            valid = valid and _validate_dropbox(data['dropbox'])
+    except KeyError:
+        count += 1
+
+    try:
+        if data['figshare']:
+            valid = valid and _validate_figshare(data['figshare'])
+    except KeyError:
+        count += 1
+
+    try:
+        if data['s3']:
+            valid = valid and _validate_s3(data['s3'])
+    except KeyError:
+        count += 1
+
+    if count == 5:
+        return False
+    return valid
+
