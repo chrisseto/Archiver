@@ -96,14 +96,16 @@ def _validate_service(data):
         valid = data is not None
         if data['github']:
             valid = valid and _validate_github(data['github'])
-        if data['dataverse']:
+        elif data['dataverse']:
             valid = valid and _validate_dataverse(data['dataverse'])
-        if data['dropbox']:
+        elif data['dropbox']:
             valid = valid and _validate_dropbox(data['dropbox'])
-        if data['figshare']:
+        elif data['figshare']:
             valid = valid and _validate_figshare(data['figshare'])
-        if data['s3']:
+        elif data['s3']:
             valid = valid and _validate_s3(data['s3'])
+        else:
+            return False
         return valid
     except KeyError:
         pass
