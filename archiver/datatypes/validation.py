@@ -109,4 +109,3 @@ def _validate_service(data):
         return valid
     except KeyError:
         pass
-    raise ValidationError('missing service segment')
