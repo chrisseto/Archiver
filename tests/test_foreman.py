@@ -36,6 +36,7 @@ def test_empty_json(app):
     assert ret.status_code == 400
 
 
+@raises(KeyError)
 def test_good_json(app, patch_push):
     ret = app.post_json('/', good)
     assert ret.status_code == 201

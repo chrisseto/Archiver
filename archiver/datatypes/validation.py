@@ -16,9 +16,10 @@ def _validate_project(container):
             for child in container['children']:
                 if not _validate_project(child['container']):
                     raise ValidationError('bad child')
-            for service in container['services']:
-                if not _validate_service(service):
-                    raise ValidationError('bad service')
+            _validate_services(container['services'])
+            # for service in container['services']:
+            #     if not _validate_service(service):
+            #         raise ValidationError('bad service')
             return True
     except (KeyError, TypeError):
         raise ValidationError('malformed data')
@@ -37,6 +38,7 @@ def _validate_metadata(data):
 
 
 def _validate_github(data):
+    data = data['github']
     try:
         valid = data is not None
         valid = valid and bool(data['access_token'])
@@ -48,6 +50,7 @@ def _validate_github(data):
 
 
 def _validate_dataverse(data):
+    data = data['dataverse']
     try:
         valid = data is not None
         valid = valid and bool(data['username'])
@@ -60,6 +63,7 @@ def _validate_dataverse(data):
 
 
 def _validate_dropbox(data):
+    data = data['dropbox']
     try:
         valid = data is not None
         valid = valid and bool(data['access_token'])
@@ -70,6 +74,7 @@ def _validate_dropbox(data):
 
 
 def _validate_figshare(data):
+    data = data['figshare']
     try:
         valid = data is not None
         valid = valid and bool(data['token_key'])
@@ -81,6 +86,7 @@ def _validate_figshare(data):
 
 
 def _validate_s3(data):
+    data = data['s3']
     try:
         valid = data is not None
         valid = valid and bool(data['access_key'])
@@ -90,41 +96,26 @@ def _validate_s3(data):
     except KeyError:
         return False
 
+#todo
+def _validate_gitlab(data):
+    pass
+
 
 def _validate_service(data):
-    valid = data is not None
-    count = 0
-    try:
-        if data['github']:
-            valid = valid and _validate_github(data['github'])
-    except KeyError:
-        count += 1
-
-    try:
-        if data['dataverse']:
-            valid = valid and _validate_dataverse(data['dataverse'])
-    except KeyError:
-        count += 1
-
-    try:
-        if data['dropbox']:
-            valid = valid and _validate_dropbox(data['dropbox'])
-    except KeyError:
-        count += 1
-
-    try:
-        if data['figshare']:
-            valid = valid and _validate_figshare(data['figshare'])
-    except KeyError:
-        count += 1
-
-    try:
-        if data['s3']:
-            valid = valid and _validate_s3(data['s3'])
-    except KeyError:
-        count += 1
-
-    if count == 5:
+    if not data:
         return False
-    return valid
 
+    _validation={
+        'github': _validate_github,
+        'dataverse': _validate_dataverse,
+        's3': _validate_s3,
+        'figshare': _validate_figshare,
+        'dropbox': _validate_dropbox,
+        'gitlab': _validate_gitlab,
+    }
+
+    try:
+        valid_addon = _validation[data.keys()[0]](data)
+        return valid_addon
+    except KeyError:
+        return False
