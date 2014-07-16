@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 
 from archiver.datatypes import Container
@@ -11,6 +13,37 @@ def test_empty():
         validate_project(jsons.empty)
     assert exc.type == ValidationError
     assert exc.value.reason == 'No container field'
+
+
+def test_unsupported_service():
+    to_use = copy.deepcopy(jsons.good)
+    to_use['container']['services'].append({
+        'Something not there': {}
+    })
+    with pytest.raises(ValidationError) as exc:
+        validate_project(to_use)
+    assert exc.type == ValidationError
+    assert exc.value.reason == 'Unsupported service Something not there'
+
+
+def test_unsupported_children_service():
+    to_use = copy.deepcopy(jsons.good_with_children)
+    to_use['container']['children'][0]['container']['services'].append({
+        'Something not there': {}
+    })
+    with pytest.raises(ValidationError) as exc:
+        validate_project(to_use)
+    assert exc.type == ValidationError
+    assert exc.value.reason == 'Unsupported service Something not there'
+
+
+def test_bad_child_service():
+    to_use = copy.deepcopy(jsons.good_with_children)
+    del to_use['container']['children'][0]['container']['services'][0]['github']['access_token']
+    with pytest.raises(ValidationError) as exc:
+        validate_project(to_use)
+    assert exc.type == ValidationError
+    assert exc.value.reason == 'Service github is missing field access_token'
 
 
 def test_bad_structure():
