@@ -20,16 +20,18 @@ rest = Blueprint('archiver', __name__)
 
 @rest.route('/', methods=['POST', 'PUT'])
 def begin_register():
+    logger.info('New Archival request from %s' % request.environ['REMOTE_ADDR'])
     request_json = request.get_json(force=True)
 
     if settings.REQUIRE_SIGNED_SUBMITIONS and not signing.verify_submition(request_json):
         raise HTTPError(http.UNAUTHORIZED)
 
     if request_json:
-        logger.info('New Archival request from %s' % request.environ['REMOTE_ADDR'])
-        logger.info('===Raw json===')
-        logger.info(json.dumps(request_json, indent=4, sort_keys=True))
-        logger.info('===End json===')
+        if settings.DUMP_INCOMING_JSON:
+            logger.debug('===Raw json===')
+            logger.debug(json.dumps(request_json, indent=4, sort_keys=True))
+            logger.debug('===End json===')
+
         container = Container.from_json(request_json)
         # Container should always be defined otherwise a
         # validation error will be raised by from_json
@@ -64,9 +66,9 @@ def callback():
         else:
             logger.warning('Unknown status from %s' % request.environ['REMOTE_ADDR'])
 
-        logger.info('===Raw json===')
-        logger.info(json.dumps(callback_json, indent=4, sort_keys=True))
-        logger.info('===End json===')
+        logger.debug('===Raw json===')
+        logger.debug(json.dumps(callback_json, indent=4, sort_keys=True))
+        logger.debug('===End json===')
     except:
         raise ValidationError('no data')
 

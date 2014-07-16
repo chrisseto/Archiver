@@ -10,21 +10,21 @@ def test_empty():
     with pytest.raises(ValidationError) as exc:
         validate_project(jsons.empty)
     assert exc.type == ValidationError
-    assert exc.value.reason == 'missing container segment'
+    assert exc.value.reason == 'No container field'
 
 
 def test_bad_structure():
     with pytest.raises(ValidationError) as exc:
         validate_project(jsons.bad_structure)
     assert exc.type == ValidationError
-    assert exc.value.reason == 'missing container segment'
+    assert exc.value.reason == 'No container field'
 
 
 def test_bad_service():
     with pytest.raises(ValidationError) as exc:
         validate_project(jsons.bad_service)
     assert exc.type == ValidationError
-    assert exc.value.reason == 'bad service'
+    assert exc.value.reason == 'Service github is missing field access_token'
 
 
 def test_success():

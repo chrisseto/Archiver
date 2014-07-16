@@ -15,6 +15,8 @@ REQUIRE_SIGNED_SUBMITIONS = False
 
 MAX_FILE_SIZE = None
 
+DUMP_INCOMING_JSON = False
+
 # Dont use celery just run everything syncronisly
 CELERY_SYNC = False
 

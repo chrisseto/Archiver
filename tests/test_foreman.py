@@ -20,7 +20,19 @@ def patch_push(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def app(request):
-    return TestApp(build_app())
+    class ProxyHack(object):
+    #http://stackoverflow.com/questions/14872829/get-ip-address-when-testing-flask-application-through-nosetests
+
+        def __init__(self, app):
+            self.app = app
+
+        def __call__(self, environ, start_response):
+            environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
+            return self.app(environ, start_response)
+
+    app = build_app()
+    app.wsgi_app = ProxyHack(app.wsgi_app)
+    return TestApp(app)
 
 
 def test_empty(app):
@@ -38,7 +50,6 @@ def test_empty_json(app):
     assert ret.status_code == 400
 
 
-@raises(KeyError)
 def test_good_json(app, patch_push):
     ret = app.post_json('/', good)
     assert ret.status_code == 201
