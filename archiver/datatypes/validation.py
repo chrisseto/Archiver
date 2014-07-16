@@ -16,10 +16,9 @@ def _validate_project(container):
             for child in container['children']:
                 if not _validate_project(child['container']):
                     raise ValidationError('bad child')
-            _validate_services(container['services'])
-            # for service in container['services']:
-            #     if not _validate_service(service):
-            #         raise ValidationError('bad service')
+            for service in container['services']:
+                if not _validate_service(service):
+                    raise ValidationError('bad service')
             return True
     except (KeyError, TypeError):
         raise ValidationError('malformed data')
