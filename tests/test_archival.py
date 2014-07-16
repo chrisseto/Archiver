@@ -39,7 +39,6 @@ def container_children_services():
 @pytest.fixture
 def archive_mon(monkeypatch):
     mock_archive = mock.MagicMock()
-    # mock_archive.side_effect = lambda c: archive(c)
     new_arc = copy.copy(build_task_list)
     mock_archive.side_effect = lambda c: new_arc(c)
 
@@ -53,7 +52,6 @@ def test_archive_service_not_implemented(container):
     with pytest.raises(NotImplementedError) as err:
         get_archiver(service.service)
     assert err.type == NotImplementedError
-    from archiver import settings
 
 
 def test_archive_service_called(monkeypatch, container):
