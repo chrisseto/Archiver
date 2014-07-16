@@ -2,8 +2,6 @@ import mock
 
 import pytest
 
-from nose.tools import raises
-
 from webtest import TestApp
 
 from archiver.foreman import build_app
