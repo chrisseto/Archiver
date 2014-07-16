@@ -85,10 +85,6 @@ def test_on_cannot_connect(fsarchiver, monkeypatch):
         fsarchiver.is_project()
 
 
-def test_figshare_errors():
-    pass  # TODO
-
-
 def test_unfetchable(monkeypatch, fsarchiver):
 
     with pytest.raises(exceptions.UnfetchableFile):

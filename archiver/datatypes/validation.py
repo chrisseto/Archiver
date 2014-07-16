@@ -8,6 +8,15 @@ required_keys = {
     'passphrase', 'token_key', 'token_secret', 'secret_key']
 }
 
+service_keys = {
+    'github': ['access_token', 'repo', 'user'],
+    'dataverse': ['username', 'password', 'dataverse', 'studyDoi'],
+    's3': ['access_key', 'secret_key', 'bucket'],
+    'figshare': ['token_key', 'token_secret', 'id'],
+    'dropbox': ['access_token', 'folder'],
+    'gitlab': [],  # TODO
+}
+
 
 def validate_project(data):
     if not required_keys['raw'] in data.keys():
@@ -51,12 +60,17 @@ def validate_service(data):
     if len(data.keys()) != 1:
         raise ValidationError('Invalid service')
 
-    is_valid = False
-    for key in data.values()[0].keys():
-        if key in required_keys['service']:
-            is_valid = True
+    service_name = data.keys()[0]
+    service = data.values()[0]
 
-    if not is_valid:
-        raise ValidationError('Services missing authentication')
-
+    try:
+        for key in service_keys[service_name]:
+            try:
+                assert service[key]
+            except KeyError:
+                raise ValidationError('Service %s is missing field %s' % (service_name, key))
+            except AssertionError:
+                raise ValidationError('Service %s can not have empty field %s' % (service_name, key))
+    except KeyError:
+        raise ValidationError('Unsupported service %s' % service_name)
     return True
