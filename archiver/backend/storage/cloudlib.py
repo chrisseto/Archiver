@@ -7,7 +7,7 @@ from flask import Response, jsonify
 
 from libcloud.storage.providers import get_driver
 
-from archiver.settings import LIBCLOUD_DRIVER, LIBCLOUD_CREDS, LIBCLOUD_CONTAINER
+from archiver.settings import LIBCLOUD_DRIVER, CREDENTIALS, CONTAINER_NAME
 from archiver.exceptions import HTTPError
 
 from base import StorageBackEnd
@@ -24,8 +24,8 @@ class LibCloudBackend(StorageBackEnd):
         super(LibCloudBackend, self).__init__()
         # try:
         self.driver_cls = get_driver(LIBCLOUD_DRIVER)
-        self.driver = self.driver_cls(*LIBCLOUD_CREDS)
-        self.container = self.driver.get_container(LIBCLOUD_CONTAINER)
+        self.driver = self.driver_cls(*CREDENTIALS)
+        self.container = self.driver.get_container(CONTAINER_NAME)
         # except:
             # raise RemoteStorageError('TODO')
 
