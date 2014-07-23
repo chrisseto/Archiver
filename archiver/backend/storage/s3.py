@@ -15,7 +15,7 @@ from flask import redirect, jsonify
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 
 from archiver.exceptions import HTTPError
-from archiver.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
+from archiver.settings import CREDENTIALS, CONTAINER_NAME
 
 from base import StorageBackEnd
 from exceptions import RemoteStorageError
@@ -33,8 +33,8 @@ class S3(StorageBackEnd):
     def __init__(self):
         super(S3, self).__init__()
         try:
-            self.connection = S3Connection(ACCESS_KEY, SECRET_KEY)
-            self.bucket = self.connection.get_bucket(BUCKET_NAME)
+            self.connection = S3Connection(*CREDENTIALS)
+            self.bucket = self.connection.get_bucket(CONTAINER_NAME)
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
