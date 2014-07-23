@@ -1,43 +1,48 @@
-# QUEUE_NAME = 'celeryq'
+### GENERAL SETTINGS ###
+PORT = 7000
+SENTRY_DSN = None
+MAX_FILE_SIZE = None
+HMAC_KEY = 'CHANGEME'
+IGNORE_CALLBACK_SSL = False
+REQUIRE_SIGNED_SUBMITIONS = False
+BROKER_URL = 'amqp://archiver:archiver@192.168.111.112//'
 CALLBACK_ADDRESS = [
     'http://192.168.111.111:7000/callback',
     'http://192.168.111.1:5000/api/v1/registration/finished/'
 ]
 
-DEBUG = True
-PORT = 7000
-SENTRY_DSN = None
 
-IGNORE_CALLBACK_SSL = False
+### Credentials Options ###
+USERNAME = 'CHANGEME'  # Access key
+PASSWORD = 'CHANGEME'  # Secret key
+CONTAINER_NAME = 'CHANGEME'  # Bucket name
 
-HMAC_KEY = 'CHANGEME'
-REQUIRE_SIGNED_SUBMITIONS = False
 
-MAX_FILE_SIZE = None
+### LibCloud Options ###
+LIBCLOUD_DRIVER = 's3_us_west_oregon'
 
-DUMP_INCOMING_JSON = False
-
-# Dont use celery just run everything syncronisly
-CELERY_SYNC = False
 
 #### FILE STORAGE OPTIONS ####
-BACKEND = 's3'
+BACKEND = 's3'  # Options: S3,
 CREATE_PARITIES = True
 IGNORE_PARITIY_SIZE_LIMIT = False
+
+
 #### FILE STORAGE LOCATIONS ####
 FILES_DIR = 'Files/'
 MANIFEST_DIR = 'Manifests/'
 METADATA_DIR = 'File Metadata/'
 DIRSTRUCT_DIR = 'Directory Structures/'
 PARITY_DIR = 'Parities/'
-### S3 Options ###
-ACCESS_KEY = 'CHANGEME'
-SECRET_KEY = 'CHANGEME'
-BUCKET_NAME = 'CHANGEME'
+
+
+### DEBUGGING OPTIONS ###
+DEBUG = True
+CELERY_SYNC = False  # Dont use celery just run everything synchronously
+DUMP_INCOMING_JSON = False
 
 
 #### CELERY OPTIONS ####
-BROKER_URL = 'amqp://archiver:archiver@192.168.111.112//'
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
