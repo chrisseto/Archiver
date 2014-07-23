@@ -27,17 +27,16 @@ class RackSpace(StorageBackEnd):
 
     def __init__(self):
         super(RackSpace, self).__init__()
-        try:
-            self.connection = pyrax.cloudfiles
-            self.container = self.connection.get_container(settings.CONTAINER_NAME)
-        except (S3ResponseError, BotoClientError):
-            raise RemoteStorageError('Could not connect to S3')
+        pyrax.set_credentials(settings.USERNAME, api_key=settings.API_KEY)
+        self.connection = pyrax.cloudfiles
+        self.connection.set_temp_url_key()
+        self.container = self.connection.get_container(settings.CONTAINER_NAME)
 
     def upload_file(self, path, name, directory=''):
         name = os.path.join(directory, name)
-        if not self.bucket.get_key(name):
+        if not self.container.get_object(name):
             logger.info('uploading "%s"' % name)
-            self.connection.upload_file(name, path)
+            self.container.upload_file(path, obj_name=name)
             os.remove(path)
             return True
         return False
@@ -60,7 +59,7 @@ class RackSpace(StorageBackEnd):
 
     def list_directory(self, directory, recurse=False):
         return [
-            key.name
-            for key in
-            self.bucket.list(prefix=directory, delimiter='' if recurse else '/')
+            obj.name
+            for obj in
+            self.connection.get_objects(prefix=directory, delimiter='' if recurse else '/')
         ]
