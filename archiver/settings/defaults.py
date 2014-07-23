@@ -24,17 +24,23 @@ CELERY_SYNC = False
 BACKEND = 's3'
 CREATE_PARITIES = True
 IGNORE_PARITIY_SIZE_LIMIT = False
+
 #### FILE STORAGE LOCATIONS ####
 FILES_DIR = 'Files/'
 MANIFEST_DIR = 'Manifests/'
 METADATA_DIR = 'File Metadata/'
 DIRSTRUCT_DIR = 'Directory Structures/'
 PARITY_DIR = 'Parities/'
+
 ### S3 Options ###
 ACCESS_KEY = 'CHANGEME'
 SECRET_KEY = 'CHANGEME'
 BUCKET_NAME = 'CHANGEME'
 
+### LibCloud Options ###
+LIBCLOUD_DRIVER = 's3_us_west_oregon'
+LIBCLOUD_CREDS = (ACCESS_KEY, SECRET_KEY)
+LIBCLOUD_CONTAINER = BUCKET_NAME
 
 #### CELERY OPTIONS ####
 BROKER_URL = 'amqp://archiver:archiver@192.168.111.112//'
