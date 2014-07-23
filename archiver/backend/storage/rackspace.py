@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import httplib as http
-
+from urllib import quote
 
 import pyrax
 import pyrax.exceptions as exc
@@ -27,7 +27,7 @@ class RackSpace(StorageBackEnd):
 
     def __init__(self):
         super(RackSpace, self).__init__()
-        pyrax.set_credentials(settings.USERNAME, api_key=settings.API_KEY)
+        pyrax.set_credentials(settings.USERNAME, api_key=settings.PASSWORD)
         self.connection = pyrax.cloudfiles
         self.connection.set_temp_url_key()
         self.container = self.connection.get_container(settings.CONTAINER_NAME)
@@ -42,10 +42,6 @@ class RackSpace(StorageBackEnd):
         return False
 
     def get_file(self, path, name=None):
-        # you can set the Content-Disposition header on your s3 file to set the downloading filename:
-        # Content-Disposition: attachment; filename=foo.bar
-        # http://stackoverflow.com/questions/2611432/amazon-s3-change-file-download-name
-
         obj = self.container.get_object(path)
 
         if not obj:
@@ -55,11 +51,15 @@ class RackSpace(StorageBackEnd):
             ret = json.loads(obj.fetch())
             return jsonify(ret)
 
-        return redirect(obj.get_temp_url(self.DOWNLOAD_LINK_LIFE))
+        temp_url = obj.get_temp_url(self.DOWNLOAD_LINK_LIFE)
+
+        if name:
+            return redirect('%s&filename=%s' % (temp_url, quote(name)))
+
+        return redirect(temp_url)
 
     def list_directory(self, directory, recurse=False):
         return [
-            obj.name
-            for obj in
+            obj.name for obj in
             self.connection.get_objects(prefix=directory, delimiter='' if recurse else '/')
         ]
