@@ -18,6 +18,10 @@ PASSWORD = 'CHANGEME'  # Secret key
 CONTAINER_NAME = 'CHANGEME'  # Bucket name
 
 
+### LibCloud Options ###
+LIBCLOUD_DRIVER = 's3_us_west_oregon'
+
+
 #### FILE STORAGE OPTIONS ####
 BACKEND = 's3'  # Options: S3,
 CREATE_PARITIES = True
