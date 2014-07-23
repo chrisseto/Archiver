@@ -1,0 +1,9 @@
+[program:celeryd]
+command=/Archiver/Worker
+directory=/Archiver/
+user=nobody
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/archiver/worker.log
+stderr_logfile=/var/log/archiver/worker.log
+priority=998

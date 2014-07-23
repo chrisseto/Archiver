@@ -1,0 +1,19 @@
+- name: Sync time
+  hosts: all
+  roles:
+    - role: Ansibles.timezone
+
+- name: Setup RabbitMQ
+  hosts: rabbit
+  roles:
+    - role: Mayeu.RabbitMQ
+
+- name: Setup foreman
+  hosts: foreman
+  roles:
+    - role: Archiver.Foreman
+
+- name: Setup workers
+  hosts: workers
+  roles:
+    - role: Archiver.Worker

@@ -1,0 +1,32 @@
+- name: Requirements
+  apt: "pkg={{ item }} state=present update_cache=yes"
+  sudo: yes
+  with_items:
+    - git
+    - par2
+    - python-dev
+    - python-pip
+    - libxml2-dev
+    - libxslt1-dev
+    - lib32z1-dev
+
+- name: Ensure virtualenv
+  pip:
+    name: virtualenv
+    state: present
+
+- name: Create virtualenv
+  command: "virtualenv {{ virtualenv_path }}{{ virtualenv_name }} creates={{ virtualenv_path }}{{ virtualenv_name }}/bin/python"
+
+- name: Clone
+  git: "repo={{ archiver_repo}} dest=/Archiver/"
+  tags: update
+
+- name: Python Requirements
+  pip:
+    requirements: /Archiver/requirements.txt
+  tags: update
+
+- name: Configuration
+  template: src=local.py.j2 dest=/Archiver/archiver/settings/local.py
+  tags: update

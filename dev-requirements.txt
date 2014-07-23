@@ -1,0 +1,6 @@
+-r requirements.txt
+
+mock==1.0.1
+pytest-cov==1.6
+pytest==2.5.2
+WebTest==2.0.15

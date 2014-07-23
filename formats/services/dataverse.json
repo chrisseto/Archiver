@@ -1,0 +1,9 @@
+{
+    "dataverse": {
+        "username": "",
+        "password": "",
+        "dataverse": "",
+        "studyDoi": "",
+        "host": "optional, defaults to dvn-demo.iq.harvard.edu"
+    }
+}

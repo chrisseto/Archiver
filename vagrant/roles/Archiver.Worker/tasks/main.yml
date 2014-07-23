@@ -1,0 +1,37 @@
+- name: Create log files directory
+  file:
+    path: /var/log/archiver/
+    state: directory
+    mode: 0777
+
+- name: Create log files
+  file:
+    path: /var/log/archiver/worker.log
+    state: touch
+    mode: 0777
+
+- name: Check if managed by Supervisor
+  supervisorctl: name=celeryd state=present
+  register: celery_is_managed
+  ignore_errors: true
+
+- name: Add to Supervisor
+  template:
+    src: celeryd.conf.j2
+    dest: /etc/supervisor/conf.d/celeryd.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: 'celery_is_managed|failed'
+
+- name: Reload Supervisor
+  supervisorctl:
+    name: celeryd
+    state: present
+
+- name: Restart worker
+  supervisorctl:
+    name: celeryd
+    state: restarted
+  ignore_errors: yes
+  tags: update

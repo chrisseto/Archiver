@@ -1,0 +1,20 @@
+rabbitmq_plugins:
+  - rabbitmq_management
+rabbitmq_ssl        : no
+rabbitmq_users_definitions:
+  - vhost: /
+    user: archiver
+    password: archiver
+    tags:
+    - administrator
+
+s3_access_key: CHANGE ME
+s3_secret_key: CHANGE ME
+s3_bucket: CHANGE ME
+
+figshare_client_id: CHANG ME
+figshare_client_secret: CHANGE ME
+
+rabbitmq_url: "amqp://archiver:archiver@192.168.111.113//"
+callback_addresses:
+  - "http://192.168.111.111:7000/callback"

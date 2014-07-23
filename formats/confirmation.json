@@ -1,0 +1,5 @@
+{
+    "status": "success or failed",
+    "id": "Given id",
+    "failures": "A list of unfetchable files"
+}

@@ -1,0 +1,5 @@
+{
+    "file": "Name of the file",
+    "reason": "Why the file could not be archived",
+    "service": "The service where the file is hosted"
+}

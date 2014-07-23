@@ -1,0 +1,22 @@
+{
+    "container": {
+        "metadata": {
+            "id": "12345",
+            "title": "example project",
+            "description": "",
+            "contributors": [
+                "john smith"
+            ]
+        },
+        "services": [
+            {
+                "github": {
+                    "access_token": "some secret key",
+                    "repo": "archiver",
+                    "user": "chrisseto"
+                }
+            }
+        ],
+        "children": []
+    }
+}

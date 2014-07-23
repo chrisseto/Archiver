@@ -1,0 +1,21 @@
+archiver_repo: "http://github.com/chrisseto/Archiver"
+callback_addresses:
+  - "http://192.168.111.111:7000/callback"
+  - "http://192.168.111.1:5000/api/v1/registration/finished/"
+master_port: 7000
+rabbitmq_url: "amqp://archiver:archiver@localhost//"
+virtualenv_path: /envs/
+virtualenv_name: archiver
+archiver_install_path: /Archiver/
+s3_access_key:
+s3_secret_key:
+s3_bucket:
+figshare_client_id:
+figshare_client_secret:
+
+## Directory Options ##
+files_directory: Files/
+manifest_directory: Manifests/
+metadata_directory: File Metadata/
+dirstruct_directory: Directory Structures/
+parity_directory: Parities/

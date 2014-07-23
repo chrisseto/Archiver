@@ -1,0 +1,11 @@
+*.pyc
+vagrant/.vagrant
+.ipynb_checkpoints
+vagrant/group_vars/archiver
+*.sublime-project
+*.sublime-workspace
+local.py
+local-celery.py
+local-docker.py
+.coverage
+.env
