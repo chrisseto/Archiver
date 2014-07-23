@@ -68,6 +68,10 @@ def generate_manifest(blob, children, container):
         'children': {
             child[0].id: child[1]
             for child in children
+        },
+        'storedAt': {
+            'provider': settings.BACKEND,
+            'container': settings.CONTAINER_NAME
         }
     }
 
