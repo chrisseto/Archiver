@@ -17,6 +17,7 @@ kombu==3.0.16
 MarkupSafe==0.21
 oauthlib==0.6.1
 py==1.4.20
+pyrax==1.8.2
 python-dateutil==2.2
 pytz==2014.2
 requests-oauthlib==0.4.0
