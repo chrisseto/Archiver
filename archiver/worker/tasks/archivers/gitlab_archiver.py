@@ -7,6 +7,7 @@ from git import Git
 
 from archiver import celery
 from archiver.backend import store
+from archiver.settings import GITLAB_IP
 
 from base import ServiceArchiver
 
@@ -16,14 +17,13 @@ logger = logging.getLogger(__name__)
 class GitlabArchiver(ServiceArchiver):
     ARCHIVES = 'gitlab'
     RESOURCE = 'repo'
-    CLONE_TPL = 'http://50.116.57.122/{user}/{pid}/'
+    CLONE_TPL = 'http://{gitlabip}/{user}/{pid}.git'
 
     def __init__(self, service):
         self.pid = service['pid']
         self.user = service['user']
-        self.url = self.CLONE_TPL.format(pid=self.pid,
-                                         user=self.user,
-                                         )
+        self.url = self.CLONE_TPL.format(
+            gitlabip=GITLAB_IP, pid=self.pid, user=self.user)
         super(GitlabArchiver, self).__init__(service)
 
     def clone(self):
@@ -76,7 +76,6 @@ def clone_gitlab(gitlab):
         Git().clone(gitlab.url, path)
     except:
         raise clone_gitlab.retry()
-
 
     rets = []
 
