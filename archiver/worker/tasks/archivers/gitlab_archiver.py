@@ -61,8 +61,8 @@ class GitlabArchiver(ServiceArchiver):
         git.pull('--all')
 
 
-def process_file(github, path, filename):
-    metadata = github.get_metadata(path, filename)
+def process_file(gitlab, path, filename):
+    metadata = gitlab.get_metadata(path, filename)
     store.push_file(path, metadata['sha256'])
     store.push_metadata(metadata, metadata['sha256'])
     return metadata
@@ -92,6 +92,6 @@ def clone_gitlab(gitlab):
         'service': 'gitlab',
         'files': rets
     }
-    store.push_manifest(service, '{}.github'.format(gitlab.cid))
+    store.push_manifest(service, '{}.gitlab'.format(gitlab.cid))
     rmtree(path)
     return (service, [])
