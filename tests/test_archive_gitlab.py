@@ -51,7 +51,7 @@ def test_gitlab_called(monkeypatch, gitlab_container, patch_callback):
 
 
 def test_sanitize(gitlab_service):
-    git_config = 'http://50.116.57.122/user/{pid}/'.format(key=gitlab_service['pid'])
+    git_config = 'http://50.116.57.122/user/{pid}/'.format(pid=gitlab_service['pid'])
     mock_file = mock.MagicMock(spec=file, wraps=StringIO(git_config))
     assert gitlab_service['pid'] in mock_file.read()
     mock_file.seek(0)
