@@ -69,10 +69,6 @@ good = {
                     'access_token': 'some secret key',
                     'repo': 'archiver',
                     'user': 'chrisseto'
-                },
-                'gitlab':{
-                    'user': 'cos',
-                    'pid': 'osf'
                 }
             }
         ],
