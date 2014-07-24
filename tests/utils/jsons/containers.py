@@ -53,8 +53,7 @@ unimplemented_service = {
 }
 
 good = {
-    'container':
-    {
+    'container': {
         'metadata': {
             'id': '12345',
             'title': 'example project',
@@ -70,7 +69,25 @@ good = {
                     'repo': 'archiver',
                     'user': 'chrisseto'
                 },
-                'gitlab':{
+            }
+        ],
+        'children': []
+    }
+}
+
+good_with_gitlab = {
+    'container': {
+        'metadata': {
+            'id': '12345',
+            'title': 'example project',
+            'description': '',
+            'contributors': [
+                'john smith'
+            ]
+        },
+        'services': [
+            {
+                'gitlab': {
                     'user': 'cos',
                     'pid': 'osf'
                 }
