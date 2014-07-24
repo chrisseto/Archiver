@@ -16,12 +16,12 @@ from utils import jsons
 
 @pytest.fixture
 def gitlab_container():
-    return Container.from_json(jsons.good)
+    return Container.from_json(jsons.good_with_gitlab)
 
 
 @pytest.fixture
 def gitlab_service():
-    return Container.from_json(jsons.good).services[0]
+    return Container.from_json(jsons.good_with_gitlab).services[0]
 
 
 @pytest.fixture
@@ -45,8 +45,8 @@ def dont_register(monkeypatch):
 def test_gitlab_called(monkeypatch, gitlab_container, patch_callback):
     mock_git = mock.MagicMock()
     mock_git.return_value = None
-    monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GitlahubArchiver.__init__', mock_git)
-    monkeypatch.setattr('archiver.worker.tasks.archivers.github_archiver.GitlabArchiver.clone', mock.Mock())
+    monkeypatch.setattr('archiver.worker.tasks.archivers.gitlab_archiver.GitlabArchiver.__init__', mock_git)
+    monkeypatch.setattr('archiver.worker.tasks.archivers.gitlab_archiver.GitlabArchiver.clone', mock.Mock())
     assert get_archiver('gitlab') == GitlabArchiver
 
 
