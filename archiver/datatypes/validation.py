@@ -14,7 +14,7 @@ service_keys = {
     's3': ['access_key', 'secret_key', 'bucket'],
     'figshare': ['token_key', 'token_secret', 'id'],
     'dropbox': ['access_token', 'folder'],
-    'gitlab': ['user', 'pid'],
+    'gitlab': [],  # TODO
 }
 
 
