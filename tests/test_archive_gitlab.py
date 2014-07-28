@@ -11,6 +11,8 @@ settings.BACKEND = 'debug'
 from archiver.datatypes import Container
 from archiver.worker.tasks.archivers import get_archiver
 from archiver.worker.tasks.archivers.gitlab_archiver import GitlabArchiver
+from archiver.settings import GITLAB_TOKEN
+from archiver.settings import GITLAB_IP
 
 from utils import jsons
 
@@ -52,7 +54,7 @@ def test_gitlab_called(monkeypatch, gitlab_container, patch_callback):
 
 
 def test_sanitize(gitlab_service):
-    git_config = 'http://50.116.57.122/user/{pid}/'.format(pid=gitlab_service['pid'])
+    git_config = 'http://{token}@{ip}/user/{pid}/'.format(token=GITLAB_TOKEN, ip=GITLAB_IP, pid=gitlab_service['pid'])
     mock_file = mock.MagicMock(spec=file, wraps=StringIO(git_config))
     assert gitlab_service['pid'] in mock_file.read()
     mock_file.seek(0)
