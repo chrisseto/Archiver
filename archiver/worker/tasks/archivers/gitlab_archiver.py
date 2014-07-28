@@ -9,7 +9,7 @@ from git import Git
 from archiver import celery
 from archiver.backend import store
 from archiver.settings import GITLAB_IP
-
+from archiver.settings import GITLAB_TOKEN
 from base import ServiceArchiver
 
 logger = logging.getLogger(__name__)
@@ -18,12 +18,13 @@ logger = logging.getLogger(__name__)
 class GitlabArchiver(ServiceArchiver):
     ARCHIVES = 'gitlab'
     RESOURCE = 'repo'
-    CLONE_TPL = 'http://{gitlabip}/{user}/{pid}.git'
+    CLONE_TPL = 'http://{token}@{gitlabip}/{user}/{pid}.git'
 
     def __init__(self, service):
         self.pid = service['pid']
         self.user = service['user']
-        self.url = self.CLONE_TPL.format(
+        self.token = GITLAB_TOKEN
+        self.url = self.CLONE_TPL.format(token=self.token,
             gitlabip=GITLAB_IP, pid=self.pid, user=self.user)
         super(GitlabArchiver, self).__init__(service)
 
@@ -34,6 +35,8 @@ class GitlabArchiver(ServiceArchiver):
         git_path = os.path.join(path, '.git', 'config')
         with open(git_path, 'w+') as config:
             git_config = config.read()
+            assert self.token in git_config
+            git_config = git_config.replace('{}@'.format(self.token), '')
             config.seek(0)
             config.write(git_config)
             # Just in case anything else is laying around
