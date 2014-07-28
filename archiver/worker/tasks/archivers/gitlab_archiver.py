@@ -95,4 +95,4 @@ def clone_gitlab(gitlab):
     store.push_manifest(service, '{}.gitlab'.format(gitlab.cid))
     rmtree(path)
     return (service, [])
->>>>>>> fec3982f02839628c323a93728deb6cf0e641c79
+
