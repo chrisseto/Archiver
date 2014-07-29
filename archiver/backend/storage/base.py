@@ -53,11 +53,17 @@ class StorageBackEnd(object):
 
     def push_metadata(self, blob, name):
         clone = copy.deepcopy(blob)
+        # Dont store name or path with generic file data
         try:
-            del clone['path']  # Dont store name or path with generic file data
+            del clone['path']
+        except:
+            pass
+
+        try:
             del clone['name']
         except:
             pass
+
         return self.push_json(clone, os.path.join(settings.METADATA_DIR, name))
 
     def push_directory_structure(self, final, parent_id=''):
