@@ -24,6 +24,9 @@ class StorageBackEnd(object):
 
     DELIMITER = '.manifest.json'
 
+    DOWNLOAD_LINK_LIFE = 60 * settings.DOWNLOAD_LINK_LIFE
+    MULTIPART_THRESHOLD = 1024 ** 2 * settings.MULTIPART_THRESHOLD
+
     FILTER_SERVICES = r'^[^\.]+\.{}\.json$'
     FILTER_CONTAINER_SERVICE = r'^{}\.{}\.json$'
     FILTER_CONTAINERS = r'^[^\.]+\.manifest\.json$'
@@ -111,6 +114,7 @@ class StorageBackEnd(object):
         ][:limit]
 
     def push_file(self, path, name, force_parity=settings.IGNORE_PARITIY_SIZE_LIMIT):
+        # Parity files create redundant backups that can be used to recover ~10% of file corruption
         if settings.CREATE_PARITIES:
             self.build_parities(path, name, force=force_parity)
         else:

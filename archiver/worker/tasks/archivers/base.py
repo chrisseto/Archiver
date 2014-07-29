@@ -7,6 +7,7 @@ import datetime
 
 from dateutil import parser
 
+from archiver import settings
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class ServiceArchiver(object):
     ARCHIVES = None
     REQUIRED_KEYS = []
     CHUNK_SIZE = 1024  # 1KB
-    CUTOFF_SIZE = 1024 ** 2 * 500  # 500 MB
+    MULTIPART_THRESHOLD = 1024 ** 2 * settings.MULTIPART_THRESHOLD
 
     def __init__(self, service):
         self.cid = service.parent.id
