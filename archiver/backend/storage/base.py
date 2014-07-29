@@ -96,7 +96,7 @@ class StorageBackEnd(object):
             remove=settings.DELEMITER)
 
     def _filter(self, filter, limit=None, remove='', directory=''):
-        """Filter a list of string via regex
+        """Filter a directory listing via regex
         :param str filter a regex string
         :param int limit The max amount of results to return
         :param str remove A string to trim from the results
