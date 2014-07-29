@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class GithubArchiver(ServiceArchiver):
     ARCHIVES = 'github'
-    RESOURCE = 'repo'
+    REQUIRED_KEYS = ['access_token', 'repo', 'user']
     CLONE_TPL = 'https://{token}@github.com/{user}/{repo}.git'
 
     def __init__(self, service):

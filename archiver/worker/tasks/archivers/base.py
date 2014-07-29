@@ -16,6 +16,7 @@ class ServiceArchiver(object):
     Contains mostly helper functions.
     """
     ARCHIVES = None
+    REQUIRED_KEYS = []
     CHUNK_SIZE = 1024  # 1KB
     CUTOFF_SIZE = 1024 ** 2 * 500  # 500 MB
 

@@ -15,7 +15,7 @@ from base import ServiceArchiver
 
 class DataverseArchiver(ServiceArchiver):
     ARCHIVES = 'dataverse'
-    RESOURCE = 'study'
+    REQUIRED_KEYS = ['username', 'password', 'dataverse', 'studyDoi']
 
     def __init__(self, service):
         try:
