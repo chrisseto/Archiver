@@ -27,8 +27,6 @@ def get_storagebackend(service):
 
 
 def get_storagebackends(services):
-    if len(services) == 1:
-        return get_storagebackend(services[0])
     return StorageBackEndCollective(services)
 
 
