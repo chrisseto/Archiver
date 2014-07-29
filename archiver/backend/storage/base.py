@@ -73,10 +73,10 @@ class StorageBackEnd(object):
 
         for service in final['services'].values():
             self.push_json(service, 'manifest', os.path.join(prefix, service['service']))
-            sprefix = os.path.join(prefix, service['service'], service['resource'])
+            service_prefix = os.path.join(prefix, service['service'], service['resource'])
 
             for fid in service['files']:
-                self.push_json(fid, fid['path'], directory=sprefix)
+                self.push_json(fid, fid['path'], directory=service_prefix)
 
         for child in final['children'].values():
             self.push_directory_structure(child, final['metadata']['id'])
