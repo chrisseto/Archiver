@@ -65,10 +65,6 @@ def test_pushes_files(s3_service, push_file, push_json):
     assert push_json.called
 
 
-def test_resource_pulled():
-    assert S3Archiver.RESOURCE == 'bucket'
-
-
 def test_returns_flat_list(s3archiver):
     ret = s3archiver.clone()
     assert isinstance(ret, chord)
