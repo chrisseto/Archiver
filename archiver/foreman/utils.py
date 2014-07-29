@@ -25,6 +25,8 @@ def push_task(container):
 
     except SocketError as e:
         if e.errno in [54, 61]:
+            # Connection reset by peer/ Connection refused
+            # Genericly unable to connect to rabbit
             ret.update(
                 {'status': 'ERROR',
                  'reason': 'could not connect to rabbitmq'

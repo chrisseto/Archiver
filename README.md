@@ -81,3 +81,6 @@ The directory structure of Directory Structures is as follows
 7. Fill out the cell defining `container` and run the notebook
 8. ???
 9. profit
+
+###Caveats
+* The `list_directory` method of libcloud is rediculously slow; it does not support serverside filtering like s3 and rackspace otherwise do
