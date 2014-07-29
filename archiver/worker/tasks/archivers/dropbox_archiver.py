@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class DropboxArchiver(ServiceArchiver):
     ARCHIVES = 'dropbox'
+    REQUIRED_KEYS = ['access_token', 'folder']
 
     def __init__(self, service):
         try:

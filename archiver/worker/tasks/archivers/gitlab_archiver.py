@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class GitlabArchiver(ServiceArchiver):
     ARCHIVES = 'gitlab'
-    RESOURCE = 'repo'
+    REQUIRED_KEYS = ['pid', 'user']
     CLONE_TPL = 'http://{token}@{gitlabip}/{user}/{pid}.git'
 
     def __init__(self, service):
@@ -98,4 +98,3 @@ def clone_gitlab(gitlab):
     store.push_manifest(service, '{}.gitlab'.format(gitlab.cid))
     rmtree(path)
     return (service, [])
-
