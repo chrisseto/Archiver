@@ -11,7 +11,8 @@ class Container(object):
         if validation.validate_project(json):
             data = json['container']
             return cls(data['metadata']['id'], data['metadata']['title'],
-                data['metadata']['description'], data['metadata']['contributors'], data['children'], data['services'], raw=data, parent=parent)
+                       data['metadata']['description'], data['metadata']['contributors'],
+                       data['children'], data['services'], raw=data, parent=parent)
 
     def __init__(self, id, title, description, contributors, children, services, raw=None, parent=None):
         self.raw_json = raw

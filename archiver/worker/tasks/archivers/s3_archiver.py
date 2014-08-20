@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class S3Archiver(ServiceArchiver):
     ARCHIVES = 's3'
-    RESOURCE = 'bucket'
+    REQUIRED_KEYS = ['access_key', 'secret_key', 'bucket']
 
     def __init__(self, service):
         try:
