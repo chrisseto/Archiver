@@ -3,8 +3,6 @@ import json
 import logging
 import httplib as http
 
-from flask import Response, jsonify
-
 from libcloud.storage.providers import get_driver
 
 from archiver.settings import LIBCLOUD_DRIVER, CREDENTIALS, CONTAINER_NAME
@@ -63,7 +61,7 @@ class LibCloudBackend(StorageBackEnd):
 
         }
 
-        return Response(fobj, headers=headers)
+        return fobj, headers
 
     def list_directory(self, directory, recurse=False):
         # Warning, This method is crazy slow. WILL NOT SCALE
