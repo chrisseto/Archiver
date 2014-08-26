@@ -17,6 +17,14 @@ from utils import BaseAPIHandler, push_task
 logger = logging.getLogger(__name__)
 
 
+def collect_handlers():
+    return [
+        (os.path.join(settings.URL_PREFIX, klass.URL), klass)
+        for klass in
+        BaseAPIHandler.__subclasses__()
+    ]
+
+
 class ArchiveHandler(BaseAPIHandler):
     URL = r'archives/?'
 
@@ -87,7 +95,8 @@ class FileHandler(BaseAPIHandler):
         try:
             self.get_query_argument('metadata')
         except:
-            self.write(store.get_file(os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))))
+            path = os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))
+            self.write(store.get_file(path))
             return
 
         name = self.get_query_argument('name', default=None)

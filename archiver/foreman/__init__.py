@@ -3,15 +3,16 @@ import logging
 
 from celery import Celery
 
-from flask import Flask
+from tornado.ioloop import IOLoop
+from tornado.web import Application
 
 from archiver import settings
-from archiver.exceptions import HTTPError
+from archiver.foreman.views import collect_handlers
 
-from views import rest
 
 if settings.SENTRY_DSN:
-    from raven.contrib.flask import Sentry
+    #TODO Integrate sentry
+    from raven.contrib.tornado import AsyncSentryClient
     sentry = Sentry(dsn=settings.SENTRY_DSN)
 
 logger = logging.getLogger(__name__)
@@ -20,30 +21,19 @@ celery = Celery()
 celery.config_from_object(settings)
 
 
-def start(app):
-    app.run(host='0.0.0.0', port=settings.PORT)
-
-
 def config_logging():
     logging.basicConfig(
         stream=sys.stdout,
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='[%(asctime)s][%(levelname)s][%(name)s]: %(message)s',
         datefmt='%m-%d %H:%M'
     )
 
 
-def build_app():
-    app = Flask(__name__)
-
-    if settings.SENTRY_DSN:
-        sentry.init_app(app)
-
-    app.config.from_object('archiver.settings')
-    app.register_blueprint(rest)
-
-    @app.errorhandler(HTTPError)
-    def handle_exception(error):
-        return error.to_response()
-
-    return app
+def start():
+    application = Application(collect_handlers(),
+        debug=settings.DEBUG,
+        compress_response=(not settings.DEBUG)
+    )
+    application.listen(port=settings.PORT)
+    IOLoop.instance().start()

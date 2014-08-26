@@ -1,6 +1,6 @@
 import json
 import httplib as http
-import socket.error as SocketError
+from socket import error as SocketError
 
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
@@ -49,7 +49,7 @@ def push_task(container):
 class BaseAPIHandler(RequestHandler):
     URL = None
 
-    @properly
+    @property
     def json(self):
         try:
             return self._json
@@ -67,4 +67,3 @@ class BaseAPIHandler(RequestHandler):
             raise HTTPError(http.BAD_GATEWAY, reason='This route requires a %s arugment' % e.value)
 
     # def json_is_signed(self, raise_if_false=True):
-
