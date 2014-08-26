@@ -4,6 +4,7 @@ import logging
 import httplib as http
 
 from tornado import web
+from tornado.gen import coroutine
 
 from archiver import settings
 from archiver.util import signing
@@ -73,31 +74,57 @@ class ArchiveHandler(BaseAPIHandler):
         # validation error will be raised by from_json
         if container.id in store.list_containers():
             raise HTTPError(http.BAD_REQUEST, reason='Container ID already exists')
-        return push_task(container)
+
+        resp = push_task(container)
+        self.set_status(resp['status'])
+        self.write(resp['response'])
 
 
 class ContainerHandler(BaseAPIHandler):
     URL = r'archives/containers/(.+?)/?'
 
+    @coroutine
     def get(self, cid):
         service = self.get_query_argument('service', default=False)
 
         if service:
-            self.write(store.get_container_service(cid, service))
+            url_or_gen, headers = store.get_container_service(cid, service)
         else:
-            self.write(store.get_container(cid))
+            url_or_gen, headers = store.get_container(cid)
+
+        if isinstance(url_or_gen, basestring):
+            self.redirect(url_or_gen)
+            self.finish()
+        else:
+            for chunk in url_or_gen:
+                self.write(chunk)
+                yield gen.Task(self.flush)
+            self.finish()
+
 
 
 class FileHandler(BaseAPIHandler):
     URL = r'archives/files/(.+?)/?'
 
+    @coroutine
     def get(fid):
         try:
             self.get_query_argument('metadata')
+            path = os.path.join(settings.FILES_DIR, fid)
+            name = self.get_query_argument('name', default=None)
+            url_or_gen, headers = store.get_file(path, name=name)
         except:
             path = os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))
-            self.write(store.get_file(path))
-            return
+            url_or_gen, headers = store.get_file(path)
 
-        name = self.get_query_argument('name', default=None)
-        return store.get_file(os.path.join(settings.FILES_DIR, fid), name=name)
+        for header, value in headers.items():
+            self.set_header(header, value)
+
+        if isinstance(url_or_gen, basestring):
+            self.redirect(url_or_gen)
+            self.finish()
+        else:
+            for chunk in url_or_gen:
+                self.write(chunk)
+                yield gen.Task(self.flush)
+            self.finish()
