@@ -88,18 +88,21 @@ class ContainerHandler(BaseAPIHandler):
         service = self.get_query_argument('service', default=False)
 
         if service:
-            url_or_gen, headers = store.get_container_service(cid, service)
+            response, headers = store.get_container_service(cid, service)
         else:
-            url_or_gen, headers = store.get_container(cid)
+            response, headers = store.get_container(cid)
 
-        if isinstance(url_or_gen, basestring):
-            self.redirect(url_or_gen)
-            self.finish()
+        if isinstance(response, basestring):
+            self.redirect(response)
+            raise web.Finish
+        elif isinstance(response, dict):
+            self.write(response)
+            raise web.Finish
         else:
-            for chunk in url_or_gen:
+            for chunk in response:
                 self.write(chunk)
                 yield gen.Task(self.flush)
-            self.finish()
+            raise web.Finish
 
 
 
@@ -107,24 +110,27 @@ class FileHandler(BaseAPIHandler):
     URL = r'archives/files/(.+?)/?'
 
     @coroutine
-    def get(fid):
+    def get(self, fid):
         try:
             self.get_query_argument('metadata')
-            path = os.path.join(settings.FILES_DIR, fid)
-            name = self.get_query_argument('name', default=None)
-            url_or_gen, headers = store.get_file(path, name=name)
-        except:
             path = os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))
-            url_or_gen, headers = store.get_file(path)
+        except Exception:
+            path = os.path.join(settings.FILES_DIR, fid)
+
+        name = self.get_query_argument('name', default=None)
+        response, headers = store.get_file(path, name=name)
 
         for header, value in headers.items():
             self.set_header(header, value)
 
-        if isinstance(url_or_gen, basestring):
-            self.redirect(url_or_gen)
-            self.finish()
+        if isinstance(response, basestring):
+            self.redirect(response)
+            raise web.Finish
+        elif isinstance(response, dict):
+            self.write(response)
+            raise web.Finish
         else:
-            for chunk in url_or_gen:
+            for chunk in response:
                 self.write(chunk)
                 yield gen.Task(self.flush)
-            self.finish()
+            raise web.Finish
