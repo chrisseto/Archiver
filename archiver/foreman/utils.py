@@ -6,6 +6,7 @@ from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
 from archiver.util import signing
+from archiver.settings import URL_PREFIX
 from archiver.worker.tasks import archive
 
 
@@ -44,6 +45,10 @@ def push_task(container):
 
 class BaseAPIHandler(RequestHandler):
     URL = None
+
+    @classmethod
+    def as_route(cls):
+        return (URL_PREFIX + cls.URL, cls, {}, cls.__name__)
 
     @property
     def json(self):

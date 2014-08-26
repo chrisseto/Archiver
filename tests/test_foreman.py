@@ -31,27 +31,29 @@ def app(request):
             environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
             return self.app(environ, start_response)
 
-    application = Application(collect_handlers(), debug=True)
-    # app.wsgi_app = ProxyHack(app.wsgi_app)
-    return TestApp(WSGIAdapter(application))
+    return TestApp(WSGIAdapter(Application(collect_handlers(), debug=True)))
 
 
 def test_empty(app):
-    ret = app.post('/api/v1/archives/', expect_errors=True)
+    url = app.app.application.reverse_url('ArchiveHandler')
+    ret = app.post(url, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_put(app):
-    ret = app.put('/api/v1/archives/', expect_errors=True)
+    url = app.app.application.reverse_url('ArchiveHandler')
+    ret = app.put(url, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_json(app):
-    ret = app.post_json('/api/v1/archives/', {}, expect_errors=True)
+    url = app.app.application.reverse_url('ArchiveHandler')
+    ret = app.post_json(url, {}, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_good_json(app, patch_push):
-    ret = app.post_json('/api/v1/archives/', good)
+    url = app.app.application.reverse_url('ArchiveHandler')
+    ret = app.post_json(url, good)
     assert ret.status_code == 201
     assert patch_push.call_args[0][0].raw_json == good['container']

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def collect_handlers():
     return [
-        (os.path.join(settings.URL_PREFIX, klass.URL), klass)
+        klass.as_route()
         for klass in
         BaseAPIHandler.__subclasses__()
     ]
