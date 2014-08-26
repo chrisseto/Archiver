@@ -35,25 +35,31 @@ def app(request):
 
 
 def test_empty(app):
-    url = app.app.application.reverse_url('ArchiveHandler')
+    url = app.app.application.reverse_url('ArchivesHandler')
     ret = app.post(url, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_put(app):
-    url = app.app.application.reverse_url('ArchiveHandler')
+    url = app.app.application.reverse_url('ArchivesHandler')
     ret = app.put(url, expect_errors=True)
+    assert ret.status_code == 405
+
+
+def test_empty_callback(app):
+    url = app.app.application.reverse_url('CallbackHandler')
+    ret = app.post(url, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_json(app):
-    url = app.app.application.reverse_url('ArchiveHandler')
+    url = app.app.application.reverse_url('ArchivesHandler')
     ret = app.post_json(url, {}, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_good_json(app, patch_push):
-    url = app.app.application.reverse_url('ArchiveHandler')
+    url = app.app.application.reverse_url('ArchivesHandler')
     ret = app.post_json(url, good)
     assert ret.status_code == 201
     assert patch_push.call_args[0][0].raw_json == good['container']
