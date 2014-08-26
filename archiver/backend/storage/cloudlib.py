@@ -52,7 +52,7 @@ class LibCloudBackend(StorageBackEnd):
 
         if '.json' in path:
             ret = json.loads(''.join(fobj))
-            return jsonify(ret)
+            return ret, {}
 
         headers = {
             #wwsd

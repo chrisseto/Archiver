@@ -133,7 +133,10 @@ class StorageBackEnd(object):
     def get_container(self, cid):
         try:
             return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
-        except:
+        except Exception:
+            # This will swallow all errors
+            # Tread lightly
+            # TODO Ensure that get_file will only raise one type of error
             raise HTTPError(http.NOT_FOUND)
 
     def get_container_service(self, cid, service):

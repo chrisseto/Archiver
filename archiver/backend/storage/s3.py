@@ -69,7 +69,7 @@ class S3(StorageBackEnd):
 
         if '.json' in path:
             ret = json.loads(key.get_contents_as_string())
-            return jsonify(ret)
+            return ret, {}
 
         if name:
             content_dispo = 'attachment; filename="{}"'.format(name)
