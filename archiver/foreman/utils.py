@@ -12,38 +12,34 @@ from archiver.worker.tasks import archive
 #  Preprocessing would go here
 def push_task(container):
     ret = {
-        'id': container.id,
-        'date': container.registered_on
+        'response': {
+            'id': container.id,
+            'date': container.registered_on
+        }
     }
 
     try:
         archive.delay(container)
 
-        ret.update({
-            'status': 'STARTED',
-        })
-
-        ret = jsonify({'response': ret})
-        ret.status_code = http.CREATED
+        ret['status'] = http.CREATED
+        ret['response']['status'] = 'STARTED'
 
     except SocketError as e:
         if e.errno in [54, 61]:
             # Connection reset by peer/ Connection refused
             # Genericly unable to connect to rabbit
-            ret.update(
-                {'status': 'ERROR',
-                 'reason': 'could not connect to rabbitmq'
-                 })
-            ret = jsonify({'response': ret})
-            ret.status_code = http.SERVICE_UNAVAILABLE
+            ret['response'].update({
+                'status': 'ERROR',
+                'reason': 'could not connect to rabbitmq'
+            })
+            ret['status'] = http.SERVICE_UNAVAILABLE
         else:
             raise
     except Exception:
-        ret.update({'status': 'ERROR'})
-        ret = jsonify({'response': ret})
-        ret.status_code = http.INTERNAL_SERVER_ERROR
-
-    return ret
+        ret['response']['status'] =  'ERROR'
+        ret['status'] = http.INTERNAL_SERVER_ERROR
+    finally:
+        return ret
 
 
 class BaseAPIHandler(RequestHandler):
@@ -57,7 +53,7 @@ class BaseAPIHandler(RequestHandler):
             try:
                 self._json = json.loads(self.request.body)
             except ValueError:
-                raise HTTPError(http.BAD_REQUEST, reason='This route requires valid json.')
+                raise HTTPError(http.BAD_REQUEST, reason='This route requires valid JSON.')
         return self._json
 
     def required_json(self, key):
