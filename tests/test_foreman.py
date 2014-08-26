@@ -4,7 +4,10 @@ import pytest
 
 from webtest import TestApp
 
-from archiver.foreman import build_app
+from tornado.web import Application
+from tornado.wsgi import WSGIAdapter
+
+from archiver.foreman.views import collect_handlers
 
 from utils.jsons import good
 
@@ -28,27 +31,27 @@ def app(request):
             environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
             return self.app(environ, start_response)
 
-    app = build_app()
-    app.wsgi_app = ProxyHack(app.wsgi_app)
-    return TestApp(app)
+    application = Application(collect_handlers(), debug=True)
+    # app.wsgi_app = ProxyHack(app.wsgi_app)
+    return TestApp(WSGIAdapter(application))
 
 
 def test_empty(app):
-    ret = app.post('/', expect_errors=True)
+    ret = app.post('/api/v1/archives/', expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_put(app):
-    ret = app.put('/', expect_errors=True)
+    ret = app.put('/api/v1/archives/', expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_json(app):
-    ret = app.post_json('/', {}, expect_errors=True)
+    ret = app.post_json('/api/v1/archives/', {}, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_good_json(app, patch_push):
-    ret = app.post_json('/', good)
+    ret = app.post_json('/api/v1/archives/', good)
     assert ret.status_code == 201
     assert patch_push.call_args[0][0].raw_json == good['container']

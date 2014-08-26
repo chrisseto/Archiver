@@ -2,16 +2,10 @@ import mock
 
 import pytest
 
-from archiver.foreman import utils, build_app
+from archiver.foreman import utils
 from archiver.datatypes import Container
 
 from utils import jsons
-
-
-@pytest.fixture(autouse=True, scope='session')
-def app(request):
-    return build_app()
-
 
 @pytest.fixture
 def patch_archive(monkeypatch):
@@ -25,18 +19,16 @@ def container():
     return Container.from_json(jsons.good)
 
 
-def test_task_created(patch_archive, container, app):
-    with app.test_request_context():
-        ret = utils.push_task(container)
-        assert 'STARTED' in ret.response[0]
-        assert ret.status_code == 201  # Created
-        patch_archive.delay.assert_called_once_with(container)
+def test_task_created(patch_archive, container):
+    ret = utils.push_task(container)
+    assert 'STARTED' in ret['response']['status']
+    assert ret['status'] == 201  # Created
+    patch_archive.delay.assert_called_once_with(container)
 
 
-def test_returns_error(patch_archive, container, app):
+def test_returns_error(patch_archive, container):
     patch_archive.delay.side_effect = Exception()
-    with app.test_request_context():
-        ret = utils.push_task(container)
-        assert 'ERROR' in ret.response[0]
-        assert ret.status_code == 500
-        patch_archive.delay.assert_called_once_with(container)
+    ret = utils.push_task(container)
+    assert 'ERROR' in ret['response']['status']
+    assert ret['status'] == 500
+    patch_archive.delay.assert_called_once_with(container)
