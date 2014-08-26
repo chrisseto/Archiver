@@ -10,7 +10,6 @@ from archiver import settings
 from archiver.util import signing
 from archiver.backend import store
 from archiver.datatypes import Container
-from archiver.exceptions import ValidationError
 
 from utils import BaseAPIHandler, push_task
 
@@ -26,13 +25,40 @@ def collect_handlers():
     ]
 
 
-class ArchiveHandler(BaseAPIHandler):
+@web.addslash
+class ArchivesHandler(BaseAPIHandler):
     URL = r'archives/?'
 
     def get(self):
         self.write({'containers': store.list_containers()})
 
-    def put(self):
+    def post(self):
+        logger.info('New Archival request from %s' % self.request.remote_ip)
+
+        if settings.REQUIRE_SIGNED_SUBMITIONS and not signing.verify_submition(self.json):
+            raise HTTPError(http.UNAUTHORIZED)
+
+        if settings.DUMP_INCOMING_JSON:
+            logger.debug('Dumping raw JSON to debug...')
+            logger.debug(json.dumps(self.json, indent=4, sort_keys=True))
+
+        container = Container.from_json(self.json)
+
+        # Container should always be defined otherwise a
+        # validation error will be raised by from_json
+        if container.id in store.list_containers():
+            raise HTTPError(http.BAD_REQUEST, reason='Container ID already exists')
+
+        resp = push_task(container)
+        self.set_status(resp['status'])
+        self.write(resp['response'])
+
+
+@web.removeslash
+class CallbackHandler(BaseAPIHandler):
+    URL = r'archives/callbacks/?'
+
+    def post(self):
         if not signing.verify_callback(self.json):
             logger.warn('Incorrectly signed callback from %s' %
                         self.request.remote_ip)
@@ -58,30 +84,10 @@ class ArchiveHandler(BaseAPIHandler):
             logger.debug(json.dumps(self.json, indent=4, sort_keys=True))
             raise HTTPError(http.BAD_REQUEST)
 
-    def post(self):
-        logger.info('New Archival request from %s' % self.request.remote_ip)
 
-        if settings.REQUIRE_SIGNED_SUBMITIONS and not signing.verify_submition(self.json):
-            raise HTTPError(http.UNAUTHORIZED)
-
-        if settings.DUMP_INCOMING_JSON:
-            logger.debug('Dumping raw JSON to debug...')
-            logger.debug(json.dumps(self.json, indent=4, sort_keys=True))
-
-        container = Container.from_json(self.json)
-
-        # Container should always be defined otherwise a
-        # validation error will be raised by from_json
-        if container.id in store.list_containers():
-            raise HTTPError(http.BAD_REQUEST, reason='Container ID already exists')
-
-        resp = push_task(container)
-        self.set_status(resp['status'])
-        self.write(resp['response'])
-
-
-class ContainerHandler(BaseAPIHandler):
-    URL = r'archives/containers/(.+?)/?'
+@web.addslash
+class ArchiveHandler(BaseAPIHandler):
+    URL = r'archives/(.+?)/?'
 
     @coroutine
     def get(self, cid):
@@ -105,12 +111,20 @@ class ContainerHandler(BaseAPIHandler):
             raise web.Finish
 
 
-
+@web.addslash
 class FileHandler(BaseAPIHandler):
-    URL = r'archives/files/(.+?)/?'
+    URL = r'archives/(.+?)/files/?'
+
+    def get(self, cid):
+        pass  # TODO
+
+
+@web.removeslash
+class FileHandler(BaseAPIHandler):
+    URL = r'archives/(.+?)/files/(.+?)/?'
 
     @coroutine
-    def get(self, fid):
+    def get(self, cid, fid):
         try:
             self.get_query_argument('metadata')
             path = os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))
