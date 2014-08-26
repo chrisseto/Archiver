@@ -1,7 +1,8 @@
 from invoke import task, run
 
+from archiver import worker
+from archiver import foreman
 from archiver import settings
-import archiver.foreman as foreman
 
 
 @task
@@ -17,7 +18,7 @@ def vagrant():
 
 @task
 def worker():
-    run('./Worker')
+    worker.start()
 
 
 @task

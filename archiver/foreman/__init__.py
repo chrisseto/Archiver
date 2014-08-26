@@ -32,8 +32,7 @@ def config_logging():
 
 def start(port):
     application = Application(collect_handlers(),
-        debug=settings.DEBUG,
-        compress_response=(not settings.DEBUG)
-    )
+        debug=settings.DEBUG)
+
     application.listen(port)
     IOLoop.instance().start()
