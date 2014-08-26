@@ -3,89 +3,92 @@ import json
 import logging
 import httplib as http
 
-from flask import request, jsonify, Blueprint
+from tornado import web
 
 from archiver import settings
 from archiver.util import signing
 from archiver.backend import store
 from archiver.datatypes import Container
-from archiver.exceptions import ValidationError, HTTPError
+from archiver.exceptions import ValidationError
 
-from utils import push_task
+from utils import BaseAPIHandler, push_task
 
 
 logger = logging.getLogger(__name__)
-rest = Blueprint('archiver', __name__)
 
 
-@rest.route('/', methods=['POST', 'PUT'])
-def begin_register():
-    logger.info('New Archival request from %s' % request.environ['REMOTE_ADDR'])
-    request_json = request.get_json(force=True)
+class ArchiveHandler(BaseAPIHandler):
+    URL = r'archives/?'
 
-    if settings.REQUIRE_SIGNED_SUBMITIONS and not signing.verify_submition(request_json):
-        raise HTTPError(http.UNAUTHORIZED)
+    def get(self):
+        self.write({'containers': store.list_containers()})
 
-    if request_json:
+    def put(self):
+        if not signing.verify_callback(self.json):
+            logger.warn('Incorrectly signed callback from %s' %
+                        self.request.remote_ip)
+            raise HTTPError(http.UNAUTHORIZED)
+
+        #Load up our json for pretty logging
+        self.json['reasons'] = ', '.join(self.json.get('reasons', []))
+        self.json['failed_num'] = len(self.json.get('failures', []))
+        self.json['failures'] = ', '.join(self.json.get('failures', []))
+
+        try:
+
+            if self.json['status'] == 'failed':
+                logger.warn('Failed to archive {id} because {reasons}.'.format(**self.json))
+            elif self.json['status'] == 'success':
+                logger.info('Successfully archived {id} with {failed_num} expected failures. ({failures})'.format(**self.json))
+            else:
+                logger.warning('Unknown status from %s. Dumping JSON to debug...' % self.request.remote_ip)
+                logger.debug(json.dumps(self.json, indent=4, sort_keys=True))
+
+        except KeyError:
+            logger.warning('Malformed JSON from  %s. Dumping JSON to debug...' % self.request.remote_ip)
+            logger.debug(json.dumps(self.json, indent=4, sort_keys=True))
+            raise HTTPError(http.BAD_REQUEST)
+
+    def post(self):
+        logger.info('New Archival request from %s' % self.request.remote_ip)
+
+        if settings.REQUIRE_SIGNED_SUBMITIONS and not signing.verify_submition(self.json):
+            raise HTTPError(http.UNAUTHORIZED)
+
         if settings.DUMP_INCOMING_JSON:
-            logger.debug('===Raw json===')
-            logger.debug(json.dumps(request_json, indent=4, sort_keys=True))
-            logger.debug('===End json===')
+            logger.debug('Dumping raw JSON to debug...')
+            logger.debug(json.dumps(self.json, indent=4, sort_keys=True))
 
-        container = Container.from_json(request_json)
+        container = Container.from_json(self.json)
+
         # Container should always be defined otherwise a
         # validation error will be raised by from_json
-        if container:
-            if container.id in store.list_containers():
-                raise ValidationError('Container ID already exists')
-            return push_task(container)
-    raise ValidationError('no data')
+        if container.id in store.list_containers():
+            raise HTTPError(http.BAD_REQUEST, reason='Container ID already exists')
+        return push_task(container)
 
 
-@rest.route('/', methods=['GET'])
-def list_projects():
-    return jsonify({'containers': store.list_containers()})
+class ContainerHandler(BaseAPIHandler):
+    URL = r'archives/containers/(.+?)/?'
 
+    def get(self, cid):
+        service = self.get_query_argument('service', default=False)
 
-@rest.route('/callback', methods=['POST', 'PUT'])
-def callback():
-    callback_json = request.get_json(force=True)
-
-    if not signing.verify_callback(callback_json):
-        logger.warn('Incorrectly signed callback from %s' %
-                    request.environ['REMOTE_ADDR'])
-        raise HTTPError(http.UNAUTHORIZED)
-
-    try:
-        if callback_json['status'] == 'failed':
-            logger.warn('Failed to archive {} because {}.'.format(
-                callback_json['id'], ', '.join(callback_json['reasons'])))
-        elif callback_json['status'] == 'success':
-            logger.info('Successfully archived {} with failures {}. ({})'.format(
-                callback_json['id'], ', '.join(callback_json['failures'], len(callback_json['failures']))))
+        if service:
+            self.write(store.get_container_service(cid, service))
         else:
-            logger.warning('Unknown status from %s' % request.environ['REMOTE_ADDR'])
-
-        logger.debug('===Raw json===')
-        logger.debug(json.dumps(callback_json, indent=4, sort_keys=True))
-        logger.debug('===End json===')
-    except:
-        raise ValidationError('no data')
+            self.write(store.get_container(cid))
 
 
-@rest.route('/<string(maxlength=60):cid>')
-def get_metadata_route(cid):
-    service = request.args.get('service')
-    if service:
-        return store.get_container_service(cid, service)
-    return store.get_container(cid)
+class FileHandler(BaseAPIHandler):
+    URL = r'archives/files/(.+?)/?'
 
+    def get(fid):
+        try:
+            self.get_query_argument('metadata')
+        except:
+            self.write(store.get_file(os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))))
+            return
 
-@rest.route('/<string(length=64):fid>')
-def get_file_route(fid):
-    try:
-        request.args['metadata']
-        return store.get_file(os.path.join(settings.METADATA_DIR, '{}.json'.format(fid)))
-    except KeyError:
-        name = request.args.get('name')
+        name = self.get_query_argument('name', default=None)
         return store.get_file(os.path.join(settings.FILES_DIR, fid), name=name)
