@@ -5,8 +5,6 @@ required_keys = {
     'raw': 'container',
     'container': ['metadata', 'children', 'services'],
     'container_metadata': ['id', 'title', 'contributors'],
-    'service': ['token', 'access_key', 'access_token', 'password',
-    'passphrase', 'token_key', 'token_secret', 'secret_key']
 }
 
 

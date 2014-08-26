@@ -4,7 +4,10 @@ import pytest
 
 from webtest import TestApp
 
-from archiver.foreman import build_app
+from tornado.web import Application
+from tornado.wsgi import WSGIAdapter
+
+from archiver.foreman.views import collect_handlers
 
 from utils.jsons import good
 
@@ -28,27 +31,35 @@ def app(request):
             environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
             return self.app(environ, start_response)
 
-    app = build_app()
-    app.wsgi_app = ProxyHack(app.wsgi_app)
-    return TestApp(app)
+    return TestApp(WSGIAdapter(Application(collect_handlers(), debug=True)))
 
 
 def test_empty(app):
-    ret = app.post('/', expect_errors=True)
+    url = app.app.application.reverse_url('ArchivesHandler')
+    ret = app.post(url, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_put(app):
-    ret = app.put('/', expect_errors=True)
+    url = app.app.application.reverse_url('ArchivesHandler')
+    ret = app.put(url, expect_errors=True)
+    assert ret.status_code == 405
+
+
+def test_empty_callback(app):
+    url = app.app.application.reverse_url('CallbackHandler')
+    ret = app.post(url, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_empty_json(app):
-    ret = app.post_json('/', {}, expect_errors=True)
+    url = app.app.application.reverse_url('ArchivesHandler')
+    ret = app.post_json(url, {}, expect_errors=True)
     assert ret.status_code == 400
 
 
 def test_good_json(app, patch_push):
-    ret = app.post_json('/', good)
+    url = app.app.application.reverse_url('ArchivesHandler')
+    ret = app.post_json(url, good)
     assert ret.status_code == 201
     assert patch_push.call_args[0][0].raw_json == good['container']

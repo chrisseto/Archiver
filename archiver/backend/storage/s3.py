@@ -10,8 +10,6 @@ import json
 import logging
 import httplib as http
 
-from flask import redirect, jsonify
-
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 
 from archiver.exceptions import HTTPError
@@ -71,14 +69,14 @@ class S3(StorageBackEnd):
 
         if '.json' in path:
             ret = json.loads(key.get_contents_as_string())
-            return jsonify(ret)
+            return ret, {}
 
         if name:
             content_dispo = 'attachment; filename="{}"'.format(name)
         else:
             content_dispo = 'attachment'
 
-        return redirect(key.generate_url(self.DOWNLOAD_LINK_LIFE, response_headers={'response-content-disposition': content_dispo}))
+        return key.generate_url(self.DOWNLOAD_LINK_LIFE, response_headers={'response-content-disposition': content_dispo}), {}
 
     def list_directory(self, directory, recurse=False):
         return [

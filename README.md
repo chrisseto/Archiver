@@ -5,12 +5,12 @@
 ###Work flow
 
 * Server sends [properly formatted json](formats/container.json)
-* Json is parsed by flask app
-* Job is passed to foreman
+* Json is parsed by the foreman
+* Job is passed to rabbitmq
 * [201 (created)](formats/confirmation.json) and the container id are sent back to the server
-* foreman begins the archival process
+* A celery worker begins the archival process
 * Project is chunked up even more
-* On completion a callback is fired and the celeryworker pings the foreman
+* On completion a callback is fired and the celery worker pings the foreman
 
 ###Vocabulary
 
@@ -19,11 +19,26 @@
 * Registration
     - A "frozen" osf project
 * Foreman
-    - The controlling flask app
+    - The controlling Web application
 * Worker
     - The celery worker
 * [Service](formats/services)
     - An arbitrary 3rd party service
+
+###External Facing API
+* /api/v1/
+    * archives/
+        - POST - New archive
+        - GET - list of containers
+        - callbacks/
+            + POST - callback
+        - <CID>
+            + GET - Get containers metadata
+            + files/
+                * GET - list of files in cid
+                * <FID>
+                    - GET - Gets file with fid
+
 
 ###Registration structure
 

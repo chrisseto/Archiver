@@ -16,9 +16,9 @@ def archive(container):
 
 
 def archive_service(service):
-    #Lol one liners
-    #WWSD
     logger.info('Archiving service {} for {}'.format(service.service, service.parent.id))
+    #WWSD
+    #Lol one liners
     #Note .clone() should return an unstarted celery task
     return get_archiver(service.service)(service).clone()
 

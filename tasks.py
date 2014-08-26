@@ -1,25 +1,24 @@
 from invoke import task, run
 
+from archiver import worker
+from archiver import foreman
+from archiver import settings
+
 
 @task
-def setup():
-    run('chmod +x Foreman')
-    run('chmod +x Worker')
-
+def server(port=None):
+    port = port or settings.PORT
+    print 'Starting server on port %i' % port
+    foreman.config_logging()
+    foreman.start(port=port)
 
 @task
 def vagrant():
     run('cd vagrant && vagrant up')
 
-
-@task
-def foreman():
-    run('./Foreman')
-
-
 @task
 def worker():
-    run('./Worker')
+    worker.start()
 
 
 @task
