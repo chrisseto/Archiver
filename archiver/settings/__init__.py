@@ -4,3 +4,5 @@ try:
     from .local import *
 except ImportError:
     pass
+
+CREDENTIALS = (USERNAME, PASSWORD)

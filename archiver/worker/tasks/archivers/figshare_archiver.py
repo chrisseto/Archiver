@@ -10,16 +10,16 @@ from archiver.backend import store
 from archiver.settings import FIGSHARE_OAUTH_TOKENS
 from archiver.exceptions.archivers import FigshareArchiverError, FigshareKeyError, UnfetchableFile
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 logger = logging.getLogger(__name__)
 
 
 class FigshareArchiver(ServiceArchiver):
     ARCHIVES = 'figshare'
-    RESOURCE = ''
     API_URL = 'http://api.figshare.com/v1/'
     API_OAUTH_URL = API_URL + 'my_data/'
+    REQUIRED_KEYS = ['token_key', 'token_secret', 'id']
 
     def __init__(self, service):
         if None in FIGSHARE_OAUTH_TOKENS:

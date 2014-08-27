@@ -33,9 +33,10 @@ def test_throws_on_empty():
     assert 'No backends specified' in str(e)
 
 
-def test_redirects_with_one():
+def test_returns_list_with_one():
     backend = storage.get_storagebackends(['debug'])
-    assert backend.__class__.__name__ == 'Debug'
+    assert len(backend.backends) == 1
+    assert backend.backends[0].__class__.__name__ == 'Debug'
 
 
 def test_throws_bad_backend():

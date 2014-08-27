@@ -8,14 +8,14 @@ from git import Git
 from archiver import celery
 from archiver.backend import store
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 logger = logging.getLogger(__name__)
 
 
 class GithubArchiver(ServiceArchiver):
     ARCHIVES = 'github'
-    RESOURCE = 'repo'
+    REQUIRED_KEYS = ['access_token', 'repo', 'user']
     CLONE_TPL = 'https://{token}@github.com/{user}/{repo}.git'
 
     def __init__(self, service):

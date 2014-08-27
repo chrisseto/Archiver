@@ -5,7 +5,10 @@ import copy
 import json
 import logging
 import tempfile
-import httplib as http
+try:
+    import httplib as http  # Python 2
+except ImportError:
+    import http.client as http  # Python 3
 from shutil import rmtree
 
 from archiver import settings
@@ -23,6 +26,9 @@ class StorageBackEnd(object):
     UPLOAD_RETRIES = 3
 
     DELIMITER = '.manifest.json'
+
+    DOWNLOAD_LINK_LIFE = 60 * settings.DOWNLOAD_LINK_LIFE
+    MULTIPART_THRESHOLD = 1024 ** 2 * settings.MULTIPART_THRESHOLD
 
     FILTER_SERVICES = r'^[^\.]+\.{}\.json$'
     FILTER_CONTAINER_SERVICE = r'^{}\.{}\.json$'
@@ -53,11 +59,17 @@ class StorageBackEnd(object):
 
     def push_metadata(self, blob, name):
         clone = copy.deepcopy(blob)
+        # Dont store name or path with generic file data
         try:
-            del clone['path']  # Dont store name or path with generic file data
+            del clone['path']
+        except:
+            pass
+
+        try:
             del clone['name']
         except:
             pass
+
         return self.push_json(clone, os.path.join(settings.METADATA_DIR, name))
 
     def push_directory_structure(self, final, parent_id=''):
@@ -67,10 +79,10 @@ class StorageBackEnd(object):
 
         for service in final['services'].values():
             self.push_json(service, 'manifest', os.path.join(prefix, service['service']))
-            sprefix = os.path.join(prefix, service['service'], service['resource'])
+            service_prefix = os.path.join(prefix, service['service'], service['resource'])
 
             for fid in service['files']:
-                self.push_json(fid, fid['path'], directory=sprefix)
+                self.push_json(fid, fid['path'], directory=service_prefix)
 
         for child in final['children'].values():
             self.push_directory_structure(child, final['metadata']['id'])
@@ -90,7 +102,7 @@ class StorageBackEnd(object):
             remove=settings.DELEMITER)
 
     def _filter(self, filter, limit=None, remove='', directory=''):
-        """Filter a list of string via regex
+        """Filter a directory listing via regex
         :param str filter a regex string
         :param int limit The max amount of results to return
         :param str remove A string to trim from the results
@@ -105,6 +117,7 @@ class StorageBackEnd(object):
         ][:limit]
 
     def push_file(self, path, name, force_parity=settings.IGNORE_PARITIY_SIZE_LIMIT):
+        # Parity files create redundant backups that can be used to recover ~10% of file corruption
         if settings.CREATE_PARITIES:
             self.build_parities(path, name, force=force_parity)
         else:
@@ -123,7 +136,10 @@ class StorageBackEnd(object):
     def get_container(self, cid):
         try:
             return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
-        except:
+        except Exception:
+            # This will swallow all errors
+            # Tread lightly
+            # TODO Ensure that get_file will only raise one type of error
             raise HTTPError(http.NOT_FOUND)
 
     def get_container_service(self, cid, service):

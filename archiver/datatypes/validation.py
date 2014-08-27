@@ -1,20 +1,10 @@
 from archiver.exceptions import ValidationError
+from archiver.worker.tasks.archivers import get_archiver
 
 required_keys = {
     'raw': 'container',
     'container': ['metadata', 'children', 'services'],
     'container_metadata': ['id', 'title', 'contributors'],
-    'service': ['token', 'access_key', 'access_token', 'password',
-    'passphrase', 'token_key', 'token_secret', 'secret_key']
-}
-
-service_keys = {
-    'github': ['access_token', 'repo', 'user'],
-    'dataverse': ['username', 'password', 'dataverse', 'studyDoi'],
-    's3': ['access_key', 'secret_key', 'bucket'],
-    'figshare': ['token_key', 'token_secret', 'id'],
-    'dropbox': ['access_token', 'folder'],
-    'gitlab': [],  # TODO
 }
 
 
@@ -64,13 +54,13 @@ def validate_service(data):
     service = data.values()[0]
 
     try:
-        for key in service_keys[service_name]:
+        for key in get_archiver(service_name).REQUIRED_KEYS:
             try:
                 assert service[key]
             except KeyError:
                 raise ValidationError('Service %s is missing field %s' % (service_name, key))
             except AssertionError:
                 raise ValidationError('Service %s can not have empty field %s' % (service_name, key))
-    except KeyError:
+    except NotImplementedError:
         raise ValidationError('Unsupported service %s' % service_name)
     return True

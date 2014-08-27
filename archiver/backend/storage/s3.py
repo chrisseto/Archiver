@@ -8,33 +8,31 @@ needs to export methods with a signature of:
 import os
 import json
 import logging
-import httplib as http
-
-from flask import redirect, jsonify
+try:
+    import httplib as http  # Python 2
+except ImportError:
+    import http.client as http  # Python 3
 
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 
 from archiver.exceptions import HTTPError
-from archiver.settings import ACCESS_KEY, SECRET_KEY, BUCKET_NAME
+from archiver.settings import CREDENTIALS, CONTAINER_NAME
 
-from base import StorageBackEnd
-from exceptions import RemoteStorageError
+from .base import StorageBackEnd
+from .exceptions import RemoteStorageError
 
 logger = logging.getLogger(__name__)
 
 
 class S3(StorageBackEnd):
 
-    MULTIPART_THRESHOLD = 1024 ** 2 * 500  # 500 MB
-    PART_SIZE_THRESHOLD = 1024 ** 2 * 250  # 250 MB
-    DOWNLOAD_LINK_LIFE = 5 * 60  # 5 Minutes
     USES = 's3'
 
     def __init__(self):
         super(S3, self).__init__()
         try:
-            self.connection = S3Connection(ACCESS_KEY, SECRET_KEY)
-            self.bucket = self.connection.get_bucket(BUCKET_NAME)
+            self.connection = S3Connection(*CREDENTIALS)
+            self.bucket = self.connection.get_bucket(CONTAINER_NAME)
         except (S3ResponseError, BotoClientError):
             raise RemoteStorageError('Could not connect to S3')
 
@@ -74,14 +72,14 @@ class S3(StorageBackEnd):
 
         if '.json' in path:
             ret = json.loads(key.get_contents_as_string())
-            return jsonify(ret)
+            return ret, {}
 
         if name:
             content_dispo = 'attachment; filename="{}"'.format(name)
         else:
             content_dispo = 'attachment'
 
-        return redirect(key.generate_url(self.DOWNLOAD_LINK_LIFE, response_headers={'response-content-disposition': content_dispo}))
+        return key.generate_url(self.DOWNLOAD_LINK_LIFE, response_headers={'response-content-disposition': content_dispo}), {}
 
     def list_directory(self, directory, recurse=False):
         return [

@@ -10,6 +10,7 @@ PARITY_CUT_OFF_SIZE = 100 * 1024  # 100kb
 logger = logging.getLogger(__name__)
 
 
+
 class ParchiveException(Exception):
     pass
 
@@ -45,20 +46,23 @@ def create(path, name, redundancy=5, force=False, files=1):
         logger.info('Skipping parity creation for "%s", too small.' % name)
         return []
     folder_path = os.path.dirname(path)
-    if subprocess.call([
-        PAR2BIN,
-        'c',
-        '-n{}'.format(files),
-        '-r{}'.format(redundancy),
-        os.path.join(folder_path, '%s.par2' % name),
-            path]) == 0:
-        return [
-            os.path.abspath(fpath)
-            for fpath in
-            glob.glob(os.path.join(folder_path, '*.par2'))
-            if name in fpath
-        ]
-    raise ParchiveException()
+    with open(os.devnull, 'wb') as DEVNULL:
+        if subprocess.call([
+                PAR2BIN,
+                'c',
+                '-n{}'.format(files),
+                '-r{}'.format(redundancy),
+                os.path.join(folder_path, '%s.par2' % name),
+            path],
+                stdout=DEVNULL,
+                stderr=DEVNULL) == 0:
+            return [
+                os.path.abspath(fpath)
+                for fpath in
+                glob.glob(os.path.join(folder_path, '*.par2'))
+                if name in fpath
+            ]
+        raise ParchiveException()
 
 
 def verify_file(to_verify, parities):

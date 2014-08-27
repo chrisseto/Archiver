@@ -5,9 +5,10 @@ import requests
 from requests.exceptions import RequestException
 
 from archiver import celery
+from archiver import settings
 from archiver.backend import store
 from archiver.util.signing import sign
-from archiver.settings import CALLBACK_ADDRESS, IGNORE_CALLBACK_SSL
+from archiver.settings import CALLBACK_ADDRESSES, IGNORE_CALLBACK_SSL
 
 logger = logging.getLogger(__name__)
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -48,7 +49,7 @@ def archival_finish(rvs, container):
 
     payload = sign(payload)
 
-    for address in CALLBACK_ADDRESS:
+    for address in CALLBACK_ADDRESSES:
         try:
             requests.post(address, data=json.dumps(payload), headers=headers, verify=IGNORE_CALLBACK_SSL)
         except RequestException:
@@ -68,6 +69,10 @@ def generate_manifest(blob, children, container):
         'children': {
             child[0].id: child[1]
             for child in children
+        },
+        'storedAt': {
+            'provider': settings.BACKEND,
+            'container': settings.CONTAINER_NAME
         }
     }
 

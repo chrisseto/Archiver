@@ -8,7 +8,7 @@ from archiver.backend import store
 from archiver import celery, settings
 from archiver.exceptions.archivers import FileTooLargeError, S3ArchiverError
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class S3Archiver(ServiceArchiver):
     ARCHIVES = 's3'
-    RESOURCE = 'bucket'
+    REQUIRED_KEYS = ['access_key', 'secret_key', 'bucket']
 
     def __init__(self, service):
         try:
