@@ -26,18 +26,31 @@
     - An arbitrary 3rd party service
 
 ###External Facing API
-* /api/v1/
-    * archives/
-        - POST - New archive
-        - GET - list of containers
-        - callbacks/
-            + POST - callback
-        - <CID>
-            + GET - Get containers metadata
-            + files/
-                * GET - list of files in cid
-                * <FID>
-                    - GET - Gets file with fid
+
+* `/api/v1/archives/`
+    - POST
+        + Begins the archival process described by the posted json
+    - GET
+        + Returns a list of all Archives.
+            ```
+            {
+                containers: {
+                    ...
+                }
+            }
+            ```
+* `/api/v1/archives/callbacks`
+    - POST
+        + Listed Because this route is externally available but is for internal use only
+* `/api/v1/archives/<CID>/`
+    - GET
+        + Returns all metadata for the container CID
+* `/api/v1/archives/<CID>/files/`
+    - GET
+        + Returns a list of files in container CID
+* `/api/v1/archives/<CID>/files/<FID>`
+    - GET
+        + Returns the file FID either as a redirect or direct download
 
 
 ###Registration structure
