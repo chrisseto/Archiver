@@ -5,12 +5,17 @@ language: python
 python:
   - "2.7"
 
+env:
+  - TOX_ENV=pypy
+  - TOX_ENV=py27
+
+
 install:
-    - pip install -r dev-requirements.txt
+    - pip install tox
     - pip install python-coveralls
 
 script:
-    - py.test --cov archiver --cov-report term-missing
+    - tox '--cov archiver --cov-report term-missing' -e $TOX_ENV
 
 after_success:
     - coveralls

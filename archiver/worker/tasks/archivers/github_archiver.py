@@ -8,7 +8,7 @@ from git import Git
 from archiver import celery
 from archiver.backend import store
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 logger = logging.getLogger(__name__)
 
