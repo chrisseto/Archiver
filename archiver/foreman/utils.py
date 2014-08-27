@@ -1,5 +1,8 @@
 import json
-import httplib as http
+try:
+    import httplib as http  # Python 2
+except ImportError:
+    import http.client as http  # Python 3
 from socket import error as SocketError
 
 from tornado.web import HTTPError

@@ -1,7 +1,10 @@
 import os
 import json
 import logging
-import httplib as http
+try:
+    import httplib as http  # Python 2
+except ImportError:
+    import http.client as http  # Python 3
 
 from tornado import web
 from tornado.gen import coroutine

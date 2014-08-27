@@ -10,7 +10,7 @@ from archiver.backend import store
 from archiver.settings import FIGSHARE_OAUTH_TOKENS
 from archiver.exceptions.archivers import FigshareArchiverError, FigshareKeyError, UnfetchableFile
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 logger = logging.getLogger(__name__)
 

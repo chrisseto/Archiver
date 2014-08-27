@@ -5,8 +5,8 @@ Will handle uploading a cloned project to our choice of storage service
 """
 import os
 
-from base import StorageBackEnd
-from exceptions import RemoteStorageError
+from .base import StorageBackEnd
+from .exceptions import RemoteStorageError
 
 __all__ = []
 

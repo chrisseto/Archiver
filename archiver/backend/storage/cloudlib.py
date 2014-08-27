@@ -1,15 +1,18 @@
 import os
 import json
 import logging
-import httplib as http
+try:
+    import httplib as http  # Python 2
+except ImportError:
+    import http.client as http  # Python 3
 
 from libcloud.storage.providers import get_driver
 
 from archiver.settings import LIBCLOUD_DRIVER, CREDENTIALS, CONTAINER_NAME
 from archiver.exceptions import HTTPError
 
-from base import StorageBackEnd
-from exceptions import RemoteStorageError
+from .base import StorageBackEnd
+from .exceptions import RemoteStorageError
 
 
 logger = logging.getLogger(__name__)

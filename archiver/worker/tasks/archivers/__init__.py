@@ -1,6 +1,6 @@
 import os
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 
 __all__ = []

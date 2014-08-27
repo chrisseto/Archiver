@@ -10,7 +10,7 @@ from archiver import celery, settings
 from archiver.backend import store
 from archiver.exceptions.archivers import DataverseArchiverError, FileTooLargeError
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 
 class DataverseArchiver(ServiceArchiver):
