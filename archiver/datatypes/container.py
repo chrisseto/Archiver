@@ -1,6 +1,6 @@
-from datetime import datetime
+import time
 
-import validation
+from . import validation
 from .service import Service
 
 
@@ -30,7 +30,7 @@ class Container(object):
         for service in services:
             self.services.append(Service(service, self))
 
-        self.registered_on = datetime.now()
+        self.registered_on = int(time.time())
 
     @property
     def is_child(self):

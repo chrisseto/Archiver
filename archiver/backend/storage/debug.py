@@ -1,5 +1,6 @@
 import logging
-from base import StorageBackEnd
+
+from .base import StorageBackEnd
 
 
 logger = logging.getLogger(__name__)

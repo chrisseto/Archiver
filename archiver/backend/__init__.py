@@ -1,6 +1,6 @@
 from archiver.settings import BACKEND
 
-from storage import get_storagebackend, get_storagebackends
+from .storage import get_storagebackend, get_storagebackends
 
 # Allows the specified backend(s) to be used by:
 # from archiver.storage import store

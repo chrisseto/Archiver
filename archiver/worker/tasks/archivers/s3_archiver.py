@@ -8,7 +8,7 @@ from archiver.backend import store
 from archiver import celery, settings
 from archiver.exceptions.archivers import FileTooLargeError, S3ArchiverError
 
-from base import ServiceArchiver
+from .base import ServiceArchiver
 
 
 logger = logging.getLogger(__name__)

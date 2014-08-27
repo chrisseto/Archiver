@@ -5,7 +5,10 @@ import copy
 import json
 import logging
 import tempfile
-import httplib as http
+try:
+    import httplib as http  # Python 2
+except ImportError:
+    import http.client as http  # Python 3
 from shutil import rmtree
 
 from archiver import settings
@@ -133,7 +136,10 @@ class StorageBackEnd(object):
     def get_container(self, cid):
         try:
             return self.get_file('{}{}{}'.format(settings.MANIFEST_DIR, cid, self.DELIMITER))
-        except:
+        except Exception:
+            # This will swallow all errors
+            # Tread lightly
+            # TODO Ensure that get_file will only raise one type of error
             raise HTTPError(http.NOT_FOUND)
 
     def get_container_service(self, cid, service):
