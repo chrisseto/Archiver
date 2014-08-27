@@ -5,7 +5,7 @@ import mock
 import pytest
 
 from archiver.datatypes import Container
-from archiver.worker.tasks import archive, build_task_list
+from archiver.worker.tasks import archive, archive_service, build_task_list
 from archiver.worker.tasks.archivers import get_archiver
 
 from utils import jsons
@@ -136,3 +136,17 @@ def collect_children_calls(container):
     for child in container.children:
         kid_calls.extend(collect_children_calls(child))
     return kid_calls
+
+
+def test_archive_service(monkeypatch, container):
+    mock_archiver = mock.Mock()
+    mock_get_archiver = mock.Mock()
+    mock_get_archiver.return_value = mock_archiver
+
+    monkeypatch.setattr('archiver.worker.tasks.get_archiver', mock_get_archiver)
+
+    archive_service(container.services[0])
+    mock_get_archiver.assert_called_once_with(container.services[0].service)
+    mock_archiver.assert_called_once_with(container.services[0])
+    assert mock.call().clone() in mock_archiver.mock_calls
+
