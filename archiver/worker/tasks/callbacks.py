@@ -5,6 +5,7 @@ import requests
 from requests.exceptions import RequestException
 
 from archiver import celery
+from archiver import settings
 from archiver.backend import store
 from archiver.util.signing import sign
 from archiver.settings import CALLBACK_ADDRESSES, IGNORE_CALLBACK_SSL
