@@ -1,12 +1,13 @@
 import json
+import base64
 import httplib as http
 from socket import error as SocketError
 
+from tornado.web import Finish
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
-from archiver.util import signing
-from archiver.settings import URL_PREFIX
+from archiver import settings
 from archiver.worker.tasks import archive
 
 
@@ -48,7 +49,7 @@ class BaseAPIHandler(RequestHandler):
 
     @classmethod
     def as_route(cls):
-        return (URL_PREFIX + cls.URL, cls, {}, cls.__name__)
+        return (settings.URL_PREFIX + cls.URL, cls, {}, cls.__name__)
 
     @property
     def json(self):
@@ -61,10 +62,24 @@ class BaseAPIHandler(RequestHandler):
                 raise HTTPError(http.BAD_REQUEST, reason='This route requires valid JSON.')
         return self._json
 
+    def prepare(self):
+        if settings.REQUIRE_AUTH:
+            basic_auth = self.request.headers.get('Authorization', '').split(' ')
+
+            try:
+                api_key = base64.b64decode(basic_auth[1])
+                api_key = api_key.split(':')[0]  # We dont care about the password
+            except (TypeError, IndexError):
+                self.set_status(401)
+                self.set_header('WWW-Authenticate', 'Basic realm=%s' % 'Archiver')
+                self._transforms = []
+                raise Finish
+
+            if api_key not in settings.API_KEYS:
+                raise HTTPError(http.UNAUTHORIZED)
+
     def required_json(self, key):
         try:
             return self.json[key]
         except KeyError as e:
             raise HTTPError(http.BAD_GATEWAY, reason='This route requires a %s arugment' % e.value)
-
-    # def json_is_signed(self, raise_if_false=True):

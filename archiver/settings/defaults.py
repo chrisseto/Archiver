@@ -2,16 +2,21 @@
 PORT = 7000
 SENTRY_DSN = None
 MAX_FILE_SIZE = None
-HMAC_KEY = 'CHANGEME'
 URL_PREFIX = '/api/v1/'
-IGNORE_CALLBACK_SSL = False
-REQUIRE_SIGNED_SUBMITIONS = False
-BROKER_URL = 'amqp://archiver:archiver@192.168.111.112//'
-CALLBACK_ADDRESS = [
-    'http://192.168.111.111:7000/callback',
+
+
+CALLBACK_ADDRESSES = [
+    'http://192.168.111.111:7000/api/v1/archives/callback',
     'http://192.168.111.1:5000/api/v1/registration/finished/'
 ]
+IGNORE_CALLBACK_SSL = False
 
+
+REQUIRE_AUTH = True
+API_KEYS = ['CHANGEME']
+
+HMAC_KEY = 'CHANGEME'
+REQUIRE_SIGNED_SUBMITIONS = False
 
 ### Credentials Options ###
 USERNAME = 'CHANGEME'  # Access key
@@ -47,6 +52,7 @@ DUMP_INCOMING_JSON = False
 
 
 #### CELERY OPTIONS ####
+BROKER_URL = 'amqp://archiver:archiver@192.168.111.112//'
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_ACCEPT_CONTENT = ['pickle']
