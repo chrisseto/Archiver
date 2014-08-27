@@ -1,6 +1,6 @@
 from invoke import task, run
 
-from archiver import worker
+import archiver.worker
 from archiver import foreman
 from archiver import settings
 
@@ -12,18 +12,15 @@ def server(port=None):
     foreman.config_logging()
     foreman.start(port=port)
 
+
 @task
 def vagrant():
     run('cd vagrant && vagrant up')
 
+
 @task
 def worker():
-    worker.start()
-
-
-@task
-def docker_worker():
-    run('celery -A archiver.celery worker -I archiver.worker.tasks -b $SERVICE_PORT_5672_TCP_ADDR')
+    archiver.worker.start()
 
 
 @task
