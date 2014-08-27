@@ -1,5 +1,5 @@
 archiver_repo: "http://github.com/chrisseto/Archiver"
-callback_addresses:
+CALLBACK_ADDRESSESes:
   - "http://192.168.111.111:7000/callback"
   - "http://192.168.111.1:5000/api/v1/registration/finished/"
 master_port: 7000
