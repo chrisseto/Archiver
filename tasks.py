@@ -8,7 +8,7 @@ from archiver import settings
 @task
 def server(port=None):
     port = port or settings.PORT
-    print 'Starting server on port %i' % port
+    print 'Starting server on port %s' % port
     foreman.config_logging()
     foreman.start(port=port)
 
