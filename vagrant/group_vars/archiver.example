@@ -16,5 +16,5 @@ figshare_client_id: CHANG ME
 figshare_client_secret: CHANGE ME
 
 rabbitmq_url: "amqp://archiver:archiver@192.168.111.113//"
-callback_addresses:
+CALLBACK_ADDRESSESes:
   - "http://192.168.111.111:7000/callback"
