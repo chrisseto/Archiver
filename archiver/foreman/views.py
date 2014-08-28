@@ -8,6 +8,7 @@ except ImportError:
 
 from tornado import web
 from tornado.gen import coroutine
+from tornado.web import HTTPError
 
 from archiver import settings
 from archiver.util import signing
