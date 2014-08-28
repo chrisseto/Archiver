@@ -8,6 +8,7 @@ celery>=3.1.12
 dropbox==2.0.0
 GitPython==0.1.7
 invoke==0.8.1
+pyrax==1.8.2
 python-dateutil==2.2
 pytz==2014.2
 raven==5.0.0
