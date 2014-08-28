@@ -15,4 +15,4 @@ celery.config_from_object(settings)
 
 
 def start():
-    celery.worker_main(['prog_name', '--loglevel=INFO'])
+    celery.worker_main(['prog_name', '--loglevel=INFO', '--autoscale=10,4'])

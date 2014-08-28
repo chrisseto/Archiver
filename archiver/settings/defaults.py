@@ -65,6 +65,7 @@ CELERY_TRACK_STARTED = True
 CELERY_IMPORTS = 'archiver.worker.tasks'
 CELERY_REDIRECT_STDOUTS_LEVEL = 'INFO'
 CELERY_ACKS_LATE = True
+CELERY_DEFAULT_QUEUE = 'archiver'
 # Only process 5k jobs per hour
 # This is to deal with API rate limiting
 CELERY_DEFAULT_RATE_LIMIT = '5000/h'
