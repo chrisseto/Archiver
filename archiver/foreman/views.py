@@ -60,7 +60,7 @@ class ArchivesHandler(BaseAPIHandler):
 
 @web.removeslash
 class CallbackHandler(BaseAPIHandler):
-    URL = r'archives/callbacks/?$'
+    URL = r'archives/callback/?$'
 
     def post(self):
         if not signing.verify_callback(self.json):
