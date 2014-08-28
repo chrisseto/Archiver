@@ -41,3 +41,7 @@ def clean():
 @task
 def purge():
     run('celery -A archiver.celery purge -f')
+
+@task
+def cov():
+    run('py.test --cov archiver --cov-report term-missing')
