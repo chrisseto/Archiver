@@ -41,6 +41,9 @@ def push_task(container):
         else:
             raise
     except Exception:
+        if settings.CELERY_SYNC:
+            raise # If we're debugging we want to see all errors
+
         ret['response']['status'] =  'ERROR'
         ret['status'] = http.INTERNAL_SERVER_ERROR
     finally:

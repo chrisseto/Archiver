@@ -26,9 +26,11 @@ def test_task_created(patch_archive, container):
     patch_archive.delay.assert_called_once_with(container)
 
 
-def test_returns_error(patch_archive, container):
+def test_returns_error(patch_archive, container, monkeypatch):
+    monkeypatch.setattr('archiver.foreman.utils.settings.CELERY_SYNC', False)
     patch_archive.delay.side_effect = Exception()
     ret = utils.push_task(container)
+
     assert 'ERROR' in ret['response']['status']
     assert ret['status'] == 500
     patch_archive.delay.assert_called_once_with(container)
