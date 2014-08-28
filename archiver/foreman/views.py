@@ -30,7 +30,7 @@ def collect_handlers():
 
 @web.addslash
 class ArchivesHandler(BaseAPIHandler):
-    URL = r'archives/?'
+    URL = r'archives/?$'
 
     def get(self):
         self.write({'containers': store.list_containers()})
@@ -59,7 +59,7 @@ class ArchivesHandler(BaseAPIHandler):
 
 @web.removeslash
 class CallbackHandler(BaseAPIHandler):
-    URL = r'archives/callbacks/?'
+    URL = r'archives/callbacks/?$'
 
     def post(self):
         if not signing.verify_callback(self.json):
@@ -90,7 +90,7 @@ class CallbackHandler(BaseAPIHandler):
 
 @web.addslash
 class ArchiveHandler(BaseAPIHandler):
-    URL = r'archives/(.+?)/?'
+    URL = r'archives/([^/]+?)/?$'
 
     @coroutine
     def get(self, cid):
@@ -116,7 +116,7 @@ class ArchiveHandler(BaseAPIHandler):
 
 @web.addslash
 class FileHandler(BaseAPIHandler):
-    URL = r'archives/(.+?)/files/?'
+    URL = r'archives/([^/]+?)/files/?$'
 
     def get(self, cid):
         pass  # TODO
@@ -124,7 +124,7 @@ class FileHandler(BaseAPIHandler):
 
 @web.removeslash
 class FileHandler(BaseAPIHandler):
-    URL = r'archives/(.+?)/files/(.+?)/?'
+    URL = r'archives/([^/]+?)/files/([^/]+?)/?$'
 
     @coroutine
     def get(self, cid, fid):
@@ -133,6 +133,7 @@ class FileHandler(BaseAPIHandler):
             path = os.path.join(settings.METADATA_DIR, '{}.json'.format(fid))
         except Exception:
             path = os.path.join(settings.FILES_DIR, fid)
+
 
         name = self.get_query_argument('name', default=None)
         response, headers = store.get_file(path, name=name)
