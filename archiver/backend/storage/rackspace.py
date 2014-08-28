@@ -14,7 +14,8 @@ from base import StorageBackEnd
 from exceptions import RemoteStorageError
 
 logger = logging.getLogger(__name__)
-logging.getLogger('pythonswift').setLevel(logging.FATAL)
+logging.getLogger('swiftclient').setLevel(logging.FATAL)
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.FATAL)
 
 
 class RackSpace(StorageBackEnd):
