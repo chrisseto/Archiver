@@ -63,3 +63,21 @@ def test_failed_callback_payload(container, eat_callbacks):
         assert data['status'] == 'failed'
         assert len(data['reasons']) == 1
         assert data['reasons'][0] == 'Testing'
+
+
+def test_parse_basic_auth():
+    url = 'http://User:Pass@website.com'
+    assert callbacks.parse_auth(url) == ('User', 'Pass')
+
+def test_parse_basic_auth_https():
+    url = 'https://User:Pass@website.com'
+    assert callbacks.parse_auth(url) == ('User', 'Pass')
+
+
+def test_parse_basic_auth_no_pass():
+    url = 'https://User@website.com'
+    assert callbacks.parse_auth(url) == ('User', '')
+
+def test_parse_basic_auth_none():
+    url = 'https://website.com'
+    assert callbacks.parse_auth(url) == None

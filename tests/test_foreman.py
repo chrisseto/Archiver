@@ -1,3 +1,5 @@
+from cStringIO import StringIO
+
 import mock
 
 import pytest
@@ -19,6 +21,13 @@ def patch_push(monkeypatch):
     mock_push = mock.MagicMock()
     monkeypatch.setattr('archiver.foreman.utils.archive.delay', mock_push)
     return mock_push
+
+@pytest.fixture(autouse=True)
+def patch_store(monkeypatch):
+    mock_store = mock.Mock()
+    mock_store.list_containers.return_value = []
+    monkeypatch.setattr('archiver.foreman.views.store', mock_store)
+    return mock_store
 
 
 @pytest.fixture(autouse=True)
@@ -116,3 +125,52 @@ def test_api_key_disablable(app):
     url = app.app.application.reverse_url('ArchivesHandler')
     ret = app.get(url)
     assert ret.status_code == 200
+
+
+def test_archivershandler_returns_list(app, patch_store):
+    patch_store.list_containers.return_value = [1,2,3,4,'bar']
+    url = app.app.application.reverse_url('ArchivesHandler')
+    ret = app.get(url)
+    assert ret.json['containers'] == [1,2,3,4,'bar']
+
+
+def test_archivehandler_redirects(app, patch_store):
+    patch_store.get_container.return_value = ('http://google.com', {})
+    url = app.app.application.reverse_url('ArchiveHandler', 'foo')
+    ret = app.get(url)
+    assert ret.status_code == 302
+
+
+def test_archivehandler_writes(app, patch_store):
+    patch_store.get_container.return_value = ({'foo': 'bar'}, {})
+    url = app.app.application.reverse_url('ArchiveHandler', 'foo')
+    ret = app.get(url)
+    assert ret.json == {'foo': 'bar'}
+
+
+def test_archivehandler_writes_generator(app, patch_store):
+    patch_store.get_container.return_value = (StringIO('foobarbaz'), {})
+    url = app.app.application.reverse_url('ArchiveHandler', 'foo')
+    ret = app.get(url)
+    assert ret.text == 'foobarbaz'
+
+
+def test_filehandler_redirects(app, patch_store):
+    patch_store.get_file.return_value = ('http://google.com', {})
+    url = app.app.application.reverse_url('FileHandler', 'foo', 'bar')
+    ret = app.get(url)
+    assert ret.status_code == 302
+
+
+def test_filehandler_writes(app, patch_store):
+    patch_store.get_file.return_value = ({'foo': 'bar'}, {})
+    url = app.app.application.reverse_url('FileHandler', 'foo', 'bar')
+    ret = app.get(url)
+    assert ret.json == {'foo': 'bar'}
+
+
+def test_filehandler_writes_generator(app, patch_store):
+    patch_store.get_file.return_value = (StringIO('foobarbaz'), {})
+    url = app.app.application.reverse_url('FileHandler', 'foo', 'bar')
+    ret = app.get(url)
+    assert ret.text == 'foobarbaz'
