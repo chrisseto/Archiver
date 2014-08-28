@@ -7,8 +7,6 @@ from urllib import quote
 import pyrax
 import pyrax.exceptions as exc
 
-from flask import redirect, jsonify
-
 from archiver import settings
 from archiver.exceptions import HTTPError
 
@@ -27,6 +25,8 @@ class RackSpace(StorageBackEnd):
 
     def __init__(self):
         super(RackSpace, self).__init__()
+        pyrax.set_setting("region", "IAD")
+        pyrax.settings.set('identity_type', 'rackspace')
         pyrax.set_credentials(settings.USERNAME, api_key=settings.PASSWORD)
         self.connection = pyrax.cloudfiles
         self.connection.set_temp_url_key()
@@ -34,32 +34,37 @@ class RackSpace(StorageBackEnd):
 
     def upload_file(self, path, name, directory=''):
         name = os.path.join(directory, name)
-        if not self.container.get_object(name):
-            logger.info('uploading "%s"' % name)
-            self.container.upload_file(path, obj_name=name)
-            os.remove(path)
-            return True
-        return False
+
+        try:
+            self.container.get_object(name)
+            return False
+        except (exc.NoSuchObject, exc.NotFound):
+            pass
+
+        logger.info('uploading "%s"' % name)
+        self.container.upload_file(path, obj_name=name)
+        os.remove(path)
+        return True
 
     def get_file(self, path, name=None):
-        obj = self.container.get_object(path)
-
-        if not obj:
+        try:
+            obj = self.container.get_object(path)
+        except (exc.NoSuchObject, exc.NotFound):
             raise HTTPError(http.NOT_FOUND)
 
         if '.json' in path:
             ret = json.loads(obj.fetch())
-            return jsonify(ret)
+            return ret, {}
 
         temp_url = obj.get_temp_url(self.DOWNLOAD_LINK_LIFE)
 
         if name:
-            return redirect('%s&filename=%s' % (temp_url, quote(name)))
+            return '%s&filename=%s' % (temp_url, quote(name)), {}
 
-        return redirect(temp_url)
+        return temp_url, {}
 
     def list_directory(self, directory, recurse=False):
         return [
             obj.name for obj in
-            self.connection.get_objects(prefix=directory, delimiter='' if recurse else '/')
+            self.container.get_objects(prefix=directory, delimiter='' if recurse else '/')
         ]

@@ -1,5 +1,7 @@
 from archiver import celery
 
+NULL_FUNC = lambda *_, **__: None
+
 
 class DebugArchiver(object):
     def __init__(self, *_, **__):
