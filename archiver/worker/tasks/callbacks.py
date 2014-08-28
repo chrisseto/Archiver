@@ -1,3 +1,4 @@
+import re
 import json
 import logging
 import requests
@@ -51,12 +52,18 @@ def archival_finish(rvs, container):
 
     for address in CALLBACK_ADDRESSES:
         try:
-            requests.post(address, data=json.dumps(payload), headers=headers, verify=IGNORE_CALLBACK_SSL)
+            requests.post(address, data=json.dumps(payload), headers=headers, verify=IGNORE_CALLBACK_SSL, auth=parse_auth(address))
         except RequestException:
             logger.warning('Could not submit callback to %s' % address)
 
     if container.is_child:
         return (manifests, failures, (container, manifest))
+
+def parse_auth(address):
+    match = re.match('https?://(.*?)(?::(.*?))?@.*', address)
+    if match:
+        return (match.groups()[0] or '', match.groups()[1] or '')
+    return None
 
 
 def generate_manifest(blob, children, container):
