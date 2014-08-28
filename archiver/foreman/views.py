@@ -115,11 +115,16 @@ class ArchiveHandler(BaseAPIHandler):
 
 
 @web.addslash
-class FileHandler(BaseAPIHandler):
+class FilesHandler(BaseAPIHandler):
     URL = r'archives/([^/]+?)/files/?$'
 
     def get(self, cid):
-        pass  # TODO
+        manifest, _ = store.get_container(cid)
+        files = {}
+        for service, val in manifest['services'].items():
+            files[service] = val['files']
+        self.write({'files': files})
+
 
 
 @web.removeslash
