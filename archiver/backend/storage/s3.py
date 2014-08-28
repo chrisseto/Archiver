@@ -8,10 +8,7 @@ needs to export methods with a signature of:
 import os
 import json
 import logging
-try:
-    import httplib as http  # Python 2
-except ImportError:
-    import http.client as http  # Python 3
+import httplib as http
 
 from boto.s3.connection import S3Connection, S3ResponseError, BotoClientError
 

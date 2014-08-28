@@ -5,10 +5,7 @@ import copy
 import json
 import logging
 import tempfile
-try:
-    import httplib as http  # Python 2
-except ImportError:
-    import http.client as http  # Python 3
+import httplib as http
 from shutil import rmtree
 
 from archiver import settings

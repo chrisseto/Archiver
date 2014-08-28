@@ -1,13 +1,10 @@
 import os
 import json
 import logging
-try:
-    import httplib as http  # Python 2
-except ImportError:
-    import http.client as http  # Python 3
+import httplib as http
 
-from tornado import web
-from tornado.gen import coroutine
+
+from tornado import web, gen
 from tornado.web import HTTPError
 
 from archiver import settings
@@ -93,7 +90,7 @@ class CallbackHandler(BaseAPIHandler):
 class ArchiveHandler(BaseAPIHandler):
     URL = r'archives/([^/]+?)/?$'
 
-    @coroutine
+    @gen.coroutine
     def get(self, cid):
         service = self.get_query_argument('service', default=False)
 
@@ -132,7 +129,7 @@ class FilesHandler(BaseAPIHandler):
 class FileHandler(BaseAPIHandler):
     URL = r'archives/([^/]+?)/files/([^/]+?)/?$'
 
-    @coroutine
+    @gen.coroutine
     def get(self, cid, fid):
         try:
             self.get_query_argument('metadata')

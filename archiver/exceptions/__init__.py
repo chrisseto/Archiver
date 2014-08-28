@@ -1,8 +1,6 @@
 import logging
-try:
-    import httplib as http  # Python 2
-except ImportError:
-    import http.client as http  # Python 3
+import httplib as http  # Python 2
+
 
 from tornado.web import HTTPError
 

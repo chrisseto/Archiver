@@ -1,9 +1,6 @@
 import json
 import base64
-try:
-    import httplib as http  # Python 2
-except ImportError:
-    import http.client as http  # Python 3
+import httplib as http  # Python 2
 from socket import error as SocketError
 
 from tornado.web import Finish
