@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 import logging
 import httplib as http
 from urllib import quote
@@ -17,10 +18,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('swiftclient').setLevel(logging.FATAL)
 logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.FATAL)
 
-# This fixes everything, because reasons
-pyrax.set_setting("region", "IAD")
-pyrax.settings.set('identity_type', 'rackspace')
-pyrax.set_credentials(settings.USERNAME, api_key=settings.PASSWORD)
+TEMP_URL_KEY = str(uuid.uuid4())
 
 class RackSpace(StorageBackEnd):
 
@@ -31,8 +29,13 @@ class RackSpace(StorageBackEnd):
 
     def __init__(self):
         super(RackSpace, self).__init__()
+        # This fixes everything, because reasons
+        pyrax.set_setting("region", "IAD")
+        pyrax.settings.set('identity_type', 'rackspace')
+        pyrax.set_credentials(settings.USERNAME, api_key=settings.PASSWORD)
         self.connection = pyrax.cloudfiles
-        self.connection.set_temp_url_key('MyCoolKeyThatNoOneWillUse')
+        self.connection.set_temp_url_key(TEMP_URL_KEY)
+
         self.container = self.connection.get_container(settings.CONTAINER_NAME)
 
     def upload_file(self, path, name, directory=''):
