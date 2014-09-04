@@ -17,6 +17,10 @@ logger = logging.getLogger(__name__)
 logging.getLogger('swiftclient').setLevel(logging.FATAL)
 logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.FATAL)
 
+# This fixes everything, because reasons
+pyrax.set_setting("region", "IAD")
+pyrax.settings.set('identity_type', 'rackspace')
+pyrax.set_credentials(settings.USERNAME, api_key=settings.PASSWORD)
 
 class RackSpace(StorageBackEnd):
 
@@ -27,11 +31,8 @@ class RackSpace(StorageBackEnd):
 
     def __init__(self):
         super(RackSpace, self).__init__()
-        pyrax.set_setting("region", "IAD")
-        pyrax.settings.set('identity_type', 'rackspace')
-        pyrax.set_credentials(settings.USERNAME, api_key=settings.PASSWORD)
         self.connection = pyrax.cloudfiles
-        self.connection.set_temp_url_key()
+        self.connection.set_temp_url_key('MyCoolKeyThatNoOneWillUse')
         self.container = self.connection.get_container(settings.CONTAINER_NAME)
 
     def upload_file(self, path, name, directory=''):
